@@ -4039,3 +4039,6 @@ libqrtr.so.1 qrtr-ns-1.0r93_1
 libtree-sitter.so.0 tree-sitter-0.18.2_1
 libfeedback-0.0.so.0 libfeedback-0.0.0_1
 libwlroots.so.7 wlroots-legacy-0.12.0_1
+libfeedback-0.0.so.0 libfeedback-0.0.0+git20210125_1
+libfeedback-0.0.so.0 libfeedback-0.0.0+git20200707_1
+libcallaudio-0.1.so.0 libcallaudio-0.1.0_1
