@@ -1,7 +1,7 @@
 # vim: set ts=4 sw=4 et:
 
 update_check() {
-    local i p url pkgurlname rx found_version consider
+    local i p url pkgurlname rx found_version consider git
     local update_override=$XBPS_SRCPKGDIR/$XBPS_TARGET_PKG/update
     local original_pkgname=$pkgname
     local pkgname=$sourcepkg
@@ -18,6 +18,21 @@ update_check() {
             echo "NO DISTFILES found for $original_pkgname" 1>&2
         fi
         return 0
+    fi
+    if [ -n "${_commit}${_githash}" ]; then
+        : ${pattern:='<id>\K.*commit\/\K.*(?=<\/id>)'}
+        version=${_commit}${_githash}
+        git=yes
+        if [ -z "$site" ]; then
+            : ${_branch:=main}
+            distfiles=(${distfiles[@]})
+            distfiles="${distfiles[0]}"
+            case "$distfiles" in
+                *//gitlab.*|*//source.puri.sm/*)
+                    site="${distfiles%/-/*}/commits/${_branch}?format=atom" ;;
+                *github.com*) site="${distfiles%/archive/*}/commits/${_branch}.atom" ;;
+            esac
+        fi
     fi
 
     if ! type curl >/dev/null 2>&1; then
@@ -192,7 +207,13 @@ update_check() {
         fetchedurls[$url]=yes
     done |
     tr _ . |
-    sort -Vu |
+    {
+        if [ -n "$git" ]; then
+            head -1
+        else
+            sort -Vu
+        fi
+    } |
     {
         grep . || echo "NO VERSION found for $original_pkgname" 1>&2
     } |
@@ -214,10 +235,15 @@ update_check() {
             esac
         done
         if $consider; then
-            xbps-uhelper cmpver "$original_pkgname-${version}_1" \
-                "$original_pkgname-$(printf %s "$found_version" | tr - .)_1"
-            if [ $? = 255 ]; then
+            if [ -n "$git" ]; then
+                [ "$version" = "$found_version" ] && return
                 echo "${original_pkgname}-${version} -> ${original_pkgname}-${found_version}"
+            else
+                xbps-uhelper cmpver "$original_pkgname-${version}_1" \
+                    "$original_pkgname-$(printf %s "$found_version" | tr - .)_1"
+                if [ $? = 255 ]; then
+                    echo "${original_pkgname}-${version} -> ${original_pkgname}-${found_version}"
+                fi
             fi
         fi
     done
