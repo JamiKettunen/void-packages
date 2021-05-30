@@ -1,18 +1,23 @@
 # Template file for 'libmbim'
+# TODO: migrate to meson build!
+_githash=af15f1cd3c1e586a35c3ff439312b2ae8edbf35e # last commit before autotools were dropped
+_gitshort=${_githash:0:7}
+
 pkgname=libmbim
-version=1.24.8
-revision=1
+version=1.27.0
+revision=2
 build_style=gnu-configure
 build_helper=gir
 configure_args="--disable-static $(vopt_enable gir introspection)"
-hostmakedepends="pkg-config"
+hostmakedepends="pkg-config autoconf-archive automake libtool"
 makedepends="glib-devel libgudev-devel"
-short_desc="MBIM modem protocol helper library"
-maintainer="Frank Steinborn <steinex@nognu.de>"
+short_desc="MBIM modem protocol helper library [git ${_gitshort}]"
+maintainer="Jami Kettunen <jami.kettunen@protonmail.com>"
 license="GPL-2.0-or-later, LGPL-2.1-or-later"
 homepage="https://www.freedesktop.org/wiki/Software/libmbim/"
-distfiles="${FREEDESKTOP_SITE}/${pkgname}/${pkgname}-${version}.tar.xz"
-checksum=02590736163fff10e5732191fccc1b9920969616ddc59613a003052a116a3c25
+distfiles="https://gitlab.freedesktop.org/mobile-broadband/$pkgname/-/archive/${_githash}/$pkgname-${_githash}.tar.gz>$pkgname-${_gitshort}.tar.gz"
+wrksrc="$pkgname-${_githash}"
+checksum=23f97d3c6c9efc377379227faabfa67045539d11c7c2160abd57bb8b6bbb1d5d
 
 build_options="gir"
 build_options_default="gir"
@@ -20,6 +25,10 @@ build_options_default="gir"
 if [ "$CROSS_BUILD" ]; then
 	hostmakedepends+=" glib-devel"
 fi
+
+pre_configure() {
+	NOCONFIGURE=1 ./autogen.sh
+}
 
 libmbim-devel_package() {
 	depends="${sourcepkg}-${version}_${revision}"
