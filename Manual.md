@@ -852,6 +852,11 @@ versions.  Example: `ignore="*b*"`
 - `version` is the version number used to compare against
 upstream versions. Example: `version=${version//./_}`
 
+- `git` is a boolean representing whether the `site` should be treated
+as feed of commits for the project; in this case results aren't sorted
+(by version) and only the first match is compared with the current
+`version`. Defaults to `false`.
+
 - `single_directory` can be set to disable
 detecting directory containing one version of sources in url,
 then searching new version in adjacent directories.
