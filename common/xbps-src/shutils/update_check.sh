@@ -1,7 +1,7 @@
 # vim: set ts=4 sw=4 et:
 
 update_check() {
-    local i p url pkgurlname rx found_version consider
+    local i p url pkgurlname rx found_version consider git
     local update_override=$XBPS_SRCPKGDIR/$XBPS_TARGET_PKG/update
     local original_pkgname=$pkgname
     local urlpfx urlsfx
@@ -178,7 +178,13 @@ update_check() {
         fetchedurls[$url]=yes
     done |
     tr _ . |
-    sort -Vu |
+    {
+        if [ -n "$git" ]; then
+            head -1
+        else
+            sort -Vu
+        fi
+    } |
     {
         grep . || echo "NO VERSION found for $original_pkgname" 1>&2
     } |
@@ -200,10 +206,15 @@ update_check() {
             esac
         done
         if $consider; then
-            xbps-uhelper cmpver "$original_pkgname-${version}_1" \
-                "$original_pkgname-$(printf %s "$found_version" | tr - .)_1"
-            if [ $? = 255 ]; then
+            if [ -n "$git" ]; then
+                [ "$version" = "$found_version" ] && return
                 echo "${original_pkgname}-${version} -> ${original_pkgname}-${found_version}"
+            else
+                xbps-uhelper cmpver "$original_pkgname-${version}_1" \
+                    "$original_pkgname-$(printf %s "$found_version" | tr - .)_1"
+                if [ $? = 255 ]; then
+                    echo "${original_pkgname}-${version} -> ${original_pkgname}-${found_version}"
+                fi
             fi
         fi
     done
