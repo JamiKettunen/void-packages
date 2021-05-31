@@ -1,25 +1,34 @@
 # Template file for 'libqmi'
+_githash=311af7e04cd16a732ec799969b1e8d9c5334ac27 # tip of master branch as of 2021-07-28
+_gitshort=${_githash:0:7}
+
 pkgname=libqmi
-version=1.28.6
+version=1.29.9
 revision=2
 build_style=gnu-configure
 build_helper=gir
 configure_args="--disable-static --enable-mbim-qmux --enable-qrtr
  $(vopt_enable introspection)"
-hostmakedepends="pkg-config"
+hostmakedepends="pkg-config gettext-devel gettext-devel-tools tar
+ automake autoconf-archive libtool"
 makedepends="glib-devel libgudev-devel libmbim-devel libqrtr-glib-devel"
-short_desc="QMI modem protocol helper library"
-maintainer="Frank Steinborn <steinex@nognu.de>"
+short_desc="QMI modem protocol helper library (with QRTR support [git ${_gitshort}])"
+maintainer="Jami Kettunen <jami.kettunen@protonmail.com>"
 license="GPL-2.0-or-later, LGPL-2.1-or-later"
 homepage="http://www.freedesktop.org/wiki/Software/libqmi/"
-distfiles="${FREEDESKTOP_SITE}/${pkgname}/${pkgname}-${version}.tar.xz"
-checksum=cbb890893de1dee06ea5ebdac2d22f0469314a6f93f15f61f2f1206a1c9ae5fd
+distfiles="https://gitlab.freedesktop.org/mobile-broadband/$pkgname/-/archive/${_githash}/$pkgname-${_githash}.tar.gz>$pkgname-${_gitshort}.tar.gz"
+wrksrc="$pkgname-${_githash}"
+checksum=9be619705380eb290b14b708b80c7f22322fb22dfd7ab95647527ef155b86c50
 build_options="gir"
 build_options_default="gir"
 
 if [ "$CROSS_BUILD" ]; then
 	hostmakedepends+=" glib-devel"
 fi
+
+pre_configure() {
+	NOCONFIGURE=1 ./autogen.sh
+}
 
 libqmi-devel_package() {
 	depends="${makedepends} ${sourcepkg}-${version}_${revision}"
