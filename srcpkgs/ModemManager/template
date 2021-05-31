@@ -1,30 +1,37 @@
 # Template file for 'ModemManager'
+_githash=15f53851c82f05a1456fd5adba5aec765236d0bc # tip of master branch as of 2021-07-28
+_gitshort=${_githash:0:7}
+
 pkgname=ModemManager
-version=1.16.8
-revision=2
+version=1.17.2
+revision=5
 build_style=gnu-configure
 build_helper="gir"
 configure_args="--disable-static --with-polkit=permissive
  --with-udev-base-dir=/usr/lib/udev --enable-plugin-qcom-soc
  $(vopt_enable gir introspection) $(vopt_enable gir vala)"
 hostmakedepends="pkg-config autoconf $(vopt_if gir vala-devel)
- glib-devel libxslt-devel"
+ glib-devel libxslt-devel gettext-devel gettext-devel-tools tar
+ automake autoconf-archive libtool"
 makedepends="libglib-devel libgudev-devel polkit-devel libqmi-devel
  libmbim-devel libxslt-devel ppp $(vopt_if gir vala-devel)
  python3-gobject-devel python3-dbus-devel"
 depends="hicolor-icon-theme ppp"
 checkdepends="dbus"
-short_desc="Mobile broadband modem management service"
-maintainer="Frank Steinborn <steinex@nognu.de>"
+short_desc="Mobile broadband modem management service (with QCOM SoC support [git ${_gitshort}])"
+maintainer="Jami Kettunen <jami.kettunen@protonmail.com>"
 license="GPL-2.0-or-later"
 homepage="https://www.freedesktop.org/wiki/Software/ModemManager/"
-distfiles="${FREEDESKTOP_SITE}/${pkgname}/${pkgname}-${version}.tar.xz"
-checksum=21fdfaf94171261ad9d99771894f5ade4bc39ef3d1ff1d421054d14713e97880
+distfiles="https://gitlab.freedesktop.org/mobile-broadband/$pkgname/-/archive/${_githash}/$pkgname-${_githash}.tar.gz>$pkgname-${_gitshort}.tar.gz"
+wrksrc="$pkgname-${_githash}"
+checksum=331c5c773583af821a187f31c65bd908ead5e90483f2c5e6767ab68303bea271
 
 build_options="gir"
 build_options_default="gir"
 
 pre_configure() {
+	NOCONFIGURE=1 ./autogen.sh
+
 	# Werror ___Guarantees___ failure to build for any non-trivial project
 	# in any machine that doesn't run the same software as upstream
 	vsed -i configure -e"s; -Werror;;g"

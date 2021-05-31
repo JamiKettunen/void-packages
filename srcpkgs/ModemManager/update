@@ -1,1 +1,4 @@
-ignore="*.*.99[0-9]"
+git=true
+version="${_githash}"
+site='https://gitlab.freedesktop.org/mobile-broadband/ModemManager/-/commits/master?format=atom'
+pattern='<id>\K.*commit\/\K.*(?=<\/id>)'
