@@ -1,0 +1,5 @@
+git=true
+_fw_ver="$version"
+version="${_githash}"
+site="$homepage/commits/${_fw_ver}.atom"
+pattern='<id>\K.*commit\/\K.*(?=<\/id>)'

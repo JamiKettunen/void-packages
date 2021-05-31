@@ -1,0 +1,27 @@
+# Template file for 'oneplus-msm8998-firmware'
+_githash="7d4c4a0929ddcd4c5ed85da355175ae2e41037b6"
+_gitshort="${_githash:0:7}"
+
+pkgname=oneplus-msm8998-firmware
+version=10.0.1
+revision=1
+short_desc="Firmware for OnePlus 5/5T [git ${_gitshort}]"
+maintainer="Jami Kettunen <jami.kettunen@protonmail.com>"
+license="proprietary"
+homepage="https://github.com/JamiKettunen/firmware-mainline-oneplus5"
+distfiles="https://github.com/JamiKettunen/firmware-mainline-oneplus5/archive/${_githash}.tar.gz>$pkgname-${_gitshort}.tar.gz"
+wrksrc="firmware-mainline-oneplus5-${_githash}"
+checksum=29749b0e7d9183ce807967b08a2eb85369ff2019a87b31cad7c19930e1bd9286
+
+nostrip=yes
+
+_copy_fw() {
+	for fw in $@; do
+		vmkdir usr/lib/firmware/$fw
+		vcopy $fw usr/lib/firmware
+	done
+}
+
+do_install() {
+	_copy_fw ath10k qca qcom
+}
