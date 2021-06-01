@@ -1,7 +1,7 @@
 # Template file for 'gpsd'
 pkgname=gpsd
-version=3.20
-revision=2
+version=3.22
+revision=1
 build_style=scons
 make_build_args="dbus_export=0 gpsd_user=gpsd gpsd_group=gpsd sbindir=/usr/bin
  udevdir=/usr/lib/udev CC=${CC} qt_versioned=5"
@@ -9,25 +9,18 @@ make_install_args="$make_build_args"
 make_install_target=udev-install
 hostmakedepends="pkg-config bc python3-pyserial libxslt xmlto asciidoc"
 makedepends="eudev-libudev-devel ntp libusb-devel ncurses-devel gtk+3-devel
- pps-tools-devel libcap-devel libbluetooth-devel qt5-devel"
+ pps-tools-devel libcap-devel libbluetooth-devel qt5-devel
+ python3-devel python3-gobject-devel"
 short_desc="GPS/AIS receiver monitoring daemon"
 maintainer="uriahheep <uriahheep@gmail.com>"
 license="BSD-3-Clause"
 homepage="http://www.catb.org/gpsd/"
 distfiles="http://download-mirror.savannah.gnu.org/releases/gpsd/gpsd-${version}.tar.xz"
-checksum=3998a5cbb728e97f896f46c3c83301b1e6c5d859393e58c2fad8c5426774d571
+checksum=68d2a04e237a02ce42158ceda462a24afe11eeaa2b13482e94ac7ef66693f3a0
 python_version=3	# Must be same version as scons
 system_accounts="gpsd"
 
-subpackages="gpsd-devel gpsd-qt gpsd-qt-devel"
-if [ -z "$CROSS_BUILD" ]; then
-	subpackages+=" gpsd-python gpsd-xgps"
-	makedepends+=" python3-devel python3-gobject-devel"
-else
-	# xxx scons uses its environment to build python stuff; so arch
-	# and python version must match. This should be fixed.
-	make_build_args+=" python=0"
-fi
+subpackages="gpsd-devel gpsd-qt gpsd-qt-devel gpsd-python gpsd-xgps"
 
 pre_build() {
 	unset LD
@@ -44,9 +37,7 @@ post_install() {
 	vlicense COPYING
 	vlicense AUTHORS
 	vbin gpsinit
-	if [ -z "$CROSS_BUILD" ]; then
-		mv ${DESTDIR}/usr/local/lib/python* "${DESTDIR}/usr/lib"
-	fi
+	mv ${DESTDIR}/usr/local/lib/python* "${DESTDIR}/usr/lib"
 }
 
 gpsd-python_package() {
@@ -105,6 +96,7 @@ gpsd-devel_package() {
 		vmove usr/include
 		vmove "usr/lib/pkgconfig/libgps*.pc"
 		vmove usr/lib/libgps.so
+		vmove usr/lib/libgpsdpacket.so
 		vmove "usr/share/man/man3/libgps*"
 	}
 }
