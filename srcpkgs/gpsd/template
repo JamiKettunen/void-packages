@@ -14,7 +14,7 @@ hostmakedepends="pkg-config bc python3-pyserial libxslt xmlto asciidoc"
 makedepends="eudev-libudev-devel ntp libusb-devel ncurses-devel gtk+3-devel
  pps-tools-devel libcap-devel libbluetooth-devel qt5-devel
  python3-devel python3-gobject-devel"
-short_desc="GPS/AIS receiver monitoring daemon [git ${_gitshort}]"
+short_desc="GPS/AIS receiver monitoring daemon (with QCOM PDS support [git ${_gitshort}])"
 maintainer="Jami Kettunen <jami.kettunen@protonmail.com>"
 license="BSD-3-Clause"
 homepage="http://www.catb.org/gpsd/"
