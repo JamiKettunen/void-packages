@@ -1,7 +1,10 @@
 # Template file for 'gpsd'
+_githash=b03ac2cd9055b8049c52d6a697429faba35ef722 # last commit QCOM PDS patch applies on cleanly (2021-06-23)
+_gitshort=${_githash:0:7}
+
 pkgname=gpsd
-version=3.22
-revision=1
+version=3.22.1
+revision=3
 build_style=scons
 make_build_args="dbus_export=0 gpsd_user=gpsd gpsd_group=gpsd sbindir=/usr/bin
  udevdir=/usr/lib/udev CC=${CC} qt_versioned=5"
@@ -11,12 +14,13 @@ hostmakedepends="pkg-config bc python3-pyserial libxslt xmlto asciidoc"
 makedepends="eudev-libudev-devel ntp libusb-devel ncurses-devel gtk+3-devel
  pps-tools-devel libcap-devel libbluetooth-devel qt5-devel
  python3-devel python3-gobject-devel"
-short_desc="GPS/AIS receiver monitoring daemon"
-maintainer="uriahheep <uriahheep@gmail.com>"
+short_desc="GPS/AIS receiver monitoring daemon [git ${_gitshort}]"
+maintainer="Jami Kettunen <jami.kettunen@protonmail.com>"
 license="BSD-3-Clause"
 homepage="http://www.catb.org/gpsd/"
-distfiles="http://download-mirror.savannah.gnu.org/releases/gpsd/gpsd-${version}.tar.xz"
-checksum=68d2a04e237a02ce42158ceda462a24afe11eeaa2b13482e94ac7ef66693f3a0
+distfiles="https://gitlab.com/gpsd/gpsd/-/archive/${_githash}/$pkgname-${_githash}.tar.gz>$pkgname-${_gitshort}.tar.gz"
+wrksrc="$pkgname-${_githash}"
+checksum=b6fe3073707179adad3a00d25226a8dfffe8f8a7d7c5bf5232d208ab732370cf
 python_version=3	# Must be same version as scons
 system_accounts="gpsd"
 
@@ -40,6 +44,9 @@ post_install() {
 	mv ${DESTDIR}/usr/local/lib/python* "${DESTDIR}/usr/lib"
 }
 
+# FIXME: max pages are not made anymore!
+# TODO: Needs .desktop files packaged?
+
 gpsd-python_package() {
 	short_desc+=" - Python tools/bindings"
 	depends="python3 python3-pyserial gnuplot ${sourcepkg}>=${version}_${revision}"
@@ -51,12 +58,12 @@ gpsd-python_package() {
 		vmove usr/bin/gpsprof
 		vmove usr/bin/ubxtool
 		vmove usr/bin/zerk
-		vmove usr/share/man/man1/gegps.1
-		vmove usr/share/man/man1/gpscat.1
-		vmove usr/share/man/man1/gpsfake.1
-		vmove usr/share/man/man1/gpsprof.1
-		vmove usr/share/man/man1/ubxtool.1
-		vmove usr/share/man/man1/zerk.1
+		#vmove usr/share/man/man1/gegps.1
+		#vmove usr/share/man/man1/gpscat.1
+		#vmove usr/share/man/man1/gpsfake.1
+		#vmove usr/share/man/man1/gpsprof.1
+		#vmove usr/share/man/man1/ubxtool.1
+		#vmove usr/share/man/man1/zerk.1
 	}
 }
 
@@ -66,7 +73,7 @@ gpsd-xgps_package() {
 	pkg_install() {
 		vmove usr/bin/xgps
 		vmove usr/bin/xgpsspeed
-		vmove "usr/share/man/man1/xgps*"
+		#vmove "usr/share/man/man1/xgps*"
 	}
 }
 
@@ -85,7 +92,7 @@ gpsd-qt-devel_package() {
 		vmove usr/lib/libQgpsmm.so
 		vmove usr/lib/pkgconfig/Qgpsmm.pc
 		vmove usr/lib/libQgpsmm.prl
-		vmove usr/share/man/man3/libQgpsmm.3
+		#vmove usr/share/man/man3/libQgpsmm.3
 	}
 }
 
@@ -97,6 +104,6 @@ gpsd-devel_package() {
 		vmove "usr/lib/pkgconfig/libgps*.pc"
 		vmove usr/lib/libgps.so
 		vmove usr/lib/libgpsdpacket.so
-		vmove "usr/share/man/man3/libgps*"
+		#vmove "usr/share/man/man3/libgps*"
 	}
 }
