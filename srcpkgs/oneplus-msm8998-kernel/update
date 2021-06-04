@@ -1,0 +1,4 @@
+git=true
+version="${_githash}"
+site="https://github.com/JamiKettunen/linux-mainline-oneplus5/commits/v${_series}.atom"
+pattern='<id>\K.*commit\/\K.*(?=<\/id>)'
