@@ -1,0 +1,14 @@
+--- a/utils/Makefile	2021-06-17 22:49:15.242519000 +0300
++++ b/utils/Makefile	2021-06-17 22:50:09.534613207 +0300
+@@ -88,8 +88,8 @@
+ 	install $(PROGRAMS) $(DESTDIR)$(PREFIX)/bin
+ 	install -d $(DESTDIR)$(PREFIX)/share/joystick
+ 	install extract filter ident $(DESTDIR)$(PREFIX)/share/joystick
+-	install -d $(DESTDIR)/lib/udev/rules.d
++	install -d $(DESTDIR)$(PREFIX)/lib/udev/rules.d
+-	install js-set-enum-leds $(DESTDIR)/lib/udev
++	install js-set-enum-leds $(DESTDIR)$(PREFIX)/lib/udev
+-	install -m 644 80-stelladaptor-joystick.rules $(DESTDIR)/lib/udev/rules.d
++	install -m 644 80-stelladaptor-joystick.rules $(DESTDIR)$(PREFIX)/lib/udev/rules.d
+ 
+ .PHONY: compile clean distclean install

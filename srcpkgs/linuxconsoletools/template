@@ -1,0 +1,21 @@
+# Template file for 'linuxconsoletools'
+pkgname=linuxconsoletools
+version=1.7.1
+revision=1
+build_style=gnu-makefile
+make_build_args="prefix=/usr"
+make_install_args="prefix=/usr"
+hostmakedepends="pkg-config"
+makedepends="SDL2-devel"
+short_desc="Set of utilities for joysticks and serial devices"
+maintainer="Jami Kettunen <jami.kettunen@protonmail.com>"
+license="GPL"
+homepage="https://sourceforge.net/projects/linuxconsole"
+distfiles="https://netix.dl.sourceforge.net/project/linuxconsole/$pkgname-$version.tar.bz2"
+checksum=bd4d4b7e37da02fc67e47ddf20b6f1243c0a7af7b02b918d5e72138ea8727547
+
+patch_args="-p1"
+
+post_install() {
+	vlicense COPYING LICENSE
+}
