@@ -1,0 +1,4 @@
+#!/bin/sh
+FONT="/usr/share/fonts/TTF/DejaVuSans.ttf"
+[ -r conf ] && . conf
+fbkeyboard -f "$FONT"

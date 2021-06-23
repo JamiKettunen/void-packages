@@ -1,0 +1,9 @@
+--- a/Makefile	2020-07-11 07:41:57.000000000 +0300
++++ b/Makefile	2021-06-17 23:01:40.454071655 +0300
+@@ -1,5 +1,5 @@
+ fbkeyboard: fbkeyboard.c
+-	gcc -o fbkeyboard $(shell pkg-config --cflags freetype2) $(CPPFLAGS) $(CFLAGS) fbkeyboard.c $(LDFLAGS) $(shell pkg-config --libs freetype2)
++	$(CC) -o fbkeyboard $(shell pkg-config --cflags freetype2) $(CPPFLAGS) $(CFLAGS) fbkeyboard.c $(LDFLAGS) $(shell pkg-config --libs freetype2)
+ 
+ clean:
+ 	rm -f fbkeyboard

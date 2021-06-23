@@ -1,0 +1,25 @@
+# Template file for 'fbkeyboard'
+pkgname=fbkeyboard
+version=0.4
+revision=1
+build_style=gnu-makefile
+hostmakedepends="pkg-config"
+makedepends="freetype-devel"
+depends="dejavu-fonts-ttf" # FIXME: only with default config
+short_desc="A framebuffer softkeyboard for devices with touchscreen input"
+maintainer="Jami Kettunen <jami.kettunen@protonmail.com>"
+license="GPL-3.0-or-later"
+homepage="https://github.com/bakonyiferenc/fbkeyboard"
+distfiles="https://github.com/bakonyiferenc/fbkeyboard/archive/refs/tags/$version.tar.gz"
+checksum=a3f41b5b421f4a25a0d155e53400f5f9b5eb79633bcebf729b3b3fe557a27475
+
+patch_args="-p1"
+
+do_install() {
+	vbin $pkgname
+	vsv fbkeyboard
+}
+
+post_install() {
+	vlicense COPYING
+}
