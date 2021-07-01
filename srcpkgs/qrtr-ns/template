@@ -5,7 +5,7 @@ _gitrev=93
 
 pkgname=qrtr-ns
 version=1.0r${_gitrev}
-revision=1
+revision=2
 build_style=gnu-makefile
 make_install_args="prefix=/usr"
 short_desc="Userspace reference for net/qrtr in the Linux kernel [git ${_gitshort}]"
