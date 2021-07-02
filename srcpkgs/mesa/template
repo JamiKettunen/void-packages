@@ -78,8 +78,6 @@ if [ "$_have_amd" ]; then
 	_vulkan_drivers+=",amd"
 	_dri_drivers+=",r100,r200"
 	subpackages+=" mesa-vulkan-radeon"
-	# transitional dummy packages
-	subpackages+=" mesa-ati-dri"
 fi
 
 if [ "$_have_intel" ]; then
@@ -88,30 +86,20 @@ if [ "$_have_intel" ]; then
 	_vulkan_drivers+=",intel"
 	_dri_drivers+=",i915,i965"
 	subpackages+=" mesa-vulkan-intel"
-	# transitional dummy packages
-	subpackages+=" mesa-intel-dri"
 fi
 
 if [ "$_have_nv" ]; then
 	_gallium_drivers+=",nouveau"
 	if [ "$_have_arm" ]; then
 		_gallium_drivers+=",tegra"
-		# transitional dummy packages
-		subpackages+=" mesa-tegra-dri"
 	else
 		_dri_drivers+=",nouveau"
 	fi
-	# transitional dummy packages
-	subpackages+=" mesa-nouveau-dri"
 fi
 
 if [ "$_have_arm" ]; then
 	_gallium_drivers+=",kmsro"
 	_gallium_drivers+=",v3d,vc4,freedreno,etnaviv,lima,panfrost"
-	# transitional dummy packages
-	subpackages+=" mesa-kmsro-dri mesa-v3d-dri mesa-vc4-dri"
-	subpackages+=" mesa-etnaviv-dri mesa-freedreno-dri"
-	subpackages+=" mesa-lima-dri mesa-panfrost-dri"
 fi
 
 if [ "$_have_virgl" ]; then
@@ -126,8 +114,6 @@ if [ "$_have_vmware" ]; then
 	_gallium_drivers+=",svga"
 	configure_args+=" -Dgallium-xa=enabled"
 	subpackages+=" libxatracker"
-	# transitional dummy packages
-	subpackages+=" mesa-vmwgfx-dri"
 else
 	configure_args+=" -Dgallium-xa=disabled"
 fi
@@ -352,94 +338,4 @@ mesa-vulkan-overlay-layer_package() {
 		vmove "usr/bin/mesa-overlay-control.py"
 		vmove "usr/lib/libVkLayer_*.so"
 	}
-}
-
-mesa-ati-dri_package() {
-	build_style=meta
-	lib32mode=full
-	short_desc="Mesa DRI drivers for ATI GPUs (transitional dummy package)"
-	depends="mesa-dri mesa-vulkan-radeon"
-	if [ "$_have_hwdec" ]; then
-		depends+=" mesa-vaapi mesa-vdpau mesa-XvMC"
-	fi
-}
-
-mesa-etnaviv-dri_package() {
-	build_style=meta
-	lib32mode=full
-	short_desc="Mesa DRI drivers for Vivante GPUs (transitional dummy package)"
-	depends="mesa-dri"
-}
-
-mesa-freedreno-dri_package() {
-	build_style=meta
-	lib32mode=full
-	short_desc="Mesa DRI drivers for Adreno GPUs (transitional dummy package)"
-	depends="mesa-dri"
-}
-
-mesa-intel-dri_package() {
-	build_style=meta
-	lib32mode=full
-	short_desc="Mesa DRI drivers for Intel GPUs (transitional dummy package)"
-	depends="mesa-dri mesa-vulkan-intel"
-}
-
-mesa-kmsro-dri_package() {
-	build_style=meta
-	lib32mode=full
-	short_desc="KMS Render-only Mesa DRI drivers (transitional dummy package)"
-	depends="mesa-dri"
-}
-
-mesa-lima-dri_package() {
-	build_style=meta
-	lib32mode=full
-	short_desc="Mesa DRI drivers for Mali GPUs (Utgard) (transitional dummy package)"
-	depends="mesa-dri"
-}
-
-mesa-nouveau-dri_package() {
-	build_style=meta
-	lib32mode=full
-	short_desc="Mesa DRI drivers for NVIDIA GPUs (transitional dummy package)"
-	depends="mesa-dri"
-	if [ "$_have_hwdec" ]; then
-		depends+=" mesa-vaapi mesa-vdpau mesa-XvMC"
-	fi
-}
-
-mesa-panfrost-dri_package() {
-	build_style=meta
-	lib32mode=full
-	short_desc="Mesa DRI drivers for Mali GPUs (Midgard/Bifrost) (dummy package)"
-	depends="mesa-dri"
-}
-
-mesa-tegra-dri_package() {
-	build_style=meta
-	lib32mode=full
-	short_desc="Mesa DRI drivers for Tegra GPU (transitional dummy package)"
-	depends="mesa-dri"
-}
-
-mesa-v3d-dri_package() {
-	build_style=meta
-	lib32mode=full
-	short_desc="Mesa DRI drivers for Videocore VI GPU (transitional dummy package)"
-	depends="mesa-dri"
-}
-
-mesa-vmwgfx-dri_package() {
-	build_style=meta
-	lib32mode=full
-	short_desc="Mesa DRI drivers for VMware (transitional dummy package)"
-	depends="mesa-dri"
-}
-
-mesa-vc4-dri_package() {
-	build_style=meta
-	lib32mode=full
-	short_desc="Mesa DRI drivers for Videocore IV GPU (transitional dummy package)"
-	depends="mesa-dri"
 }
