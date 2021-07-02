@@ -3204,6 +3204,12 @@ libGammu.so.8 gammu-1.39.0_1
 libz3.so z3-4.6.0_2
 libngspice.so.0 ngspice-27_2
 libvulkan.so.1 vulkan-loader-1.0.57.0_1
+libvulkan_freedreno.so mesa-vulkan-freedreno-21.2.0_1
+libVkLayer_MESA_overlay.so mesa-vulkan-overlay-layer-21.2.0_1
+libgallium_dri.so mesa-dri-21.2.0_1
+libVkLayer_MESA_device_select.so mesa-21.2.0_1
+libGLX_mesa.so.0 mesa-21.2.0_1
+libEGL_mesa.so.0 mesa-21.2.0_1
 libembb_mtapi_cpp.so embb-1.0.0_3
 libembb_mtapi_c.so embb-1.0.0_3
 libembb_mtapi_network_c.so embb-1.0.0_3

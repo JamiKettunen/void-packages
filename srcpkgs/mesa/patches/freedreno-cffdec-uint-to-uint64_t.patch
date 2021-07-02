@@ -1,0 +1,28 @@
+From 4320b760a25c02cf2f6cfc4939437e76aed1dc61 Mon Sep 17 00:00:00 2001
+From: Jami Kettunen <jami.kettunen@protonmail.com>
+Date: Wed, 23 Jun 2021 17:12:32 +0300
+Subject: [PATCH] freedreno: cffdec: uint -> uint64_t
+
+This fixes a build error under musl libc.
+---
+ src/freedreno/decode/cffdec.h | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/src/freedreno/decode/cffdec.h b/src/freedreno/decode/cffdec.h
+index 49b952f..f50db65 100644
+--- a/src/freedreno/decode/cffdec.h
++++ b/src/freedreno/decode/cffdec.h
+@@ -108,8 +108,8 @@ void dump_commands(uint32_t *dwords, uint32_t sizedwords, int level);
+  * and 15 are 0
+  */
+ 
+-static inline uint
+-pm4_calc_odd_parity_bit(uint val)
++static inline uint64_t
++pm4_calc_odd_parity_bit(uint64_t val)
+ {
+    return (0x9669 >> (0xf & ((val) ^ ((val) >> 4) ^ ((val) >> 8) ^
+                              ((val) >> 12) ^ ((val) >> 16) ^ ((val) >> 20) ^
+-- 
+2.32.0
+
