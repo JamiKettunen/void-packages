@@ -1,18 +1,21 @@
 # Template file for 'phoc'
+_githash=527689df1300277af2cdfc872474c8322e38f690 # tip of master branch as of 2021-07-18
+_gitshort=${_githash:0:7}
+
 pkgname=phoc
-version=0.6.0
+version=0.8.0
 revision=1
-wrksrc=${pkgname}-v${version}
 build_style=meson
 configure_args="-Dembed-wlroots=disabled"
 hostmakedepends="glib-devel pkg-config wayland-devel"
-makedepends="gnome-desktop-devel wlroots-devel"
+makedepends="gnome-desktop-devel wlroots-legacy-devel"
 depends="mutter"
-short_desc="Wlroots based Phone compositor for the Phosh shell"
-maintainer="Jan Christian Grünhage <jan.christian@gruenhage.xyz>"
+short_desc="Wlroots based Phone compositor for the Phosh shell [git ${_gitshort}]"
+maintainer="Jami Kettunen <jami.kettunen@somainline.org>"
 license="GPL-3.0-or-later"
 homepage="https://source.puri.sm/Librem5/phoc"
-distfiles="${homepage}/-/archive/v${version}/${pkgname}-v${version}.tar.gz"
-checksum=0c43fa6c9e623dcb67a8579838132c098375c6024c1b45d6849097dd5381440f
+distfiles="$homepage/-/archive/${_githash}/$pkgname-${_githash}.tar.gz>$pkgname-${_gitshort}.tar.gz"
+wrksrc="$pkgname-${_githash}"
+checksum=3403ef0eb064013ec5e2b6df966bf461649d16aab2f8d8df8c632cec81dffb53
 # Checking requires running a wayland session
 make_check=no
