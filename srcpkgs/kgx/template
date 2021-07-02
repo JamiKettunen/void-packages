@@ -1,4 +1,7 @@
 # Template file for 'kgx'
+_githash=fa917d5884f35b975130c7d4c7c6867748b6bd8f # tip of master branch as of 2021-07-03
+_gitshort=${_githash:0:7}
+
 pkgname=kgx
 version=0.2.1
 revision=1
@@ -6,8 +9,8 @@ build_style=meson
 hostmakedepends="glib-devel pkg-config gettext"
 makedepends="vte3-devel gtk+3-devel libhandy-devel libgtop-devel"
 depends="dbus desktop-file-utils gsettings-desktop-schemas"
-short_desc="Minimal terminal for GNOME"
-maintainer="Julio Galvan <julio-void@epazote.net>"
+short_desc="Minimal terminal for GNOME [git ${_gitshort}]"
+maintainer="Jami Kettunen <jami.kettunen@somainline.org>"
 license="GPL-3.0-or-later"
 homepage="https://gitlab.gnome.org/ZanderBrown/kgx"
 distfiles="${homepage}/-/archive/${version}/kgx-${version}.tar.gz"
