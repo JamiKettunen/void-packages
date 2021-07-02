@@ -1,0 +1,15 @@
+#!/bin/sh
+sv check dbus >/dev/null || exit 1
+sv check agetty-tty1 >/dev/null || exit 1
+
+[ -r conf ] && . conf
+
+export USER="${USER:-$(id -nu 1000)}"
+export XDG_RUNTIME_DIR="${XDG_RUNTIME_DIR:-/run/user/$(id -u $USER)}"
+export HOME="${HOME:-/home/$USER}"
+#export XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
+GROUPS="${GROUPS:-$(id -Gn $USER | tr ' ' ':')}"
+cd $HOME
+printf '\033c' > /dev/tty7
+chvt 7
+exec chpst -u $USER:$GROUPS phosh

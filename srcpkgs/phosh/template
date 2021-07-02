@@ -1,24 +1,44 @@
 # Template file for 'phosh'
+_githash=3e1ba9d6c234716ce566dc0bd6429c51f0bf6075 # tip of master branch as of 2021-07-28
+_gitshort=${_githash:0:7}
+_gvc="libgnome-volume-control"
+_githash_gvc=ae1a34aafce7026b8c0f65a43c9192d756fe1057
+_gitshort_gvc=${_githash_gvc:0:7}
+
 pkgname=phosh
-version=0.8.1
-revision=1
+version=0.12.1
+revision=2
 build_style=meson
-hostmakedepends="phoc glib-devel gettext pkg-config wayland-devel"
+hostmakedepends="glib-devel gettext pkg-config wayland-devel"
 makedepends="libfeedback-devel gcr-devel gnome-desktop-devel pam-devel
  polkit-devel pulseaudio-devel libsecret-devel libhandy1-devel
  NetworkManager-devel upower-devel elogind-devel"
 depends="phoc squeekboard gnome-session gnome-settings-daemon elogind
  xorg-server-xwayland cantarell-fonts font-adobe-source-code-pro"
-short_desc="Wayland shell prototype for GNOME on mobile devices"
-maintainer="Jan Christian Grünhage <jan.christian@gruenhage.xyz>"
+short_desc="Wayland shell prototype for GNOME on mobile devices [git ${_gitshort}]"
+maintainer="Jami Kettunen <jami.kettunen@somainline.org>"
 license="GPL-3.0-or-later"
 homepage="https://source.puri.sm/Librem5/phosh"
-distfiles="https://repo.pureos.net/pureos/pool/main/p/${pkgname}/${pkgname}_${version}.orig.tar.gz"
-checksum=d40b945c9082bcded8b8e2dd219d2768724fef2ade5e492d0c276a20c5ee43e2
+distfiles="
+	$homepage/-/archive/${_githash}/$pkgname-${_githash}.tar.gz>$pkgname-${_gitshort}.tar.gz
+	https://gitlab.gnome.org/GNOME/${_gvc}/-/archive/${_githash_gvc}/${_gvc}-${_githash_gvc}.tar.gz>${_gvc}-${_gitshort_gvc}.tar.gz
+"
+create_wrksrc=true
+build_wrksrc=$pkgname-${_githash}
+checksum="
+	bc9c6d2c7e197fb1d005af98ee52d6e14aa035d5622f4b78f86717ba1b62e01e
+	afc9a7c7fd6de8252430878a753b4dbfd09033a54055e4020ced3d26609143ee
+"
 # Checking requires running a wayland session
 make_check=no
 
+post_extract() {
+	# FIXME: "/*" -> "/." to also copy dotfiles!
+	mv ${_gvc}-${_githash_gvc}/* $build_wrksrc/subprojects/gvc/
+}
+
 post_install() {
+	vsv $pkgname
 	vcopy ${FILESDIR}/sm.puri.OSK0.desktop usr/share/applications
 	vcopy ${FILESDIR}/phosh.desktop usr/share/wayland-sessions
 }
