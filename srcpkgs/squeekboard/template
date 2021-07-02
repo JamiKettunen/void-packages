@@ -1,20 +1,24 @@
 # Template file for 'squeekboard'
+_githash=4efe57cbb4f4f0427839a9142001dcc5450acaf2 # tip of master branch as of 2021-07-03
+_gitshort=${_githash:0:7}
+
 pkgname=squeekboard
-version=1.12.0
+version=1.14.0
 revision=1
-wrksrc=${pkgname}-v${version}
 build_style=meson
 build_helper=rust
 hostmakedepends="glib-devel gettext pkg-config cargo wayland-devel"
 makedepends="rust gtk+3-devel gnome-desktop-devel libfeedback-devel"
 depends="feedbackd"
-short_desc="Final Librem5 keyboard"
-maintainer="Jan Christian Grünhage <jan.christian@gruenhage.xyz>"
+short_desc="Final Librem5 keyboard [git ${_gitshort}]"
+maintainer="Jami Kettunen <jami.kettunen@somainline.org>"
 license="GPL-3.0-or-later"
 homepage="https://source.puri.sm/Librem5/squeekboard"
-distfiles="${homepage}/-/archive/v${version}/${pkgname}-v${version}.tar.gz"
-checksum=df8f3849c6dbf8677ef3dc495b54485d2ddf9830f0591acd3a867b8414fd45de
+distfiles="$homepage/-/archive/${_githash}/$pkgname-${_githash}.tar.gz>$pkgname-${_gitshort}.tar.gz"
+wrksrc="$pkgname-${_githash}"
+checksum=b8f62da01c79bb7006a6bca34dde1ddea5b0d4362fdb8d674e6ce0ee6211b6d7
 
 post_install() {
+	# FIXME: For some reason this Python script isn't executable by default
 	chmod +x ${DESTDIR}/usr/bin/squeekboard-entry
 }

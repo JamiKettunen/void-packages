@@ -1,8 +1,6 @@
-diff --git cargo_build.py cargo_build.py
-index d78ceb9..301bf00 100644
---- cargo_build.py
-+++ cargo_build.py
-@@ -9,14 +9,21 @@ from pathlib import Path
+--- a/cargo_build.py	2021-07-03 00:25:41.337600000 +0300
++++ b/cargo_build.py	2021-07-03 00:26:47.498806285 +0300
+@@ -9,14 +9,21 @@
  import shlex
  import subprocess
  import sys
