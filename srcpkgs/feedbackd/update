@@ -1,2 +1,4 @@
-site="https://source.puri.sm/Librem5/${pkgname}/tags"
-pattern='/archive/[^/]+/\Q'"$pkgname"'\E-v?\K[\d\.]+(?=\.tar\.gz")'
+git=true
+version="${_githash}"
+site="$homepage/-/commits/master?format=atom"
+pattern='<id>\K.*commit\/\K.*(?=<\/id>)'
