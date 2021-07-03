@@ -1,19 +1,24 @@
 # Template file for 'calls'
+_githash=4f7054a4344264058f1db8fde9372f6bb772935e # tip of master branch as of 2021-07-28
+_gitshort=${_githash:0:7}
+
 pkgname=calls
-version=0.3.1
-revision=1
-wrksrc=${pkgname}-v${version}
+version=41.0
+revision=3
 build_style=meson
 hostmakedepends="glib-devel gettext vala pkg-config wayland-devel
  evolution-data-server-devel"
 makedepends="libcallaudio-devel folks-devel libhandy1-devel libpeas-devel
- gom-devel ModemManager-devel libfeedback-devel"
+ gom-devel ModemManager-devel libfeedback-devel gstreamer1-devel sofia-sip-devel"
 depends="NetworkManager ModemManager callaudiod"
 short_desc="Phone call application"
-maintainer="Jan Christian Grünhage <jan.christian@gruenhage.xyz>"
+maintainer="Jami Kettunen <jami.kettunen@somainline.org>"
 license="GPL-3.0-or-later"
-homepage="https://source.puri.sm/Librem5/calls"
-distfiles="${homepage}/-/archive/v${version}/${pkgname}-v${version}.tar.gz"
-checksum=6b0928e3b40819082a0b409b09f94c6698dd78af0b516cb2b5d389ed351b1c55
+homepage="https://gitlab.gnome.org/GNOME/calls"
+distfiles="$homepage/-/archive/${_githash}/$pkgname-${_githash}.tar.gz>$pkgname-${_gitshort}.tar.gz"
+wrksrc="$pkgname-${_githash}"
+checksum=d461852afd1e3506bae3cd26c6be8294e9edaac09b912747e9f1aaa3f0e657c4
 # Checking depends on a wayland session
 make_check=no
+
+LDFLAGS+="-lssl -lcrypto"
