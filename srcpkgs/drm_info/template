@@ -1,0 +1,21 @@
+# Template file for 'drm_info'
+_githash=d41993496add03014cfcbca742cf1079efd1e0f0 # tip of master branch as of 2021-07-28
+_gitshort=${_githash:0:7}
+
+pkgname=drm_info
+version=2.3.0
+revision=2
+build_style=meson
+makedepends="json-c-devel libdrm-devel"
+hostmakedepends="pkg-config libdrm-devel"
+short_desc="Small utility to dump info about DRM devices [git ${_gitshort}]"
+maintainer="Jami Kettunen <jami.kettunen@somainline.org>"
+license="unknown"
+homepage="https://github.com/ascent12/drm_info"
+distfiles="$homepage/archive/${_githash}.tar.gz>$pkgname-${_gitshort}.tar.gz"
+checksum=b7da3831630fcf678723e0b086cfcf64bd84a8d811c23d3b645faf78fb47938f
+wrksrc="$pkgname-${_githash}"
+
+post_install() {
+	vlicense LICENSE
+}
