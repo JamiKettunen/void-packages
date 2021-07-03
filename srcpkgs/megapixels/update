@@ -1,2 +1,3 @@
 site="https://git.sr.ht/~martijnbraam/megapixels/refs"
-pattern='/archive/(v?|\Q'"$pkgname"'\E-)?\K[\d\.]+(?=\.tar\.gz")'
+# FIXME: Broken due to "sort -Vu" after fetching site instead of pattern matching!
+#pattern='/archive/\K0\..*[\d\.]+(?=\.tar\.gz")'
