@@ -1,13 +1,13 @@
 # Template file for 'megapixels'
 pkgname=megapixels
-version=0.16.1
+version=1.1.0
 revision=1
 build_style=meson
 hostmakedepends="pkg-config glib-devel"
-makedepends="gtk+3-devel libzbar-devel"
-short_desc="GTK+3 camera app for ARM devices"
+makedepends="gtk4-devel libzbar-devel"
+short_desc="GTK 4 camera app for ARM devices"
 maintainer="Jami Kettunen <jami.kettunen@somainline.org>"
 license="GPL-3.0-or-later"
 homepage="https://git.sr.ht/~martijnbraam/megapixels"
 distfiles="${homepage}/archive/${version}.tar.gz"
-checksum=4f6b247c74528b1351c3e0f23afbf1e62921ccf892d64496d172f4748fa3b77c
+checksum=1434d03663d2a5c5214ae9bb121a89299e582ea0410c8897805ea136345bfaf1

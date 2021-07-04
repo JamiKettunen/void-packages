@@ -1,3 +1,2 @@
-site="https://git.sr.ht/~martijnbraam/megapixels/refs"
-# FIXME: Broken due to "sort -Vu" after fetching site instead of pattern matching!
-#pattern='/archive/\K0\..*[\d\.]+(?=\.tar\.gz")'
+site="$homepage/refs"
+pattern='archive/\K1\..*(?=\.tar.gz")'
