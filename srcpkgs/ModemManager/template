@@ -4,7 +4,7 @@ _gitshort=${_githash:0:7}
 
 pkgname=ModemManager
 version=1.17.2
-revision=5
+revision=6
 build_style=gnu-configure
 build_helper="gir"
 configure_args="--disable-static --with-polkit=permissive
@@ -35,6 +35,12 @@ pre_configure() {
 	# Werror ___Guarantees___ failure to build for any non-trivial project
 	# in any machine that doesn't run the same software as upstream
 	vsed -i configure -e"s; -Werror;;g"
+}
+
+post_install() {
+	# Let runit manage ModemManager instead of dbus
+	rm -r "$DESTDIR"/usr/share/dbus-1/system-services
+	vsv $pkgname
 }
 
 ModemManager-devel_package() {
