@@ -1,19 +1,19 @@
 # Template file for 'purism-chatty'
 pkgname=purism-chatty
 _pkgname=chatty
-version=0.1.16
+version=0.1.17
 revision=1
 wrksrc=${_pkgname}-v${version}
 build_style=meson
 hostmakedepends="glib-devel pkg-config gettext"
 makedepends="libfeedback-devel libhandy-devel evolution-data-server-devel
- libpurple libpurple-devel"
+ libpurple libpurple-devel gsettings-desktop-schemas-devel"
 short_desc="XMPP and SMS messaging via libpurple and Modemmanager"
 maintainer="Julio Galvan <julio-void@epazote.net>"
 license="GPL-3.0-or-later"
 homepage="https://source.puri.sm/Librem5/chatty"
 distfiles="${homepage}/-/archive/v${version}/${_pkgname}-v${version}.tar.gz"
-checksum=2eb565a60892eedc91779eafd83add583007fe9567e4bc270ff9c197854bba4b
+checksum=5f310ce7328594e9aad5c2ef15b042dadd3b503ea2acf48febbc6123ea16f8a6
 
 pre_configure() {
 	if [ "$CROSS_BUILD" ]; then
