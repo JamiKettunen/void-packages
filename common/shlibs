@@ -4027,4 +4027,5 @@ librnnoise.so.0 rnnoise-0.4.1_1
 liblhasa.so.0 lhasa-0.3.1_2
 libmt32emu.so.2 libmt32emu-2.5.1_1
 libqrtr-glib.so.0 libqrtr-glib-1.0.0_1
+libqrtr-glib.so.0 libqrtr-glib-1.1.0_1
 libgpsdpacket.so.28 gpsd-3.22_1

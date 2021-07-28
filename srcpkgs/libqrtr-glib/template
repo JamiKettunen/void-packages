@@ -1,29 +1,41 @@
 # Template file for 'libqrtr-glib'
+_githash=5c4b70793444c6f8090ea9f9b4e2ed4a856c9ed5 # tip of master branch as of 2021-07-28
+_gitshort=${_githash:0:7}
+
 pkgname=libqrtr-glib
-version=1.0.0
-revision=1
+version=1.1.0
+revision=2
 build_style=gnu-configure
 build_helper="gir"
 configure_args="--disable-static
  $(vopt_enable gir introspection)"
-hostmakedepends="pkg-config"
+hostmakedepends="pkg-config gettext-devel gettext-devel-tools tar
+ automake autoconf-archive libtool"
 makedepends="glib-devel"
-short_desc="Qualcomm IPC Router protocol helper library"
+short_desc="Qualcomm IPC Router protocol helper library [git ${_gitshort}]"
 maintainer="Jami Kettunen <jami.kettunen@protonmail.com>"
 license="LGPL-2.1-or-later"
 homepage="https://gitlab.freedesktop.org/mobile-broadband/libqrtr-glib"
-distfiles="${FREEDESKTOP_SITE}/libqmi/${pkgname}-${version}.tar.xz"
-checksum=30d879b2ade6f8f461def3a677755db5c0238babf688d5c83c03b3e6abe35cee
+distfiles="https://gitlab.freedesktop.org/mobile-broadband/$pkgname/-/archive/${_githash}/$pkgname-${_githash}.tar.gz>$pkgname-${_gitshort}.tar.gz"
+wrksrc="$pkgname-${_githash}"
+checksum=0ed70adb75187423a2c012cf479ac74c7450ec12e65aaefbba911878ef1ca7c4
 build_options="gir"
 build_options_default="gir"
+# TODO: Port to meson build (available since 1.1-git)?
+
+pre_configure() {
+	NOCONFIGURE=1 ./autogen.sh
+}
 
 libqrtr-glib-devel_package() {
-	depends="${makedepends} ${sourcepkg}-${version}_${revision}"
+	depends="$makedepends $sourcepkg-${version}_$revision"
 	short_desc+=" - development files"
 	pkg_install() {
 		vmove usr/include
 		vmove usr/lib/pkgconfig
 		vmove "usr/lib/*.so"
-		vmove usr/share
+		# HACK: For some reason the gtk-docs are just gone when
+		#       I updated this package to 1.1.0 (I don't mind though)
+		#vmove usr/share
 	}
 }
