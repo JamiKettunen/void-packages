@@ -4044,3 +4044,5 @@ libfeedback-0.0.so.0 libfeedback-0.0.0+git20200707_1
 libcallaudio-0.1.so.0 libcallaudio-0.1.0_1
 libsofia-sip-ua.so.0 libsofia-sip-1.13.4_1
 libsofia-sip-ua-glib.so.3 libsofia-sip-1.13.4_1
+libphonenumber.so.8 libphonenumber-8.12.26_1
+libgeocoding.so.8 libphonenumber-8.12.26_1

@@ -1,0 +1,36 @@
+# Template file for 'libphonenumber'
+pkgname=libphonenumber
+version=8.12.26
+revision=1
+build_style=cmake
+configure_args="-DREGENERATE_METADATA=OFF" # -DBUILD_GEOCODER=ON
+makedepends="boost-devel gtest-devel protobuf protobuf-devel icu-devel" # musl-devel extra-cmake-modules evolution-data-server-devel(?)
+hostmakedepends="pkg-config"
+short_desc="Library for parsing, formatting, and validating international phone numbers"
+maintainer="Jami Kettunen <jami.kettunen@protonmail.com>"
+license="Apache-2.0"
+homepage="https://github.com/google/libphonenumber"
+distfiles="https://github.com/google/libphonenumber/archive/refs/tags/v$version.tar.gz"
+checksum=b8b37fe1825863a964660415cacf687c711eff88c64904cce8a8030234c0a334
+build_wrksrc=cpp
+
+# FIXME: Doesn't cross-compile due to extra build tool "generate_geocoding_data"
+#        which gets compiled for the target instead of host!
+if [ "$XBPS_CROSS_BASE" ]; then
+	echo -e "\e[31mERROR: $pkgname cannot be cross-compiled currently!\e[0m"
+	exit 1
+fi
+
+post_install() {
+	vlicense LICENSE
+}
+
+libphonenumber-devel_package() {
+	#depends="${sourcepkg}>=${version}_${revision}"
+	short_desc+=" - development files"
+	pkg_install() {
+		vmove usr/include
+		vmove "usr/lib/*.a"
+		vmove "usr/lib/*.so"
+	}
+}
