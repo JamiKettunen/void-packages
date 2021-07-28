@@ -1,0 +1,19 @@
+# Template file for 'mkbootimg-osm0sis'
+pkgname=mkbootimg-osm0sis
+version=2022.11.09
+revision=1
+build_style=gnu-makefile
+make_use_env=1
+short_desc="Updated osm0sis fork of Android mkbootimg + unpackbootimg"
+maintainer="Jami Kettunen <jami.kettunen@protonmail.com>"
+license="BSD-3-Clause"
+homepage="https://github.com/osm0sis/mkbootimg"
+distfiles="https://github.com/osm0sis/mkbootimg/archive/refs/tags/${version}.tar.gz"
+checksum=33c03adf318482b8ffa624b18c8c9ba605eba71a0cd9515409328b63e2add8b5
+
+# FIXME: not using $(DESTDIR) in Makefile!
+do_install() {
+	vbin mkbootimg mkbootimg-osm0sis
+	vbin unpackbootimg
+	vlicense NOTICE
+}
