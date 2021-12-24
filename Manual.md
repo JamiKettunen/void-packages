@@ -940,6 +940,13 @@ information can be found in the `go.mod` file for modern Go projects.
 It's expected that the distfile contains the package, but dependencies
 will be downloaded with `go get`.
 
+- `linux-kernel` For Linux kernel packages, build arguments can be passed in via
+`make_build_args` and install arguments via `make_install_args`. The build
+target can be overridden via `make_build_target` and the install target
+via `make_install_target`. Config target(s) can be changed with `kernel_defconfig`
+`kernel_llvm` can be set to build with LLVM/Clang instead of GNU binutils/GCC, or
+just `kernel_clang` to only use `CC=clang`.
+
 - `meta` For `meta-packages`, i.e packages that only install local files or simply
 depend on additional packages. This build style does not install
 dependencies to the root directory, and only checks if a binary package is
