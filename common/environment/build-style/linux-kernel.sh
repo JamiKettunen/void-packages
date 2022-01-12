@@ -48,6 +48,7 @@ _cross=
 if [ "$CROSS_BUILD" ]; then
 	_cross="CROSS_COMPILE=${XBPS_CROSS_TRIPLET}-"
 fi
+_llvm=
 
 # Setup Makefile.DocBook if kernel version in range 4.14 -> 5.10
 xbps-uhelper cmpver $version 4.14; _r1=$?
