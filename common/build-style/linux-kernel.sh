@@ -2,42 +2,13 @@
 # This helper is for all Linux kernel templates.
 #
 
-_kernel_ver_lt() {
-	local ver=${version%.*}
-	local ver_major=${ver%.*} cmp_major=${1%.*}
-	if [ $ver_major -gt $cmp_major ]; then
-		return 1
-	elif [ $ver_major -eq $cmp_major ]; then
-		local ver_minor=${ver#*.} cmp_minor=${1#*.}
-		if [ $ver_minor -ge $cmp_minor ]; then
-			return 1
-		fi
-	fi
-}
-
 _kernel_supports_modules() {
 	grep -q '^CONFIG_MODULES=y$' .config
 }
 
 _kernel_update_make() {
-	if [ -z "$_llvm" ] && [[ "$kernel_clang" || "$kernel_llvm" ]]; then
-		if _kernel_ver_lt 5.15; then
-			msg_warn "Unpatched <5.7 kernels don't have full support for Clang/LLVM; ensure your kernel is up-to-date & patched!\n"
-			if [ "$kernel_llvm" ]; then
-				_llvm="CC=clang LD=ld.lld AR=llvm-ar NM=llvm-nm STRIP=llvm-strip OBJCOPY=llvm-objcopy OBJDUMP=llvm-objdump READELF=llvm-readelf HOSTCC=clang HOSTCXX=clang++ HOSTAR=llvm-ar HOSTLD=ld.lld AS=clang"
-			fi
-		else
-			if [ "$kernel_llvm" ]; then
-				_llvm="LLVM=1 LLVM_IAS=1"
-			fi
-		fi
-		if [ -z "$kernel_llvm" ]; then
-			_llvm="CC=clang"
-		fi
-	fi
-
 	: ${make_cmd:=make}
-	_make="$make_cmd ARCH=$_arch $_cross $_llvm"
+	_make="$make_cmd ARCH=$_arch $_cross"
 
 	local func="${1:-${FUNCNAME[1]}}"
 	if [ -z "$make_build_target" ] && [[ "$func" = *"_build" || "$func" = *"_install" ]]; then
