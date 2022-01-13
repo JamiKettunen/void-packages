@@ -62,7 +62,7 @@ do_configure() {
 	# modifies KERNELRELEASE and appends '+' to it.
 	#rm -rf .git
 
-	# 5.8 misses Documentation/DocBook. We ship the directory from 4.12 here (kernels >=4.14 && <=5.10)
+	# 4.14-5.10 miss Documentation/DocBook. We ship the directory from 4.12 here
 	if [ "$_docbook_makefile" ]; then
 		install -Dm644 "$_docbook_makefile" Documentation/DocBook/Makefile
 	fi
@@ -81,7 +81,7 @@ do_configure() {
 		msg_normal "Detected a .config file for your arch, using it.\n"
 		cp -f ${dotconfig} .config
 	else
-		msg_normal "Generating .config from allmodconfig...\n"
+		msg_normal "Defaulting to 'allmodconfig'.\n"
 		${_make} ${make_build_args} allmodconfig
 	fi
 	${_make} ${make_build_args} oldconfig
@@ -101,7 +101,8 @@ do_configure() {
 do_build() {
 	_kernel_update_make
 
-	#export LDFLAGS=
+	# unset to skip hardening flags that don't make sense to kernel
+	export LDFLAGS=
 	${_make} ${makejobs} ${make_build_args} prepare
 	${_make} ${makejobs} ${make_build_args} ${make_build_target}
 }
@@ -239,6 +240,10 @@ do_install() {
 	# Add wireless headers
 	mkdir -p ${hdrdest}/net/mac80211/
 	cp net/mac80211/*.h ${hdrdest}/net/mac80211
+
+	# add dvb headers for external modules
+	#mkdir -p ${hdrdest}/include/config/dvb/
+	#cp include/config/dvb/*.h ${hdrdest}/include/config/dvb/
 
 	# add dvb headers for http://mcentral.de/hg/~mrec/em28xx-new
 	mkdir -p ${hdrdest}/drivers/media/dvb-frontends

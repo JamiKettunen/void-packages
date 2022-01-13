@@ -26,6 +26,7 @@ mutable_files="
 
 # reproducible build
 # FIXME: usr/src/kernel-headers-5.15.12_1/include/generated/compile.h does't honor KBUILD_BUILD_TIMESTAMP!!!
+#export KBUILD_BUILD_TIMESTAMP=${SOURCE_DATE_EPOCH:-0} ???
 export KBUILD_BUILD_TIMESTAMP=$(LC_ALL=C date -ud @${SOURCE_DATE_EPOCH:-0})
 export KBUILD_BUILD_USER=voidlinux
 export KBUILD_BUILD_HOST=voidlinux
