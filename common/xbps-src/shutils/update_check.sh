@@ -8,9 +8,18 @@ update_check() {
     local -A fetchedurls
 
     if [ -r $update_override ]; then
+        if [ -n "${_commit}${_githash}" ]; then
+            git=yes
+        fi
         . $update_override
         if [ "$XBPS_UPDATE_CHECK_VERBOSE" ]; then
             echo "using $XBPS_TARGET_PKG/update overrides" 1>&2
+        fi
+        if [ -n "$git" ]; then
+            version=${_commit}${_githash}
+            if [ -z "$pattern" ]; then
+                pattern='<id>\K.*commit\/\K.*(?=<\/id>)'
+            fi
         fi
     fi
 

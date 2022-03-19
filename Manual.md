@@ -866,7 +866,11 @@ upstream versions. Example: `version=${version//./_}`
 
 - `git` can be set to treat the `site` as feed of commits for the
 project; in this case results are not sorted by version and only the
-first match is compared with the current `version`.
+first match is compared with the current `version`. `git` is
+automatically set if either `_commit` or `_githash` are set and can be
+unset if needed in an `update` file. when set `version` automatically
+gets the value of `${_commit}${_githash}` and `pattern` defaults to
+`<id>\K.*commit\/\K.*(?=<\/id>)`.
 
 - `single_directory` can be set to disable
 detecting directory containing one version of sources in url,
