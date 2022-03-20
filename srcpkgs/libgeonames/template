@@ -1,0 +1,70 @@
+# Template file for 'libgeonames'
+pkgname=libgeonames
+version=0.2.0r78
+revision=1
+# TODO: track main branch after merge of ubports/core/geonames!1
+_commit=e64a781891ad061c96ad42af28af072cf645d541 # tip of personal/mariogrip/alt-split branch as of 2022-03-20
+wrksrc="geonames-${_commit}"
+build_style=cmake
+configure_args="-DWANT_DOC=$(vopt_if doc ON OFF) -DWANT_DEMO=$(vopt_if demo ON OFF)"
+hostmakedepends="pkg-config $(vopt_if doc gtk-doc) gettext"
+makedepends="glib-devel $(vopt_if demo gtk+3-devel)"
+short_desc="Library to parse and query the geonames database dump (personal/mariogrip/alt-split branch)"
+maintainer="Jami Kettunen <jami.kettunen@protonmail.com>"
+license="GPL-3.0-only, CC-BY-3.0"
+homepage="https://launchpad.net/geonames"
+distfiles="https://gitlab.com/ubports/core/geonames/-/archive/${_commit}.tar.gz"
+checksum=bb3767739bb8bd460112ea3efebcc4201d2f35d257696bb434527c10c76006f3
+
+build_options="demo doc"
+desc_option_demo="Build gtk+3 demo"
+desc_option_doc="Build gtk-doc"
+build_options_default="demo"
+
+if [ -z "$XBPS_CHECK_PKGS" ] || [ "$CROSS_BUILD" ]; then
+	configure_args+=" -DWANT_TESTS=OFF"
+else
+	# FIXME: msgfmt: error while opening ".../build/src/po/fr.po" for reading: No such file or directory
+	# https://gitlab.com/ubports/core/geonames/-/merge_requests/1#note_881206082
+	disable_parallel_build=1
+fi
+
+if [ "${build_option_doc}" ]; then
+	# FIXME: cc error while opening ".../build/src/libgeonames.so" for reading: No such file or directory
+	# https://gitlab.com/ubports/core/geonames/-/merge_requests/1#note_882670537
+	disable_parallel_build=1
+fi
+
+# FIXME: cross build broken due to compile of host tool (mkdb) build for target
+# https://gitlab.com/ubports/core/geonames/-/merge_requests/1#note_881210952
+build_helper="qemu"
+
+# FIXME: Error processing file: GTKDOC_SCANGOBJ_WRAPPER-NOTFOUND during geonames.signals generation
+# https://gitlab.com/ubports/core/geonames/-/merge_requests/1#note_881266376
+if [ "${XBPS_MACHINE}" != "${XBPS_TARGET_MACHINE}" ]; then
+	makedepends+=" gtk-doc"
+fi
+
+# FIXME: build fails with ninja as CMake generator
+# https://gitlab.com/ubports/core/geonames/-/merge_requests/1#note_880991233
+make_cmd="make"
+export CMAKE_GENERATOR="Unix Makefiles"
+
+pre_build() {
+	# FIXME: ld: unrecognized option '-Wl,-z,relro' during geonames.signals generation with gtkdoc-scangobj
+	# https://gitlab.com/ubports/core/geonames/-/merge_requests/1#note_881266762
+	LD="${CC}"
+}
+
+libgeonames-devel_package() {
+	depends="${sourcepkg}>=${version}_${revision}"
+	short_desc+=" - development files"
+	pkg_install() {
+		vmove usr/include
+		vmove usr/lib/pkgconfig
+		if [ "$build_option_doc" ]; then
+			vmove usr/share/gtk-doc
+		fi
+		vmove "usr/lib/*.so"
+	}
+}

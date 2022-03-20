@@ -1,0 +1,1 @@
+site="${distfiles%/-*}/commits/personal/mariogrip/alt-split?format=atom"
