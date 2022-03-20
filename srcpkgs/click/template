@@ -1,0 +1,52 @@
+# Template file for 'click'
+pkgname=click
+version=0.5.0r1104
+revision=1
+_commit=00660eb4715398d403b0164fbe9304698e676f09 # tip of main branch as of 2022-03-26
+wrksrc="click-${_commit}"
+build_style=gnu-configure
+# --disable-packagekit
+configure_args="--disable-systemd"
+hostmakedepends="autoconf automake libtool pkg-config vala python3-setuptools"
+makedepends="glib-devel gobject-introspection json-glib-devel libgee08-devel"
+depends="python3"
+short_desc="Manage Ubuntu Touch click packages"
+maintainer="Jami Kettunen <jami.kettunen@protonmail.com>"
+license="GPL-3.0-only"
+homepage="https://gitlab.com/ubports/core/click"
+distfiles="https://gitlab.com/ubports/core/click/-/archive/${_commit}.tar.gz"
+checksum=5fb8ec89d993b4c4022807980d410fd9a43faed863ff6834417c70b48a4745af
+
+# FIXME: needs dpkg
+make_check=no
+
+build_helpers="gir qemu"
+if [ "$CROSS_BUILD" ]; then
+	hostmakedepends+=" gobject-introspection prelink-cross qemu-user-static"
+fi
+
+pre_configure() {
+    autoreconf -fi
+}
+
+libclick_package() {
+	#depends="${sourcepkg}>=${version}_${revision}"
+	short_desc+=" - shared-libraries"
+	pkg_install() {
+		vmove "usr/lib/*.so.*"
+	}
+}
+
+click-devel_package() {
+	depends="${sourcepkg}>=${version}_${revision} lib${sourcepkg}>=${version}_${revision}
+ json-glib-devel"
+	short_desc+=" - development files"
+	pkg_install() {
+		vmove usr/include
+		vmove usr/lib/pkgconfig
+		vmove "usr/lib/*.so"
+		vmove usr/share/gir-1.0
+	}
+}
+
+# TODO: Remove debian/ubuntu cruft from DESTDIR

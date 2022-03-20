@@ -1,1 +1,1 @@
-site="${homepage}/commits/main.atom"
+site="${distfiles%/-*}/commits/main.atom"
