@@ -1,0 +1,27 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index b1b2204..ba7d687 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -14,7 +14,8 @@ set(PROPERTIES_CPP_VERSION_MAJOR 0)
+ set(PROPERTIES_CPP_VERSION_MINOR 0)
+ set(PROPERTIES_CPP_VERSION_PATCH 1)
+ 
+-enable_testing()
++# Options
++option(ENABLE_TESTS "Enable all tests and checks" ON)
+ 
+ include_directories(
+   include/
+@@ -23,7 +24,11 @@ include_directories(
+ add_subdirectory(doc)
+ add_subdirectory(data)
+ add_subdirectory(include)
+-add_subdirectory(tests)
++
++if(ENABLE_TESTS)
++  enable_testing()
++  add_subdirectory(tests)
++endif()
+ 
+ find_package(CoverageReport)
+ if(CoverageReport_FOUND)
