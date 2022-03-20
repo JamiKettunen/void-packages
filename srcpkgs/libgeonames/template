@@ -1,0 +1,59 @@
+# Template file for 'libgeonames'
+pkgname=libgeonames
+version=0.3.0r110
+revision=1
+_commit=298997bfc7504f3efd5a59f17f70fcd9a4da3eab # tip of main branch as of 2022-10-04
+wrksrc="geonames-${_commit}"
+build_style=cmake
+configure_args="-DWANT_DEMO=ON $(vopt_bool doc WANT_DOC)"
+hostmakedepends="pkg-config gettext $(vopt_if doc gtk-doc)"
+makedepends="glib-devel gtk+3-devel"
+short_desc="Library to parse and query the geonames database dump (git ${_commit:0:7})"
+maintainer="Jami Kettunen <jami.kettunen@protonmail.com>"
+license="GPL-3.0-only, CC-BY-3.0"
+homepage="https://launchpad.net/geonames"
+distfiles="https://gitlab.com/ubports/development/core/geonames/-/archive/${_commit}.tar.gz"
+checksum=e70fd891cbbc4a7f2ba00b0026e8275eea7b16453557ee8b77968a50457ad859
+
+build_options="doc"
+desc_option_doc="Build gtk-doc HTML documentation"
+#build_options_default=""
+
+# FIXME: cross build broken due to compile of host tool (mkdb) build for target
+# https://gitlab.com/ubports/core/geonames/-/merge_requests/1#note_881210952
+build_helper="qemu"
+
+# FIXME: Error processing file: GTKDOC_SCANGOBJ_WRAPPER-NOTFOUND during geonames.signals generation
+# https://gitlab.com/ubports/core/geonames/-/merge_requests/1#note_881266376
+if [ "${build_option_doc}" ] && [ "$CROSS_BUILD" ]; then
+	makedepends+=" gtk-doc"
+fi
+
+pre_build() {
+	if [ "${build_option_doc}" ]; then
+		# FIXME: ld: unrecognized option '-Wl,-z,relro' during geonames.signals generation with gtkdoc-scangobj
+		# https://gitlab.com/ubports/core/geonames/-/merge_requests/1#note_881266762
+		LD="${CC}"
+	fi
+}
+
+libgeonames-demo_package() {
+	depends="${sourcepkg}>=${version}_${revision}"
+	short_desc+=" - gtk+3 demo application"
+	pkg_install() {
+		vmove usr/bin
+	}
+}
+
+libgeonames-devel_package() {
+	depends="${sourcepkg}>=${version}_${revision}"
+	short_desc+=" - development files"
+	pkg_install() {
+		vmove usr/include
+		vmove usr/lib/pkgconfig
+		if [ "$build_option_doc" ]; then
+			vmove usr/share/gtk-doc
+		fi
+		vmove "usr/lib/*.so"
+	}
+}
