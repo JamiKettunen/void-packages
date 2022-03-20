@@ -1,0 +1,14 @@
+# Template file for 'ubports-cmake-extras'
+pkgname=ubports-cmake-extras
+version=1.7r286
+revision=1
+_commit=5f56466d5da945279c51e0547817ec3a961a7666 # tip of main branch as of 2022-03-20
+wrksrc="cmake-extras-${_commit}"
+build_style=cmake
+short_desc="A collection of UBports' add-ons for CMake"
+maintainer="Jami Kettunen <jami.kettunen@protonmail.com>"
+license="GPL-3.0-or-later"
+homepage="https://gitlab.com/ubports/core/cmake-extras"
+distfiles="https://gitlab.com/ubports/core/cmake-extras/-/archive/${_commit}/${_commit}.tar.gz"
+checksum=522c73c4c9f142298283f85e860ae21d47f7ceb2262039e467a12a2f66e5c5d9
+python_version=3
