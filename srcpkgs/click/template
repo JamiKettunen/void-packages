@@ -1,0 +1,56 @@
+# Template file for 'click'
+pkgname=click
+version=0.5.0r1121
+revision=1
+_commit=e41fec1f635b70a746fb3c6c1ed2b5c3980c01c3 # tip of main branch as of 2022-09-22
+wrksrc="click-${_commit}"
+build_style=gnu-configure
+build_helpers="gir"
+configure_args="--disable-systemd"
+hostmakedepends="autoconf automake libtool pkg-config vala python3-setuptools glib-devel"
+makedepends="glib-devel gobject-introspection json-glib-devel libgee08-devel
+ properties-cpp gtest-devel dbus-test-runner-devel libprocess-cpp-devel"
+checkdepends="dbus dpkg apt python3-gobject python3-six python3-debian"
+depends="python3"
+# TODO: depends on python3-gobject? also apt/dpkg?
+short_desc="Manage Ubuntu Touch click packages (git ${_commit:0:7})"
+maintainer="Jami Kettunen <jami.kettunen@protonmail.com>"
+license="GPL-3.0-only"
+homepage="https://gitlab.com/ubports/development/core/click"
+distfiles="https://gitlab.com/ubports/development/core/click/-/archive/${_commit}.tar.gz"
+checksum=9ee408b0dffb6942dfbabb53eb92dc19addc2a50e99a3f64eebf25bde70da674
+
+# FIXME: https://gitlab.com/ubports/development/core/click/-/issues/16
+disable_parallel_build=yes
+
+# FIXME: ./configure: line 18802: syntax error near unexpected token `0.6.7' & ./configure: line 18802: `GOBJECT_INTROSPECTION_REQUIRE(0.6.7)'
+build_helpers+=" qemu"
+if [ "$CROSS_BUILD" ]; then
+	hostmakedepends+=" gobject-introspection prelink-cross qemu-user-static"
+fi
+
+pre_configure() {
+	autoreconf -fi
+}
+
+libclick_package() {
+	#depends="${sourcepkg}>=${version}_${revision}"
+	short_desc+=" - shared-libraries"
+	pkg_install() {
+		vmove "usr/lib/*.so.*"
+	}
+}
+
+click-devel_package() {
+	depends="${sourcepkg}>=${version}_${revision} lib${sourcepkg}>=${version}_${revision}
+ json-glib-devel"
+	short_desc+=" - development files"
+	pkg_install() {
+		vmove usr/include
+		vmove usr/lib/pkgconfig
+		vmove "usr/lib/*.so"
+		vmove usr/share/gir-1.0
+	}
+}
+
+# TODO: Remove debian/ubuntu cruft from DESTDIR
