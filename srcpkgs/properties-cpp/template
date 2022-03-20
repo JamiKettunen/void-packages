@@ -1,0 +1,19 @@
+# Template file for 'properties-cpp'
+pkgname=properties-cpp
+version=0.0.2r41
+revision=1
+_commit=7dd9ec00d061d822d259c7477cb12f79d0e1eadd # tip of main branch as of 2022-03-20
+wrksrc="properties-cpp-${_commit}"
+build_style=cmake
+hostmakedepends="pkg-config"
+checkdepends="gtest-devel"
+short_desc="Convenience header-only library for handling properties and signals"
+maintainer="Jami Kettunen <jami.kettunen@protonmail.com>"
+license="LGPL-3.0-only"
+homepage="https://gitlab.com/ubports/core/lib-cpp/properties-cpp"
+distfiles="https://gitlab.com/ubports/core/lib-cpp/properties-cpp/-/archive/${_commit}.tar.gz"
+checksum=897af644ed44a62399123d807dcd2dd06b393326d86804589e72f192ee0816a5
+
+if [ -z "$XBPS_CHECK_PKGS" ] || [ "$CROSS_BUILD" ]; then
+	configure_args+=" -DENABLE_TESTS=OFF"
+fi
