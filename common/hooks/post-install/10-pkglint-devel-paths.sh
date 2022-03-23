@@ -12,10 +12,6 @@ hook() {
         return 0
     fi
 
-    if [[ "$subpackages" != *"-devel" ]]; then
-        return 0
-    fi
-
     for f in $(find $PKGDESTDIR -type d); do
         case "${f#$PKGDESTDIR}" in
             /usr/include)
