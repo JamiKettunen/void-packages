@@ -1,0 +1,51 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index a2212ca..408947a 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -1,5 +1,5 @@
+ project(lomiri-app-launch C CXX)
+-cmake_minimum_required(VERSION 2.8.9)
++cmake_minimum_required(VERSION 3.5)
+ 
+ ##########################
+ # Version Info
+diff --git a/cmake/UseConstantBuilder.cmake b/cmake/UseConstantBuilder.cmake
+index 06c8d05..1dd9209 100644
+--- a/cmake/UseConstantBuilder.cmake
++++ b/cmake/UseConstantBuilder.cmake
+@@ -1,4 +1,4 @@
+-cmake_minimum_required(VERSION 2.6)
++cmake_minimum_required(VERSION 3.5)
+ if(POLICY CMP0011)
+   cmake_policy(SET CMP0011 NEW)
+ endif(POLICY CMP0011)
+diff --git a/cmake/UseGdbusCodegen.cmake b/cmake/UseGdbusCodegen.cmake
+index ddb2995..e2d7f2a 100644
+--- a/cmake/UseGdbusCodegen.cmake
++++ b/cmake/UseGdbusCodegen.cmake
+@@ -1,4 +1,4 @@
+-cmake_minimum_required(VERSION 2.6)
++cmake_minimum_required(VERSION 3.5)
+ if(POLICY CMP0011)
+   cmake_policy(SET CMP0011 NEW)
+ endif(POLICY CMP0011)
+diff --git a/cmake/UseGlibGeneration.cmake b/cmake/UseGlibGeneration.cmake
+index 67e34b9..bdd3156 100644
+--- a/cmake/UseGlibGeneration.cmake
++++ b/cmake/UseGlibGeneration.cmake
+@@ -1,4 +1,4 @@
+-cmake_minimum_required(VERSION 2.6)
++cmake_minimum_required(VERSION 3.5)
+ if(POLICY CMP0011)
+   cmake_policy(SET CMP0011 NEW)
+ endif(POLICY CMP0011)
+diff --git a/cmake/UseLttngGenTp.cmake b/cmake/UseLttngGenTp.cmake
+index 62c1ca8..ca15d21 100644
+--- a/cmake/UseLttngGenTp.cmake
++++ b/cmake/UseLttngGenTp.cmake
+@@ -1,4 +1,4 @@
+-cmake_minimum_required(VERSION 2.6)
++cmake_minimum_required(VERSION 3.5)
+ if(POLICY CMP0011)
+   cmake_policy(SET CMP0011 NEW)
+ endif(POLICY CMP0011)

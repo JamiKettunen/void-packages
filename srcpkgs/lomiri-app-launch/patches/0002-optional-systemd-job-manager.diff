@@ -1,0 +1,52 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index a2212ca..732f381 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -13,6 +13,7 @@ set(ABI_VERSION 0)
+ ##########################
+ 
+ option (enable_tests "Build tests" ON)
++option (USE_SYSTEMD "Use systemd jobs manager instead of POSIX" 1)
+ 
+ set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake" "${CMAKE_MODULE_PATH}")
+ 
+@@ -131,6 +132,7 @@ list(APPEND filter-list "${CMAKE_SOURCE_DIR}/tests/*")
+ if (NOT ${CMAKE_BINARY_DIR} STREQUAL ${CMAKE_SOURCE_DIR})
+   list(APPEND filter-list "${CMAKE_BINARY_DIR}/*")
+ endif()
++# FIXME: no systemd job if not enabled
+ ENABLE_COVERAGE_REPORT(
+   TARGETS
+ 	lomiri-launcher
+diff --git a/liblomiri-app-launch/CMakeLists.txt b/liblomiri-app-launch/CMakeLists.txt
+index dd07d00..a05de65 100644
+--- a/liblomiri-app-launch/CMakeLists.txt
++++ b/liblomiri-app-launch/CMakeLists.txt
+@@ -21,6 +21,7 @@ add_definitions ( -DG_LOG_DOMAIN="lomiri-app-launch" )
+ add_definitions ( -DLOMIRI_APP_LAUNCH_ARCH="${LOMIRI_APP_LAUNCH_ARCH}" )
+ add_definitions ( -DHELPER_EXEC_TOOL_DIR="${pkglibexecdir}" )
+ add_definitions ( -DHELPER_HELPER_TOOL="${pkglibexecdir}/systemd-helper-helper" )
++add_definitions ( -DUSE_SYSTEMD=${USE_SYSTEMD} )
+ 
+ set(LAUNCHER_HEADERS
+ lomiri-app-launch.h
+diff --git a/liblomiri-app-launch/jobs-base.cpp b/liblomiri-app-launch/jobs-base.cpp
+index 46f3e3e..467b8cd 100644
+--- a/liblomiri-app-launch/jobs-base.cpp
++++ b/liblomiri-app-launch/jobs-base.cpp
+@@ -58,10 +58,13 @@ Base::~Base()
+     one right now. */
+ std::shared_ptr<Base> Base::determineFactory(const std::shared_ptr<Registry::Impl>& registry)
+ {
++#if USE_SYSTEMD
+      g_debug("Building a systemd jobs manager");
+      return std::make_shared<jobs::manager::SystemD>(registry);
+-//     g_debug("Building a POSIX jobs manager");
+-//     return std::make_shared<jobs::manager::POSIX>(registry);
++#else
++     g_debug("Building a POSIX jobs manager");
++     return std::make_shared<jobs::manager::POSIX>(registry);
++#endif
+ }
+ 
+ const std::list<std::string>& Base::getAllApplicationJobs() const

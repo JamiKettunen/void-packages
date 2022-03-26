@@ -1,0 +1,55 @@
+# Template file for 'lomiri-app-launch'
+pkgname=lomiri-app-launch
+version=0.1.1r3079
+revision=1
+_commit=e54300bd6f5513a24f21da7d77ed6ef3f132d258 # tip of main branch as of 2022-03-26
+wrksrc="lomiri-app-launch-${_commit}"
+wrksrc_build="cmake"
+build_style=cmake
+# -DUSE_CLICK=$(vopt_if click 1 0)
+# https://gitlab.com/ubports/core/lomiri-app-launch/-/commit/e8a31d46
+configure_args="-DUSE_SYSTEMD=0"
+hostmakedepends="pkg-config glib-devel lttng-ust ubports-cmake-extras"
+makedepends="glib-devel python-gobject-devel json-glib-devel zeitgeist-devel
+ $(vopt_if click 'click-devel') lttng-ust-devel mir1-devel protobuf-devel
+ libxkbcommon-devel libcurl-devel liblomiri-api-devel properties-cpp
+ gobject-introspection"
+checkdepends="dbus-test-runner-devel gtest-devel dbus libqtdbusmock-devel python3-dbusmock"
+short_desc="Daemon for launching applications under Lomiri"
+maintainer="Jami Kettunen <jami.kettunen@protonmail.com>"
+license="GPL-3.0-only"
+homepage="https://gitlab.com/ubports/core/lomiri-app-launch"
+distfiles="https://gitlab.com/ubports/core/lomiri-app-launch/-/archive/${_commit}.tar.gz"
+checksum=f97147e5fc60385375a1323fac6ac40f37f7fdc17a6dad8969ab4f19ce9a52cc
+
+# TESTS FIXME: libual-test is stuck!
+
+# FIXME: click apps support should be optional!
+build_options="click"
+desc_option_click="Build with support for Ubuntu Touch click applications"
+build_options_default="click"
+
+if [ -z "$XBPS_CHECK_PKGS" ] || [ "$CROSS_BUILD" ]; then
+	configure_args+=" -Denable_tests=OFF"
+fi
+
+# FIXME: /usr/aarch64-linux-musl//usr/bin/g-ir-scanner: line 10: /usr/bin/g-ir-scanner.wrapped: No such file or directory
+build_helpers="gir qemu"
+if [ "$CROSS_BUILD" ]; then
+	hostmakedepends+=" gobject-introspection prelink-cross qemu-user-static"
+fi
+
+lomiri-app-launch-devel_package() {
+	depends="${sourcepkg}>=${version}_${revision} properties-cpp"
+	short_desc+=" - development files"
+	pkg_install() {
+		vmove usr/include
+		vmove usr/lib/pkgconfig
+		vmove "usr/lib/*.so"
+		vmove usr/share/gir-1.0
+	}
+}
+
+# FIXME:
+#[100/101] Generating LomiriAppLaunch-0.gir
+#../../liblomiri-app-launch/lomiri-app-launch.h:483: Warning: LomiriAppLaunch: lomiri_app_launch_start_session_helper: argument session: Unresolved type: 'MirPromptSession*'
