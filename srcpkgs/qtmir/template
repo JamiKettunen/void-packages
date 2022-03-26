@@ -1,0 +1,64 @@
+# Template file for 'qtmir'
+pkgname=qtmir
+version=0.7.0r2707
+revision=1
+_commit=531ecf70ac8787cd10ee5cb81926a9581d5e5b3c # tip of main branch as of 2022-03-22
+wrksrc="qtmir-${_commit}"
+build_style=cmake
+# -DQGL_DEBUG=true
+# TODO: -DWITH_CONTENTHUB=ON! what feature(s) does this enable?
+configure_args="-DWerror=OFF -DWITH_VALGRIND=OFF"
+hostmakedepends="pkg-config qt5-qmake qt5-host-tools ubports-cmake-extras liblomiri-api-devel
+ lttng-ust python3"
+makedepends="qt5-devel qt5-declarative-devel qt5-sensors-devel
+ mir1-devel libprocess-cpp-devel properties-cpp lomiri-app-launch-devel glib-devel
+ lttng-ust-devel liblomiri-api-devel lomiri-url-dispatcher-devel
+ gsettings-qt-devel glm boost-devel"
+# https://gitlab.com/ubports/core/qtmir/-/merge_requests/33 - GTEST_DISALLOW_ASSIGN_
+# valgrind-devel
+# FIXME: mirtest not found
+checkdepends="gtest-devel libqtdbusmock-devel libqtdbustest-devel python3-dbusmock"
+short_desc="QPA plugin to make Qt a Mir server"
+maintainer="Jami Kettunen <jami.kettunen@protonmail.com>"
+license="GPL-3.0-only, LGPL-3.0-only"
+homepage="https://gitlab.com/ubports/core/qtmir"
+distfiles="https://gitlab.com/ubports/core/qtmir/-/archive/${_commit}.tar.gz"
+checksum=df8446f0b85236826e82e39f9f51a4452effc2127898cc5d2b866511a0fb217e
+
+# don't add "${prefix}/${XBPS_CROSS_TRIPLET}" to gsettings-qt.pc libdir & includedir when cross-building
+# -> same happens on all 3 of the qt5-* extra modules I've packaged?!
+# -> really ugly hack to workaround the error: ln -s .. masterdir/usr/aarch64-linux-gnu/usr/aarch64-linux-gnu
+
+if [ -z "$XBPS_CHECK_PKGS" ] || [ "$CROSS_BUILD" ]; then
+	configure_args+=" -DNO_TESTS=TRUE"
+fi
+
+qtmir-demo_package() {
+	depends="${sourcepkg}>=${version}_${revision} lomiri-ui-toolkit"
+	short_desc+=" - demo programs"
+	pkg_install() {
+		vmove "usr/share/qtmir/qtmir-demo-*"
+		vmove "usr/share/applications/qtmir-demo-*.desktop"
+		vmove "usr/bin/qtmir-demo-*"
+		vmove usr/share/qtmir/benchmarks
+		#vmove usr/share/glib-2.0/schemas/com.canonical.qtmir.gschema.xml
+	}
+}
+
+qtmir-devel_package() {
+	short_desc+=" - development files"
+	depends="${sourcepkg}>=${version}_${revision}"
+	pkg_install() {
+		vmove usr/lib/pkgconfig
+		vmove "usr/lib/*.so"
+		vmove usr/include
+	}
+}
+
+# TODO:
+# -- Could NOT find Qt5PlatformSupport (missing: Qt5PlatformSupport_LIBRARY Qt5PlatformSupport_INCLUDE_DIR) (found version "5.15.2")
+# https://github.com/xmake-io/xmake/issues/619
+
+# add option() for NO_TEST!
+
+# locate glm, boost & properties-cpp (core/signal.h)

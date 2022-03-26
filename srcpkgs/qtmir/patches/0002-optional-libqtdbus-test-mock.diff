@@ -1,0 +1,23 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 5fd4381c..4a516e82 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -93,8 +93,6 @@ pkg_check_modules(GIO gio-2.0)
+ pkg_check_modules(GIO_UNIX gio-unix-2.0)
+ pkg_check_modules(LTTNG lttng-ust)
+ pkg_check_modules(GSETTINGS_QT REQUIRED gsettings-qt)
+-pkg_check_modules(QTDBUSTEST libqtdbustest-1 REQUIRED)
+-pkg_check_modules(QTDBUSMOCK libqtdbusmock-1 REQUIRED)
+ pkg_check_modules(APPLICATION_API REQUIRED lomiri-shell-application=27)
+ 
+ if(WITH_VALGRIND)
+@@ -168,6 +166,9 @@ add_definitions(-DQT_NO_KEYWORDS)
+ if (NO_TESTS)
+     message(STATUS "Tests disabled")
+ else()
++    pkg_check_modules(QTDBUSTEST libqtdbustest-1 REQUIRED)
++    pkg_check_modules(QTDBUSMOCK libqtdbusmock-1 REQUIRED)
++
+     include(CTest)
+     enable_testing()
+     add_subdirectory(tests)

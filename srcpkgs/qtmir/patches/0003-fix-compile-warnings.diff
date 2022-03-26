@@ -1,0 +1,13 @@
+diff --git a/src/platforms/mirserver/screenadaptor.cpp b/src/platforms/mirserver/screenadaptor.cpp
+index 1a274617..d6f2b674 100644
+--- a/src/platforms/mirserver/screenadaptor.cpp
++++ b/src/platforms/mirserver/screenadaptor.cpp
+@@ -122,7 +122,7 @@ QPoint ScreenAdaptor::position() const
+ 
+ QQmlListProperty<qtmir::ScreenMode> ScreenAdaptor::availableModes()
+ {
+-    return QQmlListProperty<qtmir::ScreenMode>(this, m_modes);
++    return QQmlListProperty<qtmir::ScreenMode>(this, &m_modes);
+ }
+ 
+ uint ScreenAdaptor::currentModeIndex() const

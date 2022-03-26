@@ -1,0 +1,110 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 7e152e14..5fd4381c 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -1,4 +1,4 @@
+-cmake_minimum_required(VERSION 3.1)
++cmake_minimum_required(VERSION 3.5)
+ 
+ project(qtmir)
+ 
+diff --git a/cmake/modules/FindQt5EglSupport.cmake b/cmake/modules/FindQt5EglSupport.cmake
+index 5997ae90..cb35413c 100644
+--- a/cmake/modules/FindQt5EglSupport.cmake
++++ b/cmake/modules/FindQt5EglSupport.cmake
+@@ -59,12 +59,7 @@
+ # THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ #=============================================================================
+ 
+-if(CMAKE_VERSION VERSION_LESS 2.8.12)
+-    message(FATAL_ERROR "CMake 2.8.12 is required by FindQt5EglSupport.cmake")
+-endif()
+-if(CMAKE_MINIMUM_REQUIRED_VERSION VERSION_LESS 2.8.12)
+-    message(AUTHOR_WARNING "Your project should require at least CMake 2.8.12 to use FindQt5EglSupport.cmake")
+-endif()
++cmake_minimum_required(VERSION 3.5)
+ 
+ # Use pkg-config to get the directories and then use these values
+ # in the FIND_PATH() and FIND_LIBRARY() calls
+diff --git a/cmake/modules/FindQt5EventDispatcherSupport.cmake b/cmake/modules/FindQt5EventDispatcherSupport.cmake
+index bd4a1d69..444dc475 100644
+--- a/cmake/modules/FindQt5EventDispatcherSupport.cmake
++++ b/cmake/modules/FindQt5EventDispatcherSupport.cmake
+@@ -58,12 +58,7 @@
+ # THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ #=============================================================================
+ 
+-if(CMAKE_VERSION VERSION_LESS 2.8.12)
+-    message(FATAL_ERROR "CMake 2.8.12 is required by FindQt5EventDispatcherSupport.cmake")
+-endif()
+-if(CMAKE_MINIMUM_REQUIRED_VERSION VERSION_LESS 2.8.12)
+-    message(AUTHOR_WARNING "Your project should require at least CMake 2.8.12 to use FindQt5EventDispatcherSupport.cmake")
+-endif()
++cmake_minimum_required(VERSION 3.5)
+ 
+ # Use pkg-config to get the directories and then use these values
+ # in the FIND_PATH() and FIND_LIBRARY() calls
+diff --git a/cmake/modules/FindQt5FontDatabaseSupport.cmake b/cmake/modules/FindQt5FontDatabaseSupport.cmake
+index 96f55f22..d5a407b8 100644
+--- a/cmake/modules/FindQt5FontDatabaseSupport.cmake
++++ b/cmake/modules/FindQt5FontDatabaseSupport.cmake
+@@ -58,12 +58,7 @@
+ # THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ #=============================================================================
+ 
+-if(CMAKE_VERSION VERSION_LESS 2.8.12)
+-    message(FATAL_ERROR "CMake 2.8.12 is required by FindQt5FontDatabaseSupport.cmake")
+-endif()
+-if(CMAKE_MINIMUM_REQUIRED_VERSION VERSION_LESS 2.8.12)
+-    message(AUTHOR_WARNING "Your project should require at least CMake 2.8.12 to use FindQt5FontDatabaseSupport.cmake")
+-endif()
++cmake_minimum_required(VERSION 3.5)
+ 
+ # Use pkg-config to get the directories and then use these values
+ # in the FIND_PATH() and FIND_LIBRARY() calls
+diff --git a/cmake/modules/FindQt5ServiceSupport.cmake b/cmake/modules/FindQt5ServiceSupport.cmake
+index 33c2cbf3..82428d72 100644
+--- a/cmake/modules/FindQt5ServiceSupport.cmake
++++ b/cmake/modules/FindQt5ServiceSupport.cmake
+@@ -59,12 +59,7 @@
+ # THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ #=============================================================================
+ 
+-if(CMAKE_VERSION VERSION_LESS 2.8.12)
+-    message(FATAL_ERROR "CMake 2.8.12 is required by FindQt5ServiceSupport.cmake")
+-endif()
+-if(CMAKE_MINIMUM_REQUIRED_VERSION VERSION_LESS 2.8.12)
+-    message(AUTHOR_WARNING "Your project should require at least CMake 2.8.12 to use FindQt5ServiceSupport.cmake")
+-endif()
++cmake_minimum_required(VERSION 3.5)
+ 
+ # Use pkg-config to get the directories and then use these values
+ # in the FIND_PATH() and FIND_LIBRARY() calls
+diff --git a/cmake/modules/FindQt5ThemeSupport.cmake b/cmake/modules/FindQt5ThemeSupport.cmake
+index 5588a766..2cf59246 100644
+--- a/cmake/modules/FindQt5ThemeSupport.cmake
++++ b/cmake/modules/FindQt5ThemeSupport.cmake
+@@ -58,12 +58,7 @@
+ # THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ #=============================================================================
+ 
+-if(CMAKE_VERSION VERSION_LESS 2.8.12)
+-    message(FATAL_ERROR "CMake 2.8.12 is required by FindQt5ThemeSupport.cmake")
+-endif()
+-if(CMAKE_MINIMUM_REQUIRED_VERSION VERSION_LESS 2.8.12)
+-    message(AUTHOR_WARNING "Your project should require at least CMake 2.8.12 to use FindQt5ThemeSupport.cmake")
+-endif()
++cmake_minimum_required(VERSION 3.5)
+ 
+ # Use pkg-config to get the directories and then use these values
+ # in the FIND_PATH() and FIND_LIBRARY() calls
+diff --git a/cmake/modules/UseLttngGenTp.cmake b/cmake/modules/UseLttngGenTp.cmake
+index 75ad8f4c..601d338f 100644
+--- a/cmake/modules/UseLttngGenTp.cmake
++++ b/cmake/modules/UseLttngGenTp.cmake
+@@ -1,4 +1,4 @@
+-cmake_minimum_required(VERSION 2.6)
++cmake_minimum_required(VERSION 3.5)
+ if(POLICY CMP0011)
+  cmake_policy(SET CMP0011 NEW)
+ endif(POLICY CMP0011)
