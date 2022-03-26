@@ -1,0 +1,805 @@
+From 8f8510f465707e12f5313517e4ef920bcb788d59 Mon Sep 17 00:00:00 2001
+From: Jami Kettunen <jami.kettunen@protonmail.com>
+Date: Sat, 28 May 2022 02:37:15 +0300
+Subject: [PATCH 8/8] Rename previously missed ubuntu -> lomiri components
+
+ubuntu-app-launch has been lomiri-app-launch since ee597d7
+("Quick and dirty rename to lomiri"), but there were still a few missed
+things such as libUAL -> libLAL.
+---
+ CMakeLists.txt                                |  4 +-
+ liblomiri-app-launch/jobs-posix.cpp           |  6 +-
+ liblomiri-app-launch/jobs-systemd.cpp         |  6 +-
+ .../lomiri-app-launch-trace.tp                | 16 ++--
+ tests/CMakeLists.txt                          | 24 +++---
+ ...{libual-cpp-test.cc => liblal-cpp-test.cc} | 80 +++++++++----------
+ tests/{libual-test.cc => liblal-test.cc}      | 60 +++++++-------
+ 7 files changed, 98 insertions(+), 98 deletions(-)
+ rename tests/{libual-cpp-test.cc => liblal-cpp-test.cc} (97%)
+ rename tests/{libual-test.cc => liblal-test.cc} (97%)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 1a478ac..45a129a 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -151,8 +151,8 @@ if (${ENABLE_COVERAGE})
+ 			info-watcher-zg
+ 			jobs-base-test
+ 			jobs-systemd
+-			libual-test
+-			libual-cpp-test
++			liblal-test
++			liblal-cpp-test
+ 			list-apps
+ 			snapd-info-test
+ 		FILTER
+diff --git a/liblomiri-app-launch/jobs-posix.cpp b/liblomiri-app-launch/jobs-posix.cpp
+index 9e4ad08..be45419 100644
+--- a/liblomiri-app-launch/jobs-posix.cpp
++++ b/liblomiri-app-launch/jobs-posix.cpp
+@@ -176,7 +176,7 @@ std::shared_ptr<Application::Instance> POSIX::launch(
+         std::string appIdStr{appId};
+         g_debug("Initializing params for an new instance::POSIX for: %s", appIdStr.c_str());
+ 
+-        tracepoint(lomiri_app_launch, libual_start, appIdStr.c_str());
++        tracepoint(lomiri_app_launch, liblal_start, appIdStr.c_str());
+ 
+         int timeout = 1;
+         if (lomiri::app_launch::Registry::Impl::isWatchingAppStarting())
+@@ -282,7 +282,7 @@ std::shared_ptr<Application::Instance> POSIX::launch(
+         for (const auto& rmenv :
+              {"APP_DIR", "APP_URIS", "APP_EXEC", "APP_EXEC_POLICY", "APP_LAUNCHER_PID",
+               "INSTANCE_ID", "MIR_SERVER_PLATFORM_PATH", "MIR_SERVER_PROMPT_FILE", "MIR_SERVER_HOST_SOCKET",
+-              "UBUNTU_APP_LAUNCH_OOM_HELPER", "UBUNTU_APP_LAUNCH_LEGACY_ROOT"})
++              "LOMIRI_APP_LAUNCH_OOM_HELPER", "LOMIRI_APP_LAUNCH_LEGACY_ROOT"})
+         {
+             removeEnv(rmenv, env);
+         }
+@@ -348,7 +348,7 @@ std::shared_ptr<Application::Instance> POSIX::launch(
+         g_debug("child_pid: %d", child_pid);
+         launchedpids.emplace_back(child_pid);
+ 
+-        tracepoint(lomiri_app_launch, libual_start_message_sent, appIdStr.c_str());
++        tracepoint(lomiri_app_launch, liblal_start_message_sent, appIdStr.c_str());
+ 
+         return retval;
+     });
+diff --git a/liblomiri-app-launch/jobs-systemd.cpp b/liblomiri-app-launch/jobs-systemd.cpp
+index 9082aae..f86fc3d 100644
+--- a/liblomiri-app-launch/jobs-systemd.cpp
++++ b/liblomiri-app-launch/jobs-systemd.cpp
+@@ -467,7 +467,7 @@ void SystemD::application_start_cb(GObject* obj, GAsyncResult* res, gpointer use
+ {
+     auto data = static_cast<StartCHelper*>(user_data);
+ 
+-    tracepoint(lomiri_app_launch, libual_start_message_callback, std::string(data->ptr->appId_).c_str());
++    tracepoint(lomiri_app_launch, liblal_start_message_callback, std::string(data->ptr->appId_).c_str());
+ 
+     g_debug("Started Message Callback: %s", std::string(data->ptr->appId_).c_str());
+ 
+@@ -563,7 +563,7 @@ std::shared_ptr<Application::Instance> SystemD::launch(
+         std::string appIdStr{appId};
+         g_debug("Initializing params for an new instance::SystemD for: %s", appIdStr.c_str());
+ 
+-        tracepoint(lomiri_app_launch, libual_start, appIdStr.c_str());
++        tracepoint(lomiri_app_launch, liblal_start, appIdStr.c_str());
+ 
+         int timeout = 1;
+         if (lomiri::app_launch::Registry::Impl::isWatchingAppStarting())
+@@ -785,7 +785,7 @@ std::shared_ptr<Application::Instance> SystemD::launch(
+                                chelper                             /* object */
+                                );
+ 
+-        tracepoint(lomiri_app_launch, libual_start_message_sent, appIdStr.c_str());
++        tracepoint(lomiri_app_launch, liblal_start_message_sent, appIdStr.c_str());
+ 
+         return retval;
+     });
+diff --git a/liblomiri-app-launch/lomiri-app-launch-trace.tp b/liblomiri-app-launch/lomiri-app-launch-trace.tp
+index 54ea927..ea2f699 100644
+--- a/liblomiri-app-launch/lomiri-app-launch-trace.tp
++++ b/liblomiri-app-launch/lomiri-app-launch-trace.tp
+@@ -3,42 +3,42 @@
+ #define BYTE_ORDER __BYTE_ORDER
+ 
+ /*******************************
+-  LibUAL start function
++  LibLAL start function
+  *******************************/
+-TRACEPOINT_EVENT(lomiri_app_launch, libual_start,
++TRACEPOINT_EVENT(lomiri_app_launch, liblal_start,
+ 	TP_ARGS(const char *, appid),
+ 	TP_FIELDS(
+ 		ctf_string(appid, appid)
+ 	)
+ )
+-TRACEPOINT_EVENT(lomiri_app_launch, libual_determine_type,
++TRACEPOINT_EVENT(lomiri_app_launch, liblal_determine_type,
+ 	TP_ARGS(const char *, appid, const char *, type),
+ 	TP_FIELDS(
+ 		ctf_string(appid, appid)
+ 		ctf_string(type, type)
+ 	)
+ )
+-TRACEPOINT_EVENT(lomiri_app_launch, libual_determine_libertine,
++TRACEPOINT_EVENT(lomiri_app_launch, liblal_determine_libertine,
+ 	TP_ARGS(const char *, appid, const char *, executionenv),
+ 	TP_FIELDS(
+ 		ctf_string(appid, appid)
+ 		ctf_string(executionenv, executionenv)
+ 	)
+ )
+-TRACEPOINT_EVENT(lomiri_app_launch, libual_job_path_determined,
++TRACEPOINT_EVENT(lomiri_app_launch, liblal_job_path_determined,
+ 	TP_ARGS(const char *, appid, const char *, job_path),
+ 	TP_FIELDS(
+ 		ctf_string(appid, appid)
+ 		ctf_string(job_path, job_path)
+ 	)
+ )
+-TRACEPOINT_EVENT(lomiri_app_launch, libual_start_message_sent,
++TRACEPOINT_EVENT(lomiri_app_launch, liblal_start_message_sent,
+ 	TP_ARGS(const char *, appid),
+ 	TP_FIELDS(
+ 		ctf_string(appid, appid)
+ 	)
+ )
+-TRACEPOINT_EVENT(lomiri_app_launch, libual_start_message_callback,
++TRACEPOINT_EVENT(lomiri_app_launch, liblal_start_message_callback,
+ 	TP_ARGS(const char *, appid),
+ 	TP_FIELDS(
+ 		ctf_string(appid, appid)
+@@ -46,7 +46,7 @@ TRACEPOINT_EVENT(lomiri_app_launch, libual_start_message_callback,
+ )
+ 
+ /*******************************
+-  LibUAL observers
++  LibLAL observers
+  *******************************/
+ 
+ TRACEPOINT_EVENT(lomiri_app_launch, observer_start,
+diff --git a/tests/CMakeLists.txt b/tests/CMakeLists.txt
+index 3aa1527..5c73c97 100644
+--- a/tests/CMakeLists.txt
++++ b/tests/CMakeLists.txt
+@@ -23,25 +23,25 @@ target_link_libraries (helper-handshake-test launcher-static gtest_main ${GTEST_
+ 
+ add_test (helper-handshake-test helper-handshake-test)
+ 
+-# libUAL Test
++# libLAL Test
+ 
+ include_directories("${CMAKE_SOURCE_DIR}/liblomiri-app-launch" "${CMAKE_SOURCE_DIR}/utils")
+ add_definitions ( -DSPEW_UTILITY="${CMAKE_CURRENT_BINARY_DIR}/data-spew" )
+-add_definitions ( -DSESSION_TEMP_FILE="${CMAKE_CURRENT_BINARY_DIR}/libual-test-session-start-temp" )
++add_definitions ( -DSESSION_TEMP_FILE="${CMAKE_CURRENT_BINARY_DIR}/liblal-test-session-start-temp" )
+ add_definitions ( -DSOCKET_DEMANGLER="${CMAKE_BINARY_DIR}/utils/socket-demangler" )
+ add_definitions ( -DSOCKET_DEMANGLER_INSTALL="${pkglibexecdir}/socket-demangler" )
+ add_definitions ( -DSOCKET_TOOL="${CMAKE_CURRENT_BINARY_DIR}/socket-tool" )
+ add_definitions ( -DSNAP_BASEDIR="${CMAKE_CURRENT_SOURCE_DIR}/snap-basedir" )
+ 
+-add_executable (libual-test
+-	libual-test.cc
++add_executable (liblal-test
++	liblal-test.cc
+ 	mir-mock.cpp)
+-target_link_libraries (libual-test gtest_main ${GTEST_MAIN_LIBRARIES} ${LIBUPSTART_LIBRARIES} ${DBUSTEST_LIBRARIES} launcher-static)
++target_link_libraries (liblal-test gtest_main ${GTEST_MAIN_LIBRARIES} ${LIBUPSTART_LIBRARIES} ${DBUSTEST_LIBRARIES} launcher-static)
+ 
+-add_executable (libual-cpp-test
+-	libual-cpp-test.cc
++add_executable (liblal-cpp-test
++	liblal-cpp-test.cc
+ 	mir-mock.cpp)
+-target_link_libraries (libual-cpp-test gtest_main ${GMOCK_LIBRARIES} ${LIBUPSTART_LIBRARIES} ${DBUSTEST_LIBRARIES} launcher-static)
++target_link_libraries (liblal-cpp-test gtest_main ${GMOCK_LIBRARIES} ${LIBUPSTART_LIBRARIES} ${DBUSTEST_LIBRARIES} launcher-static)
+ 
+ add_executable (data-spew
+ 	data-spew.c)
+@@ -50,8 +50,8 @@ target_link_libraries (data-spew ${GLIB2_LIBRARIES})
+ add_executable (socket-tool
+ 	socket-tool.c)
+ 
+-add_test (NAME libual-test COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/repeat-until-pass.sh ${CMAKE_CURRENT_BINARY_DIR}/libual-test)
+-add_test (NAME libual-cpp-test COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/repeat-until-pass.sh ${CMAKE_CURRENT_BINARY_DIR}/libual-cpp-test)
++add_test (NAME liblal-test COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/repeat-until-pass.sh ${CMAKE_CURRENT_BINARY_DIR}/liblal-test)
++add_test (NAME liblal-cpp-test COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/repeat-until-pass.sh ${CMAKE_CURRENT_BINARY_DIR}/liblal-cpp-test)
+ 
+ # App Store Legacy
+ 
+@@ -138,8 +138,8 @@ add_custom_target(format-tests
+ 	COMMAND clang-format -i -style=file
+ 	application-info-desktop.cpp
+ 	app-store-legacy.cpp
+-	libual-cpp-test.cc
+-	libual-test.cc
++	liblal-cpp-test.cc
++	liblal-test.cc
+ 	list-apps.cpp
+ 	eventually-fixture.h
+ 	info-watcher-zg.cpp
+diff --git a/tests/libual-cpp-test.cc b/tests/liblal-cpp-test.cc
+similarity index 97%
+rename from tests/libual-cpp-test.cc
+rename to tests/liblal-cpp-test.cc
+index 3215218..4b93d7f 100644
+--- a/tests/libual-cpp-test.cc
++++ b/tests/liblal-cpp-test.cc
+@@ -53,11 +53,11 @@
+ #include "test-directory.h"
+ #include "zg-mock.h"
+ 
+-#define LOCAL_SNAPD_TEST_SOCKET (SNAPD_TEST_SOCKET "-libual-cpp-test")
++#define LOCAL_SNAPD_TEST_SOCKET (SNAPD_TEST_SOCKET "-liblal-cpp-test")
+ 
+-#define CGROUP_DIR (CMAKE_BINARY_DIR "/systemd-libual-cpp-cgroups")
++#define CGROUP_DIR (CMAKE_BINARY_DIR "/systemd-liblal-cpp-cgroups")
+ 
+-class LibUAL : public EventuallyFixture
++class LibLAL : public EventuallyFixture
+ {
+ protected:
+     DbusTestService* service = NULL;
+@@ -347,7 +347,7 @@ static std::pair<std::string, std::string> helloPackage{
+     SnapdMock::httpJsonResponse(
+         SnapdMock::snapdOkay(SnapdMock::packageJson("hello", "active", "app", "1.0", "1", {"hello"})))};
+ 
+-TEST_F(LibUAL, ApplicationIdSnap)
++TEST_F(LibLAL, ApplicationIdSnap)
+ {
+     SnapdMock snapd{LOCAL_SNAPD_TEST_SOCKET,
+                     {u8Package, u8Package, u8Package, u8Package, u8Package, u8Package, u8Package, u8Package, u8Package,
+@@ -368,7 +368,7 @@ TEST_F(LibUAL, ApplicationIdSnap)
+     EXPECT_EQ("", (std::string)lomiri::app_launch::AppID::discover(registry, "unity7-package"));
+ }
+ 
+-TEST_F(LibUAL, ApplicationIconSnap)
++TEST_F(LibLAL, ApplicationIconSnap)
+ {
+     /* Queries come in threes, apparently */
+     SnapdMock snapd{LOCAL_SNAPD_TEST_SOCKET,
+@@ -407,7 +407,7 @@ TEST_F(LibUAL, ApplicationIconSnap)
+     EXPECT_EQ(expected, app->info()->iconPath().value());
+ }
+ 
+-TEST_F(LibUAL, NoGraphicalSnapInterface)
++TEST_F(LibLAL, NoGraphicalSnapInterface)
+ {
+     SnapdMock snapd{LOCAL_SNAPD_TEST_SOCKET, {helloPackage, interfaces, helloPackage}};
+     registry = std::make_shared<lomiri::app_launch::Registry>();
+@@ -417,7 +417,7 @@ TEST_F(LibUAL, NoGraphicalSnapInterface)
+     EXPECT_THROW(lomiri::app_launch::Application::create(appid, registry), std::runtime_error);
+ }
+ 
+-TEST_F(LibUAL, ApplicationPid)
++TEST_F(LibLAL, ApplicationPid)
+ {
+     /* Queries come in threes, apparently */
+     SnapdMock snapd{LOCAL_SNAPD_TEST_SOCKET,
+@@ -456,7 +456,7 @@ TEST_F(LibUAL, ApplicationPid)
+     EXPECT_TRUE(singleapp->instances()[0]->hasPid(getpid()));
+ }
+ 
+-TEST_F(LibUAL, ApplicationId)
++TEST_F(LibLAL, ApplicationId)
+ {
+     auto mockstore = std::make_shared<MockStore>(registry->impl);
+     registry =
+@@ -578,7 +578,7 @@ TEST_F(LibUAL, ApplicationId)
+ }
+ 
+ #ifdef HAVE_LIBERTINE
+-TEST_F(LibUAL, ApplicationIdLibertine)
++TEST_F(LibLAL, ApplicationIdLibertine)
+ {
+     /* Libertine tests */
+     EXPECT_EQ("", (std::string)lomiri::app_launch::AppID::discover(registry, "container-name"));
+@@ -590,7 +590,7 @@ TEST_F(LibUAL, ApplicationIdLibertine)
+ }
+ #endif
+ 
+-TEST_F(LibUAL, AppIdParse)
++TEST_F(LibLAL, AppIdParse)
+ {
+     EXPECT_FALSE(lomiri::app_launch::AppID::parse("com.lomiri.test_test_123").empty());
+     EXPECT_FALSE(lomiri::app_launch::AppID::find(registry, "inkscape").empty());
+@@ -607,7 +607,7 @@ TEST_F(LibUAL, AppIdParse)
+     return;
+ }
+ 
+-TEST_F(LibUAL, DBusID)
++TEST_F(LibLAL, DBusID)
+ {
+     auto id = lomiri::app_launch::AppID::parse("container-name_test_0.0");
+     ASSERT_FALSE(id.empty());
+@@ -624,7 +624,7 @@ TEST_F(LibUAL, DBusID)
+  * However, it shouldn't need it, and should be testable with the snapd
+  * interface, though that too is not working properly when added here.
+  */
+-TEST_F(LibUAL, PersistentID)
++TEST_F(LibLAL, PersistentID)
+ {
+     auto id = lomiri::app_launch::AppID::parse("container-name_test_0.0");
+     ASSERT_FALSE(id.empty());
+@@ -637,7 +637,7 @@ TEST_F(LibUAL, PersistentID)
+ }
+ #endif
+ 
+-TEST_F(LibUAL, ApplicationList)
++TEST_F(LibLAL, ApplicationList)
+ {
+     SnapdMock snapd{LOCAL_SNAPD_TEST_SOCKET, {u8Package, interfaces, u8Package}};
+     registry = std::make_shared<lomiri::app_launch::Registry>();
+@@ -658,7 +658,7 @@ TEST_F(LibUAL, ApplicationList)
+     EXPECT_EQ("single", (std::string)apps.back()->appId());
+ }
+ 
+-TEST_F(LibUAL, Equality)
++TEST_F(LibLAL, Equality)
+ {
+     auto appid = lomiri::app_launch::AppID::find(registry, "single");
+ 
+@@ -679,7 +679,7 @@ TEST_F(LibUAL, Equality)
+     EXPECT_NE(*cat, *dog);
+ }
+ 
+-TEST_F(LibUAL, StartingResponses)
++TEST_F(LibLAL, StartingResponses)
+ {
+     /* Get Bus */
+     GDBusConnection* session = g_bus_get_sync(G_BUS_TYPE_SESSION, NULL, NULL);
+@@ -721,7 +721,7 @@ TEST_F(LibUAL, StartingResponses)
+     g_object_unref(session);
+ }
+ 
+-TEST_F(LibUAL, AppIdTest)
++TEST_F(LibLAL, AppIdTest)
+ {
+     auto appid = lomiri::app_launch::AppID::find(registry, "single");
+     auto app = lomiri::app_launch::Application::create(appid, registry);
+@@ -731,7 +731,7 @@ TEST_F(LibUAL, AppIdTest)
+     EXPECT_EVENTUALLY_EQ(appid, this->manager->lastResumedApp);
+ }
+ 
+-TEST_F(LibUAL, UrlSendTest)
++TEST_F(LibLAL, UrlSendTest)
+ {
+     auto appid = lomiri::app_launch::AppID::find(registry, "foo");
+     auto app = lomiri::app_launch::Application::create(appid, registry);
+@@ -748,7 +748,7 @@ TEST_F(LibUAL, UrlSendTest)
+     EXPECT_EQ("http://www.test.com", *calls.begin()->execline.rbegin());
+ }
+ 
+-TEST_F(LibUAL, LomiriTimeoutTest)
++TEST_F(LibLAL, LomiriTimeoutTest)
+ {
+     this->resume_timeout = 100;
+ 
+@@ -761,7 +761,7 @@ TEST_F(LibUAL, LomiriTimeoutTest)
+     EXPECT_EVENTUALLY_EQ(appid, this->manager->lastFocusedApp);
+ }
+ 
+-TEST_F(LibUAL, LomiriTimeoutUriTest)
++TEST_F(LibLAL, LomiriTimeoutUriTest)
+ {
+     this->resume_timeout = 200;
+ 
+@@ -787,7 +787,7 @@ GDBusMessage* filter_respawn(GDBusConnection* conn, GDBusMessage* message, gbool
+     return message;
+ }
+ 
+-TEST_F(LibUAL, LomiriLostTest)
++TEST_F(LibLAL, LomiriLostTest)
+ {
+     GDBusConnection* session = g_bus_get_sync(G_BUS_TYPE_SESSION, NULL, NULL);
+     guint filter = g_dbus_connection_add_filter(session, filter_respawn, NULL, NULL);
+@@ -813,7 +813,7 @@ TEST_F(LibUAL, LomiriLostTest)
+     g_object_unref(session);
+ }
+ 
+-TEST_F(LibUAL, LegacySingleInstance)
++TEST_F(LibLAL, LegacySingleInstance)
+ {
+     /* Check for a single-instance app */
+     auto singleappid = lomiri::app_launch::AppID::find(registry, "single");
+@@ -844,7 +844,7 @@ TEST_F(LibUAL, LegacySingleInstance)
+               multiStart.begin()->name);
+ }
+ 
+-TEST_F(LibUAL, StartHelper)
++TEST_F(LibLAL, StartHelper)
+ {
+     auto appid = lomiri::app_launch::AppID::parse("com.test.multiple_first_1.2.3");
+     auto untrusted = lomiri::app_launch::Helper::Type::from_raw("untrusted-type");
+@@ -909,7 +909,7 @@ TEST_F(LibUAL, StartHelper)
+     return;
+ }
+ 
+-TEST_F(LibUAL, StopHelper)
++TEST_F(LibLAL, StopHelper)
+ {
+     /* Multi helper */
+     auto untrusted = lomiri::app_launch::Helper::Type::from_raw("untrusted-helper");
+@@ -935,7 +935,7 @@ TEST_F(LibUAL, StopHelper)
+     return;
+ }
+ 
+-TEST_F(LibUAL, HelperList)
++TEST_F(LibLAL, HelperList)
+ {
+     auto nothelper = lomiri::app_launch::Helper::Type::from_raw("not-a-type");
+     auto notlist = lomiri::app_launch::Registry::runningHelpers(nothelper, registry);
+@@ -968,7 +968,7 @@ TEST_F(LibUAL, HelperList)
+     EXPECT_TRUE(goodlist.back()->instances()[0]->isRunning());
+ }
+ 
+-TEST_F(LibUAL, StartStopHelperObserver)
++TEST_F(LibLAL, StartStopHelperObserver)
+ {
+     auto type = lomiri::app_launch::Helper::Type::from_raw("my-type-is-scorpio");
+     auto appid = lomiri::app_launch::AppID::parse("com.foo_foo_1.2.3");
+@@ -1013,9 +1013,9 @@ TEST_F(LibUAL, StartStopHelperObserver)
+ }
+ 
+ // DISABLED: Skipping these tests to not block on bug #1584849
+-TEST_F(LibUAL, DISABLED_PauseResume)
++TEST_F(LibLAL, DISABLED_PauseResume)
+ {
+-    g_setenv("LOMIRI_APP_LAUNCH_OOM_PROC_PATH", CMAKE_BINARY_DIR "/libual-proc", 1);
++    g_setenv("LOMIRI_APP_LAUNCH_OOM_PROC_PATH", CMAKE_BINARY_DIR "/liblal-proc", 1);
+ 
+     /* Setup some spew */
+     SpewMaster spew;
+@@ -1109,13 +1109,13 @@ TEST_F(LibUAL, DISABLED_PauseResume)
+     /* Check to ensure we set the OOM score */
+     EXPECT_EQ("100", spew.oomScore());
+ 
+-    g_spawn_command_line_sync("rm -rf " CMAKE_BINARY_DIR "/libual-proc", NULL, NULL, NULL, NULL);
++    g_spawn_command_line_sync("rm -rf " CMAKE_BINARY_DIR "/liblal-proc", NULL, NULL, NULL, NULL);
+ }
+ 
+-TEST_F(LibUAL, MultiPause)
++TEST_F(LibLAL, MultiPause)
+ {
+     auto appid = lomiri::app_launch::AppID::find(registry, "single");
+-    g_setenv("LOMIRI_APP_LAUNCH_OOM_PROC_PATH", CMAKE_BINARY_DIR "/libual-proc", 1);
++    g_setenv("LOMIRI_APP_LAUNCH_OOM_PROC_PATH", CMAKE_BINARY_DIR "/liblal-proc", 1);
+ 
+     /* Setup A TON OF spew */
+     std::array<SpewMaster, 50> spews;
+@@ -1230,10 +1230,10 @@ TEST_F(LibUAL, MultiPause)
+     EXPECT_NE(0, std::accumulate(spews.begin(), spews.end(), int{0},
+                                  [](const int& acc, SpewMaster& spew) { return acc + spew.dataCnt(); }));
+ 
+-    g_spawn_command_line_sync("rm -rf " CMAKE_BINARY_DIR "/libual-proc", NULL, NULL, NULL, NULL);
++    g_spawn_command_line_sync("rm -rf " CMAKE_BINARY_DIR "/liblal-proc", NULL, NULL, NULL, NULL);
+ }
+ 
+-TEST_F(LibUAL, AppInfoSignals)
++TEST_F(LibLAL, AppInfoSignals)
+ {
+     /* Setup the stores mock */
+     auto mockstore = std::make_shared<MockStore>(registry->impl);
+@@ -1273,14 +1273,14 @@ TEST_F(LibUAL, AppInfoSignals)
+     EXPECT_EVENTUALLY_FUTURE_EQ(singleappid, removedAppId.get_future());
+ }
+ 
+-TEST_F(LibUAL, OOMSet)
++TEST_F(LibLAL, OOMSet)
+ {
+-    g_setenv("LOMIRI_APP_LAUNCH_OOM_PROC_PATH", CMAKE_BINARY_DIR "/libual-proc", 1);
++    g_setenv("LOMIRI_APP_LAUNCH_OOM_PROC_PATH", CMAKE_BINARY_DIR "/liblal-proc", 1);
+ 
+     GPid testpid = getpid();
+ 
+     /* Setup our OOM adjust file */
+-    gchar* procdir = g_strdup_printf(CMAKE_BINARY_DIR "/libual-proc/%d", testpid);
++    gchar* procdir = g_strdup_printf(CMAKE_BINARY_DIR "/liblal-proc/%d", testpid);
+     ASSERT_EQ(0, g_mkdir_with_parents(procdir, 0700));
+     gchar* oomadjfile = g_strdup_printf("%s/oom_score_adj", procdir);
+     g_free(procdir);
+@@ -1329,7 +1329,7 @@ TEST_F(LibUAL, OOMSet)
+     instance->setOomAdjustment(lomiri::app_launch::oom::focused());
+ 
+     /* Cleanup */
+-    g_spawn_command_line_sync("rm -rf " CMAKE_BINARY_DIR "/libual-proc", NULL, NULL, NULL, NULL);
++    g_spawn_command_line_sync("rm -rf " CMAKE_BINARY_DIR "/liblal-proc", NULL, NULL, NULL, NULL);
+ 
+     /* Test no entry */
+     instance->setOomAdjustment(lomiri::app_launch::oom::focused());
+@@ -1337,12 +1337,12 @@ TEST_F(LibUAL, OOMSet)
+     g_free(oomadjfile);
+ }
+ 
+-TEST_F(LibUAL, StartSessionHelper)
++TEST_F(LibLAL, StartSessionHelper)
+ {
+     // Disable for now
+     return;
+     
+-    MirConnection* conn = mir_connect_sync("libual-test", "start-session-helper");  // Mocked, doesn't need cleaning up
++    MirConnection* conn = mir_connect_sync("liblal-test", "start-session-helper");  // Mocked, doesn't need cleaning up
+     MirPromptSession* msession = mir_connection_create_prompt_session_sync(conn, 5, nullptr, nullptr);
+ 
+     /* Building a temporary file and making an FD for it */
+@@ -1409,7 +1409,7 @@ TEST_F(LibUAL, StartSessionHelper)
+ #include <sys/types.h>
+ #include <sys/un.h>
+ 
+-TEST_F(LibUAL, SetExec)
++TEST_F(LibLAL, SetExec)
+ {
+     /* Create a socket */
+     class SmartSocket
+@@ -1495,7 +1495,7 @@ TEST_F(LibUAL, SetExec)
+     EXPECT_EVENTUALLY_FUTURE_EQ(execList, socketpromise.get_future());
+ }
+ 
+-TEST_F(LibUAL, AppInfo)
++TEST_F(LibLAL, AppInfo)
+ {
+     /* Correct values from a click */
+     auto appid = lomiri::app_launch::AppID::parse("com.test.good_application_1.2.4");
+diff --git a/tests/libual-test.cc b/tests/liblal-test.cc
+similarity index 97%
+rename from tests/libual-test.cc
+rename to tests/liblal-test.cc
+index 3bb69cb..8468a1f 100644
+--- a/tests/libual-test.cc
++++ b/tests/liblal-test.cc
+@@ -42,10 +42,10 @@
+ #include "snapd-mock.h"
+ #include "systemd-mock.h"
+ 
+-#define LOCAL_SNAPD_TEST_SOCKET (SNAPD_TEST_SOCKET "-libual-test")
+-#define CGROUP_DIR (CMAKE_BINARY_DIR "/systemd-libual-cgroups")
++#define LOCAL_SNAPD_TEST_SOCKET (SNAPD_TEST_SOCKET "-liblal-test")
++#define CGROUP_DIR (CMAKE_BINARY_DIR "/systemd-liblal-cgroups")
+ 
+-class LibUAL : public EventuallyFixture
++class LibLAL : public EventuallyFixture
+ {
+ protected:
+     DbusTestService *service = NULL;
+@@ -64,14 +64,14 @@ private:
+     static void focus_cb(const gchar *appid, gpointer user_data)
+     {
+         g_debug("Focus Callback: %s", appid);
+-        LibUAL *_this = static_cast<LibUAL *>(user_data);
++        LibLAL *_this = static_cast<LibLAL *>(user_data);
+         _this->last_focus_appid = appid;
+     }
+ 
+     static void resume_cb(const gchar *appid, gpointer user_data)
+     {
+         g_debug("Resume Callback: %s", appid);
+-        LibUAL *_this = static_cast<LibUAL *>(user_data);
++        LibLAL *_this = static_cast<LibLAL *>(user_data);
+         _this->last_resume_appid = appid;
+ 
+         if (_this->resume_timeout > 0)
+@@ -229,7 +229,7 @@ static std::pair<std::string, std::string> u8Package{
+     SnapdMock::httpJsonResponse(SnapdMock::snapdOkay(SnapdMock::packageJson(
+         "lomiri-package", "active", "app", "1.2.3.4", "x123", {"foo", "single", "xmir", "noxmir"})))};
+ 
+-TEST_F(LibUAL, StartApplication)
++TEST_F(LibLAL, StartApplication)
+ {
+     /* Basic make sure we can send the event */
+     ASSERT_TRUE(lomiri_app_launch_start_application("single", NULL));
+@@ -259,7 +259,7 @@ TEST_F(LibUAL, StartApplication)
+     return;
+ }
+ 
+-TEST_F(LibUAL, StartApplicationTest)
++TEST_F(LibLAL, StartApplicationTest)
+ {
+     ASSERT_TRUE(lomiri_app_launch_start_application_test("foo", nullptr));
+ 
+@@ -272,7 +272,7 @@ TEST_F(LibUAL, StartApplicationTest)
+     EXPECT_TRUE(check_env(calls.begin()->environment, "QT_LOAD_TESTABILITY", "1"));
+ }
+ 
+-TEST_F(LibUAL, StopApplication)
++TEST_F(LibLAL, StopApplication)
+ {
+     ASSERT_TRUE(lomiri_app_launch_stop_application("single"));
+ 
+@@ -285,7 +285,7 @@ TEST_F(LibUAL, StopApplication)
+     EXPECT_EQ(SystemdMock::instanceName({"application-legacy", "single", {}, 0, {}}), *calls.begin());
+ }
+ 
+-TEST_F(LibUAL, ApplicationPid)
++TEST_F(LibLAL, ApplicationPid)
+ {
+     /* Check bad params */
+     EXPECT_EQ(0, lomiri_app_launch_get_primary_pid(nullptr));
+@@ -312,7 +312,7 @@ TEST_F(LibUAL, ApplicationPid)
+     EXPECT_EQ(0, lomiri_app_launch_get_primary_pid("chatter.robert-ancell_chatter_2"));
+ }
+ 
+-TEST_F(LibUAL, ApplicationId)
++TEST_F(LibLAL, ApplicationId)
+ {
+     SnapdMock snapd{LOCAL_SNAPD_TEST_SOCKET,
+                     {u8Package, u8Package, u8Package, u8Package, u8Package, u8Package, u8Package, u8Package, u8Package,
+@@ -354,7 +354,7 @@ TEST_F(LibUAL, ApplicationId)
+     snapd.result();
+ }
+ 
+-TEST_F(LibUAL, AppIdParse)
++TEST_F(LibLAL, AppIdParse)
+ {
+     EXPECT_TRUE(lomiri_app_launch_app_id_parse("com.lomiri.test_test_123", NULL, NULL, NULL));
+     EXPECT_FALSE(lomiri_app_launch_app_id_parse("inkscape", NULL, NULL, NULL));
+@@ -376,7 +376,7 @@ TEST_F(LibUAL, AppIdParse)
+     return;
+ }
+ 
+-TEST_F(LibUAL, ApplicationList)
++TEST_F(LibLAL, ApplicationList)
+ {
+     SnapdMock snapd{LOCAL_SNAPD_TEST_SOCKET, {u8Package, interfaces, u8Package}};
+     lomiri::app_launch::Registry::clearDefault();
+@@ -423,7 +423,7 @@ static void observer_cb(const gchar *appid, gpointer user_data)
+     }
+ }
+ 
+-TEST_F(LibUAL, StartStopObserver)
++TEST_F(LibLAL, StartStopObserver)
+ {
+     observer_data_t start_data = {.count = 0, .name = nullptr};
+     observer_data_t stop_data = {.count = 0, .name = nullptr};
+@@ -489,7 +489,7 @@ static void starting_observer(const gchar *appid, gpointer user_data)
+     return;
+ }
+ 
+-TEST_F(LibUAL, StartingResponses)
++TEST_F(LibLAL, StartingResponses)
+ {
+     std::string last_observer;
+     int starting_count = 0;
+@@ -523,7 +523,7 @@ TEST_F(LibUAL, StartingResponses)
+     g_object_unref(session);
+ }
+ 
+-TEST_F(LibUAL, AppIdTest)
++TEST_F(LibLAL, AppIdTest)
+ {
+     ASSERT_TRUE(lomiri_app_launch_start_application("single", NULL));
+     EXPECT_EVENTUALLY_EQ("single", this->last_focus_appid);
+@@ -548,7 +548,7 @@ GDBusMessage *filter_func_good(GDBusConnection *conn, GDBusMessage *message, gbo
+     return message;
+ }
+ 
+-TEST_F(LibUAL, UrlSendTest)
++TEST_F(LibLAL, UrlSendTest)
+ {
+     GDBusConnection *session = g_bus_get_sync(G_BUS_TYPE_SESSION, NULL, NULL);
+     guint filter = g_dbus_connection_add_filter(session, filter_func_good, (gpointer) "/single", NULL);
+@@ -563,7 +563,7 @@ TEST_F(LibUAL, UrlSendTest)
+     g_object_unref(session);
+ }
+ 
+-TEST_F(LibUAL, UrlSendNoObjectTest)
++TEST_F(LibLAL, UrlSendNoObjectTest)
+ {
+     const gchar *uris[] = {"http://www.test.com", NULL};
+ 
+@@ -573,7 +573,7 @@ TEST_F(LibUAL, UrlSendNoObjectTest)
+     EXPECT_EVENTUALLY_EQ("single", this->last_resume_appid);
+ }
+ 
+-TEST_F(LibUAL, LomiriTimeoutTest)
++TEST_F(LibLAL, LomiriTimeoutTest)
+ {
+     this->resume_timeout = 100;
+ 
+@@ -583,7 +583,7 @@ TEST_F(LibUAL, LomiriTimeoutTest)
+     EXPECT_EVENTUALLY_EQ("single", this->last_focus_appid);
+ }
+ 
+-TEST_F(LibUAL, LomiriTimeoutUriTest)
++TEST_F(LibLAL, LomiriTimeoutUriTest)
+ {
+     this->resume_timeout = 200;
+ 
+@@ -606,7 +606,7 @@ GDBusMessage *filter_respawn(GDBusConnection *conn, GDBusMessage *message, gbool
+     return message;
+ }
+ 
+-TEST_F(LibUAL, LomiriLostTest)
++TEST_F(LibLAL, LomiriLostTest)
+ {
+     GDBusConnection *session = g_bus_get_sync(G_BUS_TYPE_SESSION, NULL, NULL);
+     guint filter = g_dbus_connection_add_filter(session, filter_respawn, NULL, NULL);
+@@ -646,7 +646,7 @@ static void failed_observer(const gchar *appid, LomiriAppLaunchAppFailed reason,
+     return;
+ }
+ 
+-TEST_F(LibUAL, FailingObserver)
++TEST_F(LibLAL, FailingObserver)
+ {
+     std::string last_observer;
+ 
+@@ -676,7 +676,7 @@ TEST_F(LibUAL, FailingObserver)
+     EXPECT_EVENTUALLY_FUNC_EQ(6u, std::function<unsigned int()>([&] { return systemd->resetCalls().size(); }));
+ }
+ 
+-TEST_F(LibUAL, StartHelper)
++TEST_F(LibLAL, StartHelper)
+ {
+     /* Basic make sure we can send the event */
+     gchar *cinstanceid =
+@@ -717,7 +717,7 @@ TEST_F(LibUAL, StartHelper)
+     return;
+ }
+ 
+-TEST_F(LibUAL, StopHelper)
++TEST_F(LibLAL, StopHelper)
+ {
+     /* Basic helper */
+     ASSERT_TRUE(lomiri_app_launch_stop_helper("untrusted-helper", "com.foo_bar_43.23.12"));
+@@ -746,7 +746,7 @@ TEST_F(LibUAL, StopHelper)
+     return;
+ }
+ 
+-TEST_F(LibUAL, HelperList)
++TEST_F(LibLAL, HelperList)
+ {
+     gchar **blanktype = lomiri_app_launch_list_helpers("not-a-type");
+ 
+@@ -774,7 +774,7 @@ TEST_F(LibUAL, HelperList)
+     g_strfreev(goodtype);
+ }
+ 
+-TEST_F(LibUAL, HelperInstanceList)
++TEST_F(LibLAL, HelperInstanceList)
+ {
+     gchar **blanktype = lomiri_app_launch_list_helper_instances("not-a-type", "com.bar_foo_8432.13.1");
+ 
+@@ -811,7 +811,7 @@ static void helper_observer_cb(const gchar *appid, const gchar *instance, const
+     }
+ }
+ 
+-TEST_F(LibUAL, StartStopHelperObserver)
++TEST_F(LibLAL, StartStopHelperObserver)
+ {
+     helper_observer_data_t start_data = {
+         .count = 0, .appid = "com.foo_foo_1.2.3", .type = "my-type-is-scorpio", .instance = ""};
+@@ -859,12 +859,12 @@ gboolean datain(GIOChannel *source, GIOCondition cond, gpointer data)
+     return TRUE;
+ }
+ 
+-TEST_F(LibUAL, StartSessionHelper)
++TEST_F(LibLAL, StartSessionHelper)
+ {
+     // Disable for now
+     return;
+ 
+-    MirConnection *conn = mir_connect_sync("libual-test", "start-session-helper");  // Mocked, doesn't need cleaning up
++    MirConnection *conn = mir_connect_sync("liblal-test", "start-session-helper");  // Mocked, doesn't need cleaning up
+     MirPromptSession *msession = mir_connection_create_prompt_session_sync(conn, 5, nullptr, nullptr);
+ 
+     /* Building a temporary file and making an FD for it */
+@@ -929,7 +929,7 @@ TEST_F(LibUAL, StartSessionHelper)
+ #include <sys/types.h>
+ #include <sys/un.h>
+ 
+-TEST_F(LibUAL, SetExec)
++TEST_F(LibLAL, SetExec)
+ {
+     /* Create a socket */
+     class SmartSocket
+@@ -1026,7 +1026,7 @@ TEST_F(LibUAL, SetExec)
+     EXPECT_EVENTUALLY_FUTURE_EQ(execList, socketpromise.get_future());
+ }
+ 
+-TEST_F(LibUAL, AppInfo)
++TEST_F(LibLAL, AppInfo)
+ {
+     char *dir = nullptr;
+     char *file = nullptr;
+-- 
+2.36.1
+

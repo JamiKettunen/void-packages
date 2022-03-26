@@ -1,0 +1,43 @@
+From 5d11e23ba16c942aba8ee7ffe799ee00c0d8f8bb Mon Sep 17 00:00:00 2001
+From: Jami Kettunen <jami.kettunen@protonmail.com>
+Date: Sat, 28 May 2022 00:59:38 +0300
+Subject: [PATCH 7/8] CMake: Allow setting LOMIRI_APP_LAUNCH_ARCH from distro
+ packaging
+
+As dpkg-architecture is obviously specific to Debian and derivatives and
+CMake doesn't seem to provide any proper way to get the host/target
+triple (depending on if cross-compiling or not) let's just put the
+burden on the packaging instead with a fall-back to previous
+dpkg-architecture behavior if nothing is specified.
+---
+ CMakeLists.txt | 14 +++++++++-----
+ 1 file changed, 9 insertions(+), 5 deletions(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 31a3ae8..1a478ac 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -45,11 +45,15 @@ set(CMAKE_INSTALL_PKGLIBEXECDIR "${CMAKE_INSTALL_LIBEXECDIR}/${CMAKE_PROJECT_NAM
+ set(CMAKE_INSTALL_FULL_PKGLIBEXECDIR "${CMAKE_INSTALL_FULL_LIBEXECDIR}/${CMAKE_PROJECT_NAME}")
+ set(CMAKE_INSTALL_FULL_PKGDATADIR "${CMAKE_INSTALL_FULL_DATADIR}/${CMAKE_PROJECT_NAME}")
+ 
+-execute_process(COMMAND dpkg-architecture -qDEB_BUILD_MULTIARCH
+-	OUTPUT_VARIABLE LOMIRI_APP_LAUNCH_ARCH
+-	OUTPUT_STRIP_TRAILING_WHITESPACE
+-)
+-set(lomiri_app_launch_arch "${LOMIRI_APP_LAUNCH_ARCH}")
++if(NOT LOMIRI_APP_LAUNCH_ARCH)
++	execute_process(COMMAND dpkg-architecture -qDEB_BUILD_MULTIARCH
++		OUTPUT_VARIABLE LOMIRI_APP_LAUNCH_ARCH
++		OUTPUT_STRIP_TRAILING_WHITESPACE
++	)
++	if(NOT LOMIRI_APP_LAUNCH_ARCH)
++		message(FATAL_ERROR "LOMIRI_APP_LAUNCH_ARCH is empty!")
++	endif()
++endif()
+ 
+ add_compile_options(
+ # Because we believe in quality
+-- 
+2.36.1
+

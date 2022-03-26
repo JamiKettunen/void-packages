@@ -1,0 +1,101 @@
+From bec90a1f78328fb911c6b3673435982a6e97415f Mon Sep 17 00:00:00 2001
+From: Jami Kettunen <jami.kettunen@protonmail.com>
+Date: Fri, 27 May 2022 17:27:06 +0300
+Subject: [PATCH 6/8] Make coverage reports optional
+
+For example distro packaging shouldn't need to check code coverage;
+now setting -DENABLE_COVERAGE=OFF silences a bunch of CMake configure
+spam which eventually results in "-- Cannot enable coverage targets
+because neither lcov nor gcovr are found." anyway:
+
+  -- Could NOT find Lcov (missing: LCOV_EXECUTABLE GENHTML_EXECUTABLE)
+  CMake Warning at /usr/share/cmake/CoverageReport/CoverageReportConfig.cmake:1 (find_package):
+    Found package configuration file:
+
+      /usr/share/cmake/Lcov/LcovConfig.cmake
+
+    but it set Lcov_FOUND to FALSE so package "Lcov" is considered to be NOT
+    FOUND.
+  Call Stack (most recent call first):
+    CMakeLists.txt:129 (find_package)
+---
+ CMakeLists.txt | 59 ++++++++++++++++++++++++++------------------------
+ 1 file changed, 31 insertions(+), 28 deletions(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index ba8bbc1..31a3ae8 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -13,6 +13,7 @@ set(ABI_VERSION 0)
+ ##########################
+ 
+ option (ENABLE_TESTS "Build tests" ON)
++option (ENABLE_COVERAGE "Enable coverage reports" ON)
+ option (USE_SYSTEMD "Use systemd jobs manager instead of POSIX" ON)
+ 
+ set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake" "${CMAKE_MODULE_PATH}")
+@@ -124,31 +125,33 @@ if (${ENABLE_TESTS})
+   add_subdirectory(tests)
+ endif ()
+ 
+-find_package(CoverageReport)
+-set(filter-list)
+-list(APPEND filter-list "/usr/include")
+-list(APPEND filter-list "${CMAKE_SOURCE_DIR}/tests/*")
+-if (NOT ${CMAKE_BINARY_DIR} STREQUAL ${CMAKE_SOURCE_DIR})
+-  list(APPEND filter-list "${CMAKE_BINARY_DIR}/*")
+-endif()
+-ENABLE_COVERAGE_REPORT(
+-  TARGETS
+-	lomiri-launcher
+-	launcher-static
+-	desktop-hook
+-  TESTS
+-	app-store-legacy
+-	application-icon-finder-test
+-	application-info-desktop-test
+-	helper-test
+-	helper-handshake-test
+-	info-watcher-zg
+-	jobs-base-test
+-	jobs-systemd
+-	libual-test
+-	libual-cpp-test
+-	list-apps
+-	snapd-info-test
+-  FILTER
+-  	${filter-list}
+-)
++if (${ENABLE_COVERAGE})
++	find_package(CoverageReport)
++	set(filter-list)
++	list(APPEND filter-list "/usr/include")
++	list(APPEND filter-list "${CMAKE_SOURCE_DIR}/tests/*")
++	if (NOT ${CMAKE_BINARY_DIR} STREQUAL ${CMAKE_SOURCE_DIR})
++		list(APPEND filter-list "${CMAKE_BINARY_DIR}/*")
++	endif()
++	ENABLE_COVERAGE_REPORT(
++		TARGETS
++			lomiri-launcher
++			launcher-static
++			desktop-hook
++		TESTS
++			app-store-legacy
++			application-icon-finder-test
++			application-info-desktop-test
++			helper-test
++			helper-handshake-test
++			info-watcher-zg
++			jobs-base-test
++			jobs-systemd
++			libual-test
++			libual-cpp-test
++			list-apps
++			snapd-info-test
++		FILTER
++			${filter-list}
++	)
++endif ()
+-- 
+2.36.1
+
