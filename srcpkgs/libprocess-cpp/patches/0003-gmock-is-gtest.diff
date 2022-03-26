@@ -1,0 +1,58 @@
+diff --git a/tests/CMakeLists.txt b/tests/CMakeLists.txt
+index 7541e6d..3b8f505 100644
+--- a/tests/CMakeLists.txt
++++ b/tests/CMakeLists.txt
+@@ -14,7 +14,7 @@
+ #
+ # Authored by: Thomas Voss <thomas.voss@canonical.com>
+ 
+-find_package(GMock)
++find_package(GTest REQUIRED)
+ 
+ include_directories(
+   ${CMAKE_SOURCE_DIR}/src
+@@ -57,7 +57,7 @@ target_link_libraries(
+   process-cpp
+ 
+   ${CMAKE_THREAD_LIBS_INIT}
+-  ${GMOCK_LIBRARIES}
++  GTest::gmock_main
+ )
+ 
+ target_link_libraries(
+@@ -66,7 +66,7 @@ target_link_libraries(
+   process-cpp
+ 
+   ${CMAKE_THREAD_LIBS_INIT}
+-  ${GMOCK_LIBRARIES}
++  GTest::gmock_main
+ )
+ 
+ target_link_libraries(
+@@ -75,7 +75,7 @@ target_link_libraries(
+   process-cpp
+ 
+   ${CMAKE_THREAD_LIBS_INIT}
+-  ${GMOCK_LIBRARIES}
++  GTest::gmock_main
+ )
+ 
+ target_link_libraries(
+@@ -84,7 +84,7 @@ target_link_libraries(
+   process-cpp
+ 
+   ${CMAKE_THREAD_LIBS_INIT}
+-  ${GMOCK_LIBRARIES}
++  GTest::gmock_main
+ )
+ 
+ target_link_libraries(
+@@ -93,7 +93,7 @@ target_link_libraries(
+   process-cpp
+ 
+   ${CMAKE_THREAD_LIBS_INIT}
+-  ${GMOCK_LIBRARIES}
++  GTest::gmock_main
+ )
+ 
+ add_test(posix_process_test ${CMAKE_CURRENT_BINARY_DIR}/posix_process_test)

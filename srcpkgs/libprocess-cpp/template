@@ -1,0 +1,36 @@
+# Template file for 'libprocess-cpp'
+pkgname=libprocess-cpp
+version=3.0.2r157
+revision=1
+_commit=ee6d99a3278343f5fdcec7ed3dad38763e257310 # tip of main branch as of 2022-03-20
+wrksrc="process-cpp-${_commit}"
+build_style=cmake
+hostmakedepends="pkg-config"
+makedepends="boost-devel properties-cpp"
+checkdepends="gtest-devel"
+short_desc="Convenience library for handling processes"
+maintainer="Jami Kettunen <jami.kettunen@protonmail.com>"
+license="LGPL-3.0-only"
+homepage="https://gitlab.com/ubports/core/lib-cpp/process-cpp"
+distfiles="https://gitlab.com/ubports/core/lib-cpp/process-cpp/-/archive/${_commit}.tar.gz"
+checksum=4f0ba4c0cdc194bb68ec9ae43fdadbf881dc20b19aa2b4a9cb22c975aad9279b
+
+if [ "$XBPS_TARGET_LIBC" != "glibc" ]; then
+	makedepends+=" libexecinfo-devel"
+fi
+
+# TESTS FIXME: linux_process_test - LinuxProcess.adjusting_proc_oom_score_adj_works fails, others pass
+if [ -z "$XBPS_CHECK_PKGS" ] || [ "$CROSS_BUILD" ]; then
+	configure_args+=" -DENABLE_TESTS=OFF"
+fi
+
+libprocess-cpp-devel_package() {
+	# TODO: depend on properties-cpp?
+	depends="${sourcepkg}>=${version}_${revision}"
+	short_desc+=" - development files"
+	pkg_install() {
+		vmove usr/include
+		vmove usr/lib/pkgconfig
+		vmove "usr/lib/*.so"
+	}
+}
