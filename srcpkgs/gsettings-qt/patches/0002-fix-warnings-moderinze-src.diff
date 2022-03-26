@@ -1,0 +1,119 @@
+Link: https://gitlab.com/ubports/core/gsettings-qt/-/merge_requests/2 @ 78fa9ca0
+---
+diff --git a/GSettings/gsettings-qml.cpp b/GSettings/gsettings-qml.cpp
+index 363176d..dd0cb76 100644
+--- a/GSettings/gsettings-qml.cpp
++++ b/GSettings/gsettings-qml.cpp
+@@ -140,12 +140,12 @@ void GSettingsQml::componentComplete()
+     if (schemaValid) {
+         priv->settings = new QGSettings(priv->schema->id(), priv->schema->path(), this);
+ 
+-        connect(priv->settings, SIGNAL(changed(const QString &)), this, SLOT(settingChanged(const QString &)));
++        connect(priv->settings, &QGSettings::changed, this, &GSettingsQml::settingChanged);
+ 
+         Q_FOREACH(const QString &key, priv->settings->keys())
+             this->insert(key, priv->settings->get(key));
+ 
+-        Q_EMIT(schemaChanged());
++        Q_EMIT schemaChanged();
+     }
+     // emit isValid notification only once everything is setup
+     priv->schema->setIsValid(schemaValid);
+@@ -156,7 +156,7 @@ void GSettingsQml::settingChanged(const QString &key)
+     QVariant value = priv->settings->get(key);
+     if (this->value(key) != value) {
+         this->insert(key, value);
+-        Q_EMIT(changed(key, value));
++        Q_EMIT changed(key, value);
+     }
+ }
+ 
+@@ -171,7 +171,7 @@ QVariant GSettingsQml::updateValue(const QString& key, const QVariant &value)
+         // object already has the new value set and doesn't emit its own
+         // changed signal (see ::settingChanged). Emit it here so that it is
+         // sent even when the setting is changed from qml.
+-        Q_EMIT(changed(key, value));
++        Q_EMIT changed(key, value);
+ 
+         return value;
+     }
+diff --git a/GSettings/plugin.cpp b/GSettings/plugin.cpp
+index f1fb8d2..737dd57 100644
+--- a/GSettings/plugin.cpp
++++ b/GSettings/plugin.cpp
+@@ -24,5 +24,5 @@ void GSettingsQmlPlugin::registerTypes(const char *uri)
+ {
+     qmlRegisterType<GSettingsQml>(uri, 1, 0, "GSettings");
+     qmlRegisterUncreatableType<GSettingsSchemaQml>(uri, 1, 0, "GSettingsSchema",
+-                                                   "GSettingsSchema can only be used inside of a GSettings component");
++                                                   QStringLiteral("GSettingsSchema can only be used inside of a GSettings component"));
+ }
+diff --git a/tests/cpptest.cpp b/tests/cpptest.cpp
+index 95cd559..02577c2 100644
+--- a/tests/cpptest.cpp
++++ b/tests/cpptest.cpp
+@@ -26,14 +26,14 @@ void TestGSettingQt::initTestCase()
+ void TestGSettingQt::test_deferredDelete()
+ {
+     QSignalSpy spy(dummy.data(), &QObject::destroyed); // watch the dummy object get destroyed
+-    settings->set("testString", "bar");
++    settings->set(QStringLiteral("testString"), "bar");
+ 
+     QVERIFY(spy.wait(1));
+     QVERIFY(dummy.isNull()); // verify dummy got destroyed for real
+     QCOMPARE(settings->get("testString").toString(), QStringLiteral("bar")); // also verify the setting got written by reading it back
+ 
+     // reset to default
+-    settings->reset("testString");
++    settings->reset(QStringLiteral("testString"));
+ }
+ 
+ void TestGSettingQt::test_get_set_reset()
+@@ -42,11 +42,11 @@ void TestGSettingQt::test_get_set_reset()
+     QCOMPARE(settings->get("testInteger").toInt(), 42);
+ 
+     // Set value
+-    settings->set("testInteger", 1);
++    settings->set(QStringLiteral("testInteger"), 1);
+     QCOMPARE(settings->get("testInteger").toInt(), 1);
+ 
+     // Reset the value
+-    settings->reset("testInteger");
++    settings->reset(QStringLiteral("testInteger"));
+     QCOMPARE(settings->get("testInteger").toInt(), 42);
+ }
+ 
+@@ -70,7 +70,7 @@ void TestGSettingQt::test_changed()
+     QVERIFY(spy.wait(1));
+     spy.clear();
+ 
+-    settings->set("testBoolean", true);
++    settings->set(QStringLiteral("testBoolean"), true);
+ 
+     // Verify change
+     QVERIFY(spy.wait(1));
+@@ -80,7 +80,7 @@ void TestGSettingQt::test_changed()
+     spy.clear();
+ 
+     // Test signal on reset event
+-    settings->reset("testBoolean");
++    settings->reset(QStringLiteral("testBoolean"));
+     QVERIFY(spy.wait(1));
+     QCOMPARE(spy.count(), 1);
+     QCOMPARE(spy.takeFirst().at(0).toString(), QStringLiteral("testBoolean"));
+diff --git a/src/qconftypes.cpp b/src/qconftypes.cpp
+index 362f1d3..9d9e124 100644
+--- a/src/qconftypes.cpp
++++ b/src/qconftypes.cpp
+@@ -230,7 +230,11 @@ GVariant *qconf_types_collect_from_variant(const GVariantType *gtype, const QVar
+             gsize size = array.size();
+             gpointer data;
+ 
++#if GLIB_CHECK_VERSION(2, 67, 3)
++            data = g_memdup2(array.data(), size);
++#else
+             data = g_memdup(array.data(), size);
++#endif
+ 
+             return g_variant_new_from_data(G_VARIANT_TYPE_BYTESTRING,
+                                            data, size, TRUE, g_free, data);

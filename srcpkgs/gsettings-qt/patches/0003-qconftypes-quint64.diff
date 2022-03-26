@@ -1,0 +1,15 @@
+Link: https://gitlab.com/ubports/core/gsettings-qt/-/merge_requests/1 @ 92158d89
+---
+diff --git a/src/qconftypes.cpp b/src/qconftypes.cpp
+index 362f1d3..bcd4a19 100644
+--- a/src/qconftypes.cpp
++++ b/src/qconftypes.cpp
+@@ -206,7 +206,7 @@ GVariant *qconf_types_collect_from_variant(const GVariantType *gtype, const QVar
+         return g_variant_new_int64(v.toLongLong());
+ 
+     case G_VARIANT_CLASS_UINT64:
+-        return g_variant_new_int64(v.toULongLong());
++        return g_variant_new_uint64(v.toULongLong());
+ 
+     case G_VARIANT_CLASS_DOUBLE:
+         return g_variant_new_double(v.toDouble());

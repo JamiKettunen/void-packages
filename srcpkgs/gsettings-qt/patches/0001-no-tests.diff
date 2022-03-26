@@ -1,0 +1,15 @@
+diff --git a/gsettings-qt.pro b/gsettings-qt.pro
+index b7dbbbf..86eb7da 100644
+--- a/gsettings-qt.pro
++++ b/gsettings-qt.pro
+@@ -1,9 +1,7 @@
+ TEMPLATE = subdirs
+ SUBDIRS += \
+     libgsettings-qt \
+-    gsettings-qt \
+-    tests \
+-    cpptest
++    gsettings-qt
+ 
+ libgsettings-qt.file = src/gsettings-qt.pro
+ gsettings-qt.file = GSettings/gsettings-qt.pro

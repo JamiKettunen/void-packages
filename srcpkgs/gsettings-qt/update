@@ -1,0 +1,2 @@
+# XXX: branch might change to main at any time
+site="${distfiles%/-*}/commits/master.atom"

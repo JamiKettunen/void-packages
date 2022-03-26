@@ -1,0 +1,45 @@
+# Template file for 'gsettings-qt'
+pkgname=gsettings-qt
+version=0.2r200
+revision=1
+_commit=ce56e46b67c11276ec5f44b6a3a1c3f5a46aafed # tip of master branch as of 2022-03-26
+wrksrc="gsettings-qt-${_commit}"
+build_style=qmake
+hostmakedepends="qt5-qmake pkg-config qt5-host-tools"
+makedepends="glib-devel qt5-declarative-devel"
+short_desc="Qml bindings for GSettings"
+maintainer="Jami Kettunen <jami.kettunen@protonmail.com>"
+license="LGPL-3.0-only"
+homepage="https://launchpad.net/gsettings-qt"
+distfiles="https://gitlab.com/ubports/core/gsettings-qt/-/archive/${_commit}.tar.gz"
+checksum=064dabb9c4556d19662925d34f0f6cc0f5cc9212245bb0d9637feffa821d2838
+
+# FIXME: this should be done in qmake instead if possible (src/gsettings-qt.pro)
+post_install() {
+	if [ "${CROSS_BUILD}" ]; then
+		# unbreak pkg-config files when cross-building to avoid essentially appending
+		# ${prefix}/${XBPS_CROSS_TRIPLET} twice
+		vsed -e "s:^libdir=\${prefix}/${XBPS_CROSS_TRIPLET}:libdir=:" \
+		     -e "s:^includedir=\${prefix}/${XBPS_CROSS_TRIPLET}:includedir=:" \
+		     -i ${DESTDIR}/usr/lib/pkgconfig/*
+	fi
+}
+
+# TODO: does it even make sense to have this as a separate lib?
+libgsettings-qt_package() {
+	#depends="${sourcepkg}>=${version}_${revision}"
+	short_desc+=" - shared-libraries"
+	pkg_install() {
+		vmove "usr/lib/*.so.*"
+	}
+}
+
+gsettings-qt-devel_package() {
+	short_desc+=" - development files"
+	depends="${sourcepkg}>=${version}_${revision} lib${sourcepkg}>=${version}_${revision}"
+	pkg_install() {
+		vmove usr/lib/pkgconfig
+        vmove "usr/lib/*.so"
+        vmove usr/include
+	}
+}
