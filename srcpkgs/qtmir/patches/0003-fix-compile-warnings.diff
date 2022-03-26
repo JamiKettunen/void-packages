@@ -1,0 +1,28 @@
+Fixes the following build warning:
+
+  [82/195] Building CXX object src/platforms/mirserver/CMakeFiles/qtmirserver-nomirserver.dir/screenadaptor.cpp.o
+  ../src/platforms/mirserver/screenadaptor.cpp: In member function 'virtual QQmlListProperty<qtmir::ScreenMode> ScreenAdaptor::availableModes()':
+  ../src/platforms/mirserver/screenadaptor.cpp:125:61: warning: 'QQmlListProperty<T>::QQmlListProperty(QObject*, QList<T*>&) [with T = qtmir::ScreenMode]' is deprecated: Use constructor taking QList pointer, and gain improved performance [-Wdeprecated-declarations]
+    125 |     return QQmlListProperty<qtmir::ScreenMode>(this, m_modes);
+        |                                                             ^
+  In file included from /usr/include/qt5/QtQml/QQmlListProperty:1,
+                   from ../include/qtmir/screen.h:26,
+                   from ../src/platforms/mirserver/screenadaptor.h:20,
+                   from ../src/platforms/mirserver/screenadaptor.cpp:17:
+  /usr/include/qt5/QtQml/qqmllist.h:69:5: note: declared here
+     69 |     QQmlListProperty(QObject *o, QList<T *> &list)
+        |     ^~~~~~~~~~~~~~~~
+---
+diff --git a/src/platforms/mirserver/screenadaptor.cpp b/src/platforms/mirserver/screenadaptor.cpp
+index 1a274617..d6f2b674 100644
+--- a/src/platforms/mirserver/screenadaptor.cpp
++++ b/src/platforms/mirserver/screenadaptor.cpp
+@@ -122,7 +122,7 @@ QPoint ScreenAdaptor::position() const
+ 
+ QQmlListProperty<qtmir::ScreenMode> ScreenAdaptor::availableModes()
+ {
+-    return QQmlListProperty<qtmir::ScreenMode>(this, m_modes);
++    return QQmlListProperty<qtmir::ScreenMode>(this, &m_modes);
+ }
+ 
+ uint ScreenAdaptor::currentModeIndex() const

@@ -1,0 +1,3197 @@
+Link: https://gitlab.com/ubports/core/qtmir/-/merge_requests/31 @ a959a2fb
+---
+diff --git a/demos/qtmir-demo-shell/main.cpp b/demos/qtmir-demo-shell/main.cpp
+index 828a630..7005953 100644
+--- a/demos/qtmir-demo-shell/main.cpp
++++ b/demos/qtmir-demo-shell/main.cpp
+@@ -33,10 +33,10 @@
+ #include <qtmir/sessionauthorizer.h>
+ #include <qtmir/windowmanagementpolicy.h>
+ #include <qtmir/displayconfigurationstorage.h>
+-#include <qtmir/miral/edid.h>
++#include <qtmir/miroil/edid.h>
+ 
+ 
+-inline QString stringFromEdid(const miral::Edid& edid)
++inline QString stringFromEdid(const miroil::Edid& edid)
+ {
+     QString str;
+     str += QString::fromStdString(edid.vendor);
+@@ -75,12 +75,12 @@ public:
+     }
+ };
+ 
+-struct DemoDisplayConfigurationStorage : miral::DisplayConfigurationStorage
++struct DemoDisplayConfigurationStorage : miroil::DisplayConfigurationStorage
+ {
+-    void save(const miral::DisplayId& displayId, const miral::DisplayConfigurationOptions& options) override
++    void save(const miroil::DisplayId& displayId, const miroil::DisplayConfigurationOptions& options) override
+     {
+         QFile f(stringFromEdid(displayId.edid) + ".edid");
+-        qDebug() << "OVERRIDE miral::DisplayConfigurationStorage::save" << f.fileName();
++        qDebug() << "OVERRIDE miroil::DisplayConfigurationStorage::save" << f.fileName();
+ 
+         QJsonObject json;
+         if (options.used.is_set()) json.insert("used", options.used.value());
+@@ -105,10 +105,10 @@ struct DemoDisplayConfigurationStorage : miral::DisplayConfigurationStorage
+         }
+     }
+ 
+-    bool load(const miral::DisplayId& displayId, miral::DisplayConfigurationOptions& options) const override
++    bool load(const miroil::DisplayId& displayId, miroil::DisplayConfigurationOptions& options) const override
+     {
+         QFile f(stringFromEdid(displayId.edid) + ".edid");
+-        qDebug() << "OVERRIDE miral::DisplayConfigurationStorage::load" << f.fileName();
++        qDebug() << "OVERRIDE miroil::DisplayConfigurationStorage::load" << f.fileName();
+ 
+         if (f.open(QIODevice::ReadOnly)) {
+             QByteArray saveData = f.readAll();
+@@ -124,7 +124,7 @@ struct DemoDisplayConfigurationStorage : miral::DisplayConfigurationStorage
+                     QString sz(jsonMode["size"].toString());
+                     QStringList geo = sz.split("x", QString::SkipEmptyParts);
+                     if (geo.count() == 2) {
+-                        miral::DisplayConfigurationOptions::DisplayMode mode;
++                        miroil::DisplayConfigurationOptions::DisplayMode mode;
+                         mode.size = mir::geometry::Size(geo[0].toInt(), geo[1].toInt());
+                         mode.refresh_rate = jsonMode["refresh_rate"].toDouble();
+                         options.mode = mode;
+diff --git a/include/qtmir/displayconfigurationpolicy.h b/include/qtmir/displayconfigurationpolicy.h
+index cb26a0d..89301a0 100644
+--- a/include/qtmir/displayconfigurationpolicy.h
++++ b/include/qtmir/displayconfigurationpolicy.h
+@@ -17,13 +17,14 @@
+ #ifndef QTMIR_DISPLAYCONFIGURATIONPOLICY_H
+ #define QTMIR_DISPLAYCONFIGURATIONPOLICY_H
+ 
+-//qtmir
+-#include "qtmir/miral/display_configuration_policy.h"
++//miroil
++#include <qtmir/miroil/display_configuration_policy.h>
+ 
+ // mir
+ #include <mir/server.h>
+ 
+ #include <memory>
++#include <functional>
+ 
+ class QMirServer;
+ 
+@@ -44,7 +45,7 @@ namespace qtmir
+ 
+     qtmir::GuiServerApplication app(argc, argv, { SetDisplayConfigurationPolicy<MyDisplayConfigurationPolicy>() });
+  */
+-class DisplayConfigurationPolicy : public miral::DisplayConfigurationPolicy
++class DisplayConfigurationPolicy : public miroil::DisplayConfigurationPolicy
+ {
+ public:
+     DisplayConfigurationPolicy();
+@@ -56,7 +57,7 @@ private:
+     std::shared_ptr<Private> d;
+ };
+ 
+-using DisplayConfigurationPolicyWrapper = std::function<std::shared_ptr<miral::DisplayConfigurationPolicy>()>;
++using DisplayConfigurationPolicyWrapper = std::function<std::shared_ptr<miroil::DisplayConfigurationPolicy>(std::shared_ptr<mir::graphics::DisplayConfigurationPolicy> const& wrapped)>;
+ 
+ /*
+     Base class for access to set the display configuration policy
+@@ -84,7 +85,7 @@ public:
+     template<typename ...Args>
+     explicit SetDisplayConfigurationPolicy(Args const& ...args) :
+         BasicSetDisplayConfigurationPolicy{
+-            [&args...]() { return std::make_shared<Policy>(args...); }} {}
++            [&args...](auto) { return std::make_shared<Policy>(args...); }} {}
+ };
+ 
+ } // namespace qtmir
+diff --git a/include/qtmir/displayconfigurationstorage.h b/include/qtmir/displayconfigurationstorage.h
+index 8a24e4a..680abdc 100644
+--- a/include/qtmir/displayconfigurationstorage.h
++++ b/include/qtmir/displayconfigurationstorage.h
+@@ -17,7 +17,7 @@
+ #ifndef DISPLAYCONFIGURATIONSTORAGE_H
+ #define DISPLAYCONFIGURATIONSTORAGE_H
+ 
+-#include "qtmir/miral/display_configuration_storage.h"
++#include <qtmir/miroil/display_configuration_storage.h>
+ 
+ #include <functional>
+ #include <memory>
+@@ -27,7 +27,7 @@ class QMirServer;
+ namespace qtmir
+ {
+ 
+-using DisplayConfigurationStorageBuilder = std::function<std::shared_ptr<miral::DisplayConfigurationStorage>()>;
++using DisplayConfigurationStorageBuilder = std::function<std::shared_ptr<miroil::DisplayConfigurationStorage>()>;
+ 
+ class BasicSetDisplayConfigurationStorage
+ {
+diff --git a/include/qtmir/miral/display_configuration_policy.h b/include/qtmir/miroil/display_configuration_policy.h
+similarity index 79%
+rename from include/qtmir/miral/display_configuration_policy.h
+rename to include/qtmir/miroil/display_configuration_policy.h
+index 9c27713..c6d2b70 100644
+--- a/include/qtmir/miral/display_configuration_policy.h
++++ b/include/qtmir/miroil/display_configuration_policy.h
+@@ -1,5 +1,5 @@
+ /*
+- * Copyright © 2016 Canonical Ltd.
++ * Copyright © 2016-2020 Canonical Ltd.
+  *
+  * This program is free software: you can redistribute it and/or modify it
+  * under the terms of the GNU General Public License version 3,
+@@ -16,12 +16,12 @@
+  * Authored by: Nick Dedekind <nick.dedekind@canonical.com>
+  */
+ 
+-#ifndef MIRAL_DISPLAY_CONDIFIGURATION_POLICY_H
+-#define MIRAL_DISPLAY_CONDIFIGURATION_POLICY_H
++#ifndef MIROIL_DISPLAY_CONDIFIGURATION_POLICY_H
++#define MIROIL_DISPLAY_CONDIFIGURATION_POLICY_H
+ 
+ namespace mir { namespace graphics { class DisplayConfiguration; } }
+ 
+-namespace miral
++namespace miroil
+ {
+ 
+ class DisplayConfigurationPolicy
+@@ -29,14 +29,14 @@ class DisplayConfigurationPolicy
+ public:
+     DisplayConfigurationPolicy();
+ 
+-    virtual ~DisplayConfigurationPolicy() = default;
++    virtual ~DisplayConfigurationPolicy();
+     DisplayConfigurationPolicy(DisplayConfigurationPolicy const&) = delete;
+     DisplayConfigurationPolicy& operator=(DisplayConfigurationPolicy const&) = delete;
+ 
+     virtual void apply_to(mir::graphics::DisplayConfiguration& conf) = 0;
+ };
+ 
+-} // namespace miral
++} // namespace miroil
+ 
+ 
+-#endif // MIRAL_DISPLAY_CONDIFIGURATION_POLICY_H
++#endif // MIROIL_DISPLAY_CONDIFIGURATION_POLICY_H
+diff --git a/include/qtmir/miral/display_configuration_storage.h b/include/qtmir/miroil/display_configuration_storage.h
+similarity index 79%
+rename from include/qtmir/miral/display_configuration_storage.h
+rename to include/qtmir/miroil/display_configuration_storage.h
+index 8090877..a0dd5a8 100644
+--- a/include/qtmir/miral/display_configuration_storage.h
++++ b/include/qtmir/miroil/display_configuration_storage.h
+@@ -1,5 +1,5 @@
+ /*
+- * Copyright © 2016-2017 Canonical Ltd.
++ * Copyright © 2016-2020 Canonical Ltd.
+  *
+  * This program is free software: you can redistribute it and/or modify it
+  * under the terms of the GNU General Public License version 3,
+@@ -16,23 +16,24 @@
+  * Authored by: Nick Dedekind <nick.dedekind@canonical.com>
+  */
+ 
+-#ifndef MIRAL_DISPLAY_CONFIGURATION_STORAGE_H
+-#define MIRAL_DISPLAY_CONFIGURATION_STORAGE_H
++#ifndef MIROIL_DISPLAY_CONFIGURATION_STORAGE_H
++#define MIROIL_DISPLAY_CONFIGURATION_STORAGE_H
++
++#include <qtmir/miroil/display_id.h>
+ 
+ #include <mir/geometry/rectangle.h>
+ #include <mir/optional_value.h>
+ #include <mir_toolkit/common.h>
+ 
+-#include "display_id.h"
++#include <sys/types.h>
+ 
+-// Prototyping namespace for later incorporation in MirAL
+-namespace miral
++namespace miroil
+ {
+ 
+ struct DisplayConfigurationOptions
+ {
+     mir::optional_value<bool> used;
+-    mir::optional_value<unsigned int> clone_output_index;
++    mir::optional_value<uint> clone_output_index;
+     struct DisplayMode
+     {
+         mir::geometry::Size size;
+@@ -53,6 +54,6 @@ public:
+     virtual bool load(const DisplayId&, DisplayConfigurationOptions&) const = 0;
+ };
+ 
+-} // namespace miral
++} // namespace miroil
+ 
+-#endif // MIRAL_DISPLAY_CONFIGURATION_STORAGE_H
++#endif // MIROIL_DISPLAY_CONFIGURATION_STORAGE_H
+diff --git a/include/qtmir/miral/display_id.h b/include/qtmir/miroil/display_id.h
+similarity index 66%
+rename from include/qtmir/miral/display_id.h
+rename to include/qtmir/miroil/display_id.h
+index a65d59b..940dd44 100644
+--- a/include/qtmir/miral/display_id.h
++++ b/include/qtmir/miroil/display_id.h
+@@ -1,14 +1,13 @@
+-#ifndef MIRAL_DISPLAY_ID_H
+-#define MIRAL_DISPLAY_ID_H
++#ifndef MIROIL_DISPLAY_ID_H
++#define MIROIL_DISPLAY_ID_H
+ 
+ #include <mir/int_wrapper.h>
+ 
+-#include "edid.h"
++#include <qtmir/miroil/edid.h>
+ 
+ namespace mir { namespace graphics { namespace detail { struct GraphicsConfOutputIdTag; } } }
+ 
+-// Prototyping namespace for later incorporation in MirAL
+-namespace miral
++namespace miroil
+ {
+ using OutputId = mir::IntWrapper<mir::graphics::detail::GraphicsConfOutputIdTag>;
+ 
+@@ -20,4 +19,4 @@ struct DisplayId
+ 
+ } // namespace miral
+ 
+-#endif // MIRAL_DISPLAY_ID_H
++#endif // MIROIL_DISPLAY_ID_H
+diff --git a/include/qtmir/miral/edid.h b/include/qtmir/miroil/edid.h
+similarity index 89%
+rename from include/qtmir/miral/edid.h
+rename to include/qtmir/miroil/edid.h
+index 0845479..fee87d5 100644
+--- a/include/qtmir/miral/edid.h
++++ b/include/qtmir/miroil/edid.h
+@@ -1,5 +1,5 @@
+ /*
+- * Copyright © 2016 Canonical Ltd.
++ * Copyright © 2016-2020 Canonical Ltd.
+  *
+  * This program is free software: you can redistribute it and/or modify it
+  * under the terms of the GNU General Public License version 3,
+@@ -16,14 +16,13 @@
+  * Authored by: Nick Dedekind <nick.dedekind@canonical.com>
+  */
+ 
+-#ifndef MIRAL_EDID_H
+-#define MIRAL_EDID_H
++#ifndef MIROIL_EDID_H
++#define MIROIL_EDID_H
+ 
+ #include <string>
+ #include <vector>
+ 
+-// Prototyping namespace for later incorporation in MirAL
+-namespace miral
++namespace miroil
+ {
+ 
+ struct Edid
+@@ -65,4 +64,4 @@ struct Edid
+ 
+ }
+ 
+-#endif // MIRAL_EDID_H
++#endif // MIROIL_EDID_H
+diff --git a/include/qtmir/screen.h b/include/qtmir/screen.h
+index 4879341..f8832f9 100644
+--- a/include/qtmir/screen.h
++++ b/include/qtmir/screen.h
+@@ -18,7 +18,7 @@
+ #define QTMIR_SCREEN_H
+ 
+ #include <qtmir/types.h>
+-#include <qtmir/miral/display_id.h>
++#include <qtmir/miroil/display_id.h>
+ 
+ #include <QObject>
+ #include <QPointer>
+@@ -40,7 +40,7 @@ class Screen : public QObject
+ {
+     Q_OBJECT
+ public:
+-    virtual miral::DisplayId displayId() const = 0;
++    virtual miroil::DisplayId displayId() const = 0;
+     virtual bool used() const = 0;
+     virtual QString name() const = 0;
+     virtual float scale() const = 0;
+@@ -96,7 +96,7 @@ public:
+ struct ScreenConfiguration
+ {
+     bool valid{false};
+-    miral::OutputId id;
++    miroil::OutputId id;
+ 
+     bool used;
+     QPoint topLeft;
+diff --git a/src/modules/QtMir/Application/CMakeLists.txt b/src/modules/QtMir/Application/CMakeLists.txt
+index 86f2ca4..9a853e5 100644
+--- a/src/modules/QtMir/Application/CMakeLists.txt
++++ b/src/modules/QtMir/Application/CMakeLists.txt
+@@ -3,6 +3,7 @@ include(UseLttngGenTp)
+ include_directories(
+     ${CMAKE_SOURCE_DIR}/include
+     ${CMAKE_SOURCE_DIR}/src/platforms/mirserver
++    ${CMAKE_SOURCE_DIR}/src/platforms/mirserver/miroil/include
+     ${CMAKE_SOURCE_DIR}/src/common
+     ${CMAKE_CURRENT_BINARY_DIR} # for tracepoints.h
+ )
+diff --git a/src/modules/QtMir/Application/mirbuffersgtexture.h b/src/modules/QtMir/Application/mirbuffersgtexture.h
+index 51579d0..c262ac7 100644
+--- a/src/modules/QtMir/Application/mirbuffersgtexture.h
++++ b/src/modules/QtMir/Application/mirbuffersgtexture.h
+@@ -17,7 +17,7 @@
+ #ifndef MIRBUFFERSGTEXTURE_H
+ #define MIRBUFFERSGTEXTURE_H
+ 
+-#include "miral/mirbuffer.h"
++#include "miroil/mirbuffer.h"
+ 
+ #include <QSGTexture>
+ 
+diff --git a/src/platforms/mirserver/CMakeLists.txt b/src/platforms/mirserver/CMakeLists.txt
+index 8f676ce..cd2ee7d 100644
+--- a/src/platforms/mirserver/CMakeLists.txt
++++ b/src/platforms/mirserver/CMakeLists.txt
+@@ -6,7 +6,9 @@ include(UseLttngGenTp)
+ 
+ set(QTMIRSERVER_ABI 1)
+ 
+-add_subdirectory(miral)
++set(miroil_include ${CMAKE_CURRENT_SOURCE_DIR}/miroil/include)
++set(qtmir_include ${CMAKE_SOURCE_DIR}/include)
++add_subdirectory(miroil)
+ 
+ # Hacks for the QPA privates monster.
+ pkg_check_modules(FONTCONFIG fontconfig REQUIRED)
+@@ -68,6 +70,8 @@ if(WITH_CONTENTHUB)
+ endif()
+ 
+     ${VALGRIND_INCLUDE_DIRS}
++
++    ${miroil_include}
+ )
+ 
+ # We have to remove -pedantic for tracepoints.c
+@@ -169,7 +173,7 @@ add_library(qtmirserver SHARED
+     ${QMIRSERVER_PLUGIN_SRC}
+     $<TARGET_OBJECTS:qtmirserver-nomirserver>
+     $<TARGET_OBJECTS:qtmirserver-mirserver>
+-    $<TARGET_OBJECTS:miral-prototypes>
++    $<TARGET_OBJECTS:miroil>
+ )
+ 
+ target_link_libraries(qtmirserver
+diff --git a/src/platforms/mirserver/miral/CMakeLists.txt b/src/platforms/mirserver/miral/CMakeLists.txt
+deleted file mode 100644
+index 9f254c9..0000000
+--- a/src/platforms/mirserver/miral/CMakeLists.txt
++++ /dev/null
+@@ -1,14 +0,0 @@
+-include_directories(SYSTEM ${MIRSERVER_INCLUDE_DIRS} ${MIRRENDERERGLDEV_INCLUDE_DIRS})
+-
+-include_directories(
+-    ${CMAKE_SOURCE_DIR}/include
+-)
+-
+-add_library(miral-prototypes OBJECT
+-    persist_display_config.cpp persist_display_config.h
+-    mirbuffer.cpp mirbuffer.h
+-    ${CMAKE_SOURCE_DIR}/include/qtmir/miral/display_configuration_storage.h
+-    edid.cpp ${CMAKE_SOURCE_DIR}/include/qtmir/miral/display_id.h
+-    edid.cpp ${CMAKE_SOURCE_DIR}/include/qtmir/miral/edid.h
+-    display_configuration_policy.cpp ${CMAKE_SOURCE_DIR}/include/qtmir/miral/display_configuration_policy.h
+-)
+diff --git a/src/platforms/mirserver/miroil/CMakeLists.txt b/src/platforms/mirserver/miroil/CMakeLists.txt
+new file mode 100644
+index 0000000..febd4f0
+--- /dev/null
++++ b/src/platforms/mirserver/miroil/CMakeLists.txt
+@@ -0,0 +1 @@
++add_subdirectory(src)
+diff --git a/src/platforms/mirserver/miroil/include/miroil/compositor.h b/src/platforms/mirserver/miroil/include/miroil/compositor.h
+new file mode 100644
+index 0000000..2edf40e
+--- /dev/null
++++ b/src/platforms/mirserver/miroil/include/miroil/compositor.h
+@@ -0,0 +1,40 @@
++/*
++ * Copyright © 2021 Canonical Ltd.
++ *
++ * This program is free software: you can redistribute it and/or modify it
++ * under the terms of the GNU General Public License version 3,
++ * as published by the Free Software Foundation.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
++ */
++
++#ifndef MIROIL_COMPOSITOR_H
++#define MIROIL_COMPOSITOR_H
++
++namespace miroil
++{
++
++class Compositor
++{
++    public:
++    virtual ~Compositor();
++
++    Compositor& operator=(Compositor const&) = delete;
++
++    virtual void start() = 0;
++    virtual void stop()  = 0;
++
++protected:
++    Compositor() = default;
++    Compositor(Compositor const&) = delete;
++};
++
++}
++
++#endif // MIROIL_COMPOSITOR_H
+diff --git a/src/platforms/mirserver/miroil/include/miroil/display_configuration_controller_wrapper.h b/src/platforms/mirserver/miroil/include/miroil/display_configuration_controller_wrapper.h
+new file mode 100644
+index 0000000..6b4f227
+--- /dev/null
++++ b/src/platforms/mirserver/miroil/include/miroil/display_configuration_controller_wrapper.h
+@@ -0,0 +1,51 @@
++/*
++ * Copyright (C) 2021 Canonical, Ltd.
++ *
++ * This program is free software: you can redistribute it and/or modify it under
++ * the terms of the GNU Lesser General Public License version 3, as published by
++ * the Free Software Foundation.
++ *
++ * This program is distributed in the hope that it will be useful, but WITHOUT
++ * ANY WARRANTY; without even the implied warranties of MERCHANTABILITY,
++ * SATISFACTORY QUALITY, or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++ * Lesser General Public License for more details.
++ *
++ * You should have received a copy of the GNU Lesser General Public License
++ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
++ */
++
++#ifndef MIROIL_DISPLAY_CONFIGURATION_CONTROLLER_WRAPPER_H_
++#define MIROIL_DISPLAY_CONFIGURATION_CONTROLLER_WRAPPER_H_
++
++#include <memory>
++
++namespace mir { namespace shell { class DisplayConfigurationController; } }
++namespace mir { namespace graphics { class DisplayConfiguration; } }
++
++namespace miroil
++{
++    
++class DisplayConfigurationControllerWrapper
++{
++public:
++    DisplayConfigurationControllerWrapper(std::shared_ptr<mir::shell::DisplayConfigurationController> const & wrapped);
++    ~DisplayConfigurationControllerWrapper() = default;
++
++    /**
++     * Set the base display configuration.
++     *
++     * This is the display configuration that is used by default, but will be
++     * overridden by a client's requested configuration if that client is focused.
++     *
++     * \param [in]  conf    The new display configuration to set
++     */
++    void set_base_configuration(std::shared_ptr<mir::graphics::DisplayConfiguration> const& conf);
++    
++private:
++    std::shared_ptr<mir::shell::DisplayConfigurationController> const & wrapped;
++};
++
++}
++
++#endif //MIROIL_DISPLAY_CONFIGURATION_CONTROLLER_WRAPPER_H_
++
+diff --git a/src/platforms/mirserver/miroil/include/miroil/display_listener_wrapper.h b/src/platforms/mirserver/miroil/include/miroil/display_listener_wrapper.h
+new file mode 100644
+index 0000000..9f15e90
+--- /dev/null
++++ b/src/platforms/mirserver/miroil/include/miroil/display_listener_wrapper.h
+@@ -0,0 +1,44 @@
++/*
++ * Copyright (C) 2021 Canonical, Ltd.
++ *
++ * This program is free software: you can redistribute it and/or modify it under
++ * the terms of the GNU Lesser General Public License version 3, as published by
++ * the Free Software Foundation.
++ *
++ * This program is distributed in the hope that it will be useful, but WITHOUT
++ * ANY WARRANTY; without even the implied warranties of MERCHANTABILITY,
++ * SATISFACTORY QUALITY, or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++ * Lesser General Public License for more details.
++ *
++ * You should have received a copy of the GNU Lesser General Public License
++ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
++ */
++
++#ifndef MIROIL_DISPLAY_LISTENER_WRAPPER_H
++#define MIROIL_DISPLAY_LISTENER_WRAPPER_H
++#include <memory>
++
++namespace mir { 
++    namespace geometry { struct Rectangle; } 
++    namespace compositor { class DisplayListener; }
++}
++
++namespace miroil
++{
++    
++class DisplayListenerWrapper
++{
++public:
++    DisplayListenerWrapper(std::shared_ptr<mir::compositor::DisplayListener> const& display_listener);
++    ~DisplayListenerWrapper();
++
++    void add_display(mir::geometry::Rectangle const& area);
++    void remove_display(mir::geometry::Rectangle const& area);
++
++private:
++    std::shared_ptr<mir::compositor::DisplayListener> const& display_listener;     
++};
++
++}
++
++#endif /* MIROIL_DISPLAY_LISTENER_WRAPPER_H */
+diff --git a/src/platforms/mirserver/miroil/include/miroil/event_builder.h b/src/platforms/mirserver/miroil/include/miroil/event_builder.h
+new file mode 100644
+index 0000000..184552b
+--- /dev/null
++++ b/src/platforms/mirserver/miroil/include/miroil/event_builder.h
+@@ -0,0 +1,117 @@
++/*
++ * Copyright (C) 2016-2021 Canonical, Ltd.
++ *
++ * This program is free software: you can redistribute it and/or modify it under
++ * the terms of the GNU Lesser General Public License version 3, as published by
++ * the Free Software Foundation.
++ *
++ * This program is distributed in the hope that it will be useful, but WITHOUT
++ * ANY WARRANTY; without even the implied warranties of MERCHANTABILITY,
++ * SATISFACTORY QUALITY, or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++ * Lesser General Public License for more details.
++ *
++ * You should have received a copy of the GNU Lesser General Public License
++ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
++ */
++
++#ifndef MIROIL_EVENT_BUILDER_H
++#define MIROIL_EVENT_BUILDER_H
++
++#include <mir_toolkit/mir_input_device_types.h>
++#include <miral/version.h>
++#if MIRAL_VERSION >= MIR_VERSION_NUMBER(3, 0, 0)
++#include <miral/toolkit_event.h>
++#else
++#include <mir_toolkit/event.h>
++#endif
++
++#include <chrono>
++#include <memory>
++#include <sys/types.h>
++#include <vector>
++
++struct MirEvent;
++struct MirInputEvent;
++
++namespace mir { typedef std::unique_ptr<MirEvent, void(*)(MirEvent*)> EventUPtr; }
++
++namespace miroil
++{
++    
++/*
++    Creates Mir input events out of Qt input events
++    
++    The class is splitt into miroil::EventBuilder which does the internal mir stuff, 
++    and qtmir::EventBuilder which handles the qt stuff. 
++
++    One important feature is that it's able to match a QInputEvent with the MirInputEvent that originated it, so
++    it can make a MirInputEvent version of a QInputEvent containing also information that the latter does not carry,
++    such as relative axis movement for pointer devices.
++*/
++    
++class EventBuilder {
++    
++public:
++    class EventInfo {
++    public:
++        void store(const MirInputEvent *mirInputEvent, ulong qtTimestamp);
++        
++        ulong timestamp;
++        MirInputDeviceId device_id;
++        std::vector<uint8_t> cookie;
++        float relative_x{0};
++        float relative_y{0};
++    };
++    
++public:
++    EventBuilder();
++    virtual ~EventBuilder();
++    
++    // add Touch event
++    void add_touch(MirEvent &event, MirTouchId touch_id, MirTouchAction action,
++        MirTouchTooltype tooltype, float x_axis_value, float y_axis_value,
++        float pressure_value, float touch_major_value, float touch_minor_value, float size_value);
++    
++    // Key event
++    mir::EventUPtr make_key_event(MirInputDeviceId device_id, std::chrono::nanoseconds timestamp,
++        std::vector<uint8_t> const& cookie, MirKeyboardAction action, xkb_keysym_t key_code,
++        int scan_code, MirInputEventModifiers modifiers);
++
++    // Touch event
++    mir::EventUPtr make_touch_event(MirInputDeviceId device_id, std::chrono::nanoseconds timestamp,
++        std::vector<uint8_t> const& mac, MirInputEventModifiers modifiers);
++
++    // Pointer event
++    mir::EventUPtr make_pointer_event(MirInputDeviceId device_id, std::chrono::nanoseconds timestamp,
++        std::vector<uint8_t> const& mac, MirInputEventModifiers modifiers, MirPointerAction action,
++        MirPointerButtons buttons_pressed,
++        float x_axis_value, float y_axis_value,
++        float hscroll_value, float vscroll_value,
++        float relative_x_value, float relative_y_value);
++    
++    EventInfo * find_info(ulong qtTimestamp);    
++        
++    /* Stores information that cannot be carried by QInputEvents so that it can be fully
++       reconstructed later given the same qtTimestamp */
++    void store(const MirInputEvent *mirInputEvent, ulong qtTimestamp);
++
++private:
++    /*
++      Ring buffer that stores information on recent MirInputEvents that cannot be carried by QInputEvents.
++
++      When MirInputEvents are dispatched through a QML scene, not all of its information can be carried
++      by QInputEvents. Some information is lost. Thus further on, if we want to transform a QInputEvent back into
++      its original MirInputEvent so that it can be consumed by a mir::scene::Surface and properly handled by mir clients
++      we have to reach out to this EventRegistry to get the missing bits.
++
++      Given the objective of this EventRegistry (MirInputEvent reconstruction after having gone through QQuickWindow input dispatch
++      as a QInputEvent), it stores information only about the most recent MirInputEvents.
++     */
++    std::vector<EventInfo> event_info_vector;
++    size_t next_index{0};
++    size_t event_info_count{0};
++};
++
++}
++
++#endif // MIROIL_EVENT_BUILDER_H
+diff --git a/src/platforms/mirserver/miroil/include/miroil/eventdispatch.h b/src/platforms/mirserver/miroil/include/miroil/eventdispatch.h
+new file mode 100644
+index 0000000..16a75e3
+--- /dev/null
++++ b/src/platforms/mirserver/miroil/include/miroil/eventdispatch.h
+@@ -0,0 +1,29 @@
++/*
++ * Copyright © 2017 Canonical Ltd.
++ *
++ * This program is free software: you can redistribute it and/or modify it
++ * under the terms of the GNU General Public License version 3,
++ * as published by the Free Software Foundation.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
++ */
++
++#ifndef MIROIL_EVENTDISPATCH_H
++#define MIROIL_EVENTDISPATCH_H
++
++namespace miral { class Window; }
++
++struct MirInputEvent;
++
++namespace miroil
++{
++void dispatch_input_event(const miral::Window& window, const MirInputEvent* event);
++}
++
++#endif //MIROIL_EVENTDISPATCH_H
+diff --git a/src/platforms/mirserver/miroil/include/miroil/input_device.h b/src/platforms/mirserver/miroil/include/miroil/input_device.h
+new file mode 100644
+index 0000000..509956a
+--- /dev/null
++++ b/src/platforms/mirserver/miroil/include/miroil/input_device.h
+@@ -0,0 +1,52 @@
++/*
++ * Copyright (C) 2016-2021 Canonical, Ltd.
++ *
++ * This program is free software: you can redistribute it and/or modify it under
++ * the terms of the GNU Lesser General Public License version 3, as published by
++ * the Free Software Foundation.
++ *
++ * This program is distributed in the hope that it will be useful, but WITHOUT
++ * ANY WARRANTY; without even the implied warranties of MERCHANTABILITY,
++ * SATISFACTORY QUALITY, or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++ * Lesser General Public License for more details.
++ *
++ * You should have received a copy of the GNU Lesser General Public License
++ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
++ */
++#ifndef MIROIL_INPUT_DEVICE_H
++#define MIROIL_INPUT_DEVICE_H
++#include <mir_toolkit/mir_input_device_types.h>
++#include <memory>
++#include <string>
++
++namespace mir { namespace input { class Device; } }
++
++namespace miroil
++{
++class InputDevice
++{
++public:
++    InputDevice(std::shared_ptr<mir::input::Device> const& device);
++    InputDevice(InputDevice const& src);
++    InputDevice(InputDevice&& src);
++    InputDevice();
++    ~InputDevice();
++
++    auto operator=(InputDevice const& src) -> InputDevice&;
++    auto operator=(InputDevice&& src) -> InputDevice&;
++
++    bool operator==(InputDevice const& other);
++
++    void apply_keymap(std::string const& layout, std::string const& variant);
++    auto get_device_id() -> MirInputDeviceId;
++    auto get_device_name() -> std::string;
++    auto is_keyboard() -> bool;
++    auto is_alpha_numeric() -> bool;
++
++private:
++    std::shared_ptr<mir::input::Device> device;
++};
++    
++}
++
++#endif //MIROIL_INPUT_DEVICE_H
+diff --git a/src/platforms/mirserver/miroil/include/miroil/input_device_observer.h b/src/platforms/mirserver/miroil/include/miroil/input_device_observer.h
+new file mode 100644
+index 0000000..1dd92d1
+--- /dev/null
++++ b/src/platforms/mirserver/miroil/include/miroil/input_device_observer.h
+@@ -0,0 +1,40 @@
++/*
++ * Copyright (C) 2016-2021 Canonical, Ltd.
++ *
++ * This program is free software: you can redistribute it and/or modify it under
++ * the terms of the GNU Lesser General Public License version 3, as published by
++ * the Free Software Foundation.
++ *
++ * This program is distributed in the hope that it will be useful, but WITHOUT
++ * ANY WARRANTY; without even the implied warranties of MERCHANTABILITY,
++ * SATISFACTORY QUALITY, or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++ * Lesser General Public License for more details.
++ *
++ * You should have received a copy of the GNU Lesser General Public License
++ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
++ */
++#ifndef MIROIL_INPUT_DEVICE_OBSERVER_H
++#define MIROIL_INPUT_DEVICE_OBSERVER_H
++
++#include <miroil/input_device.h>
++
++#include <memory>
++#include <string>
++
++namespace miroil
++{
++class InputDeviceObserver
++{
++public:
++    InputDeviceObserver() = default;
++    InputDeviceObserver(InputDeviceObserver const&) = delete;
++    InputDeviceObserver& operator=(InputDeviceObserver const&) = delete;    
++    virtual ~InputDeviceObserver();
++    
++    virtual void device_added(miroil::InputDevice device) = 0;
++    virtual void device_removed(miroil::InputDevice device) = 0;
++};
++    
++}
++
++#endif //MIROIL_INPUT_DEVICE_OBSERVER_H
+diff --git a/src/platforms/mirserver/miroil/include/miroil/mir_prompt_session.h b/src/platforms/mirserver/miroil/include/miroil/mir_prompt_session.h
+new file mode 100644
+index 0000000..971bddd
+--- /dev/null
++++ b/src/platforms/mirserver/miroil/include/miroil/mir_prompt_session.h
+@@ -0,0 +1,48 @@
++/*
++ * Copyright © 2021 Canonical Ltd.
++ *
++ * This program is free software: you can redistribute it and/or modify it
++ * under the terms of the GNU Lesser General Public License version 2 or 3,
++ * as published by the Free Software Foundation.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU Lesser General Public License for more details.
++ *
++ * You should have received a copy of the GNU Lesser General Public License
++ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
++ */
++
++#ifndef MIROIL_MIR_PROMPT_SESSION_H_
++#define MIROIL_MIR_PROMPT_SESSION_H_
++#include <memory>
++#include <functional>
++
++typedef struct MirPromptSession MirPromptSession;
++typedef void (*MirClientFdCallback)(MirPromptSession *prompt_session, size_t count, int const* fds, void* context);
++
++namespace miroil 
++{
++    
++class MirPromptSession
++{
++public:    
++    MirPromptSession(::MirPromptSession * promptSession);
++    MirPromptSession(MirPromptSession const& src);
++    MirPromptSession(MirPromptSession && src);
++    ~MirPromptSession();
++
++    auto operator=(MirPromptSession const& src) -> MirPromptSession&;
++    auto operator=(MirPromptSession&& src) -> MirPromptSession&;
++
++    bool operator==(MirPromptSession const& other);
++    
++    bool new_fds_for_prompt_providers(unsigned int no_of_fds, MirClientFdCallback callback, void * context);
++    
++    ::MirPromptSession * prompt_session;    
++};
++
++}
++
++#endif /* MIROIL_MIR_PROMPT_SESSION_H_ */
+diff --git a/src/platforms/mirserver/miroil/include/miroil/mir_server_hooks.h b/src/platforms/mirserver/miroil/include/miroil/mir_server_hooks.h
+new file mode 100644
+index 0000000..847ec9d
+--- /dev/null
++++ b/src/platforms/mirserver/miroil/include/miroil/mir_server_hooks.h
+@@ -0,0 +1,57 @@
++/*
++ * Copyright © 2016 Canonical Ltd.
++ *
++ * This program is free software: you can redistribute it and/or modify it
++ * under the terms of the GNU General Public License version 3,
++ * as published by the Free Software Foundation.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
++ *
++ * Authored by: Alan Griffiths <alan@octopull.co.uk>
++ */
++
++#ifndef MIROIL_MIRSERVERHOOKS_H
++#define MIROIL_MIRSERVERHOOKS_H
++#include <miroil/input_device_observer.h>
++#include <miroil/prompt_session_listener.h>
++#include <mir/graphics/cursor_image.h>
++#include <functional>
++#include <memory>
++
++namespace mir { class Server; }
++namespace mir { namespace scene { class PromptSessionManager; }}
++namespace mir { namespace graphics { class Display; }}
++namespace mir { namespace shell { class DisplayConfigurationController; } }
++
++namespace miroil
++{
++using CreateNamedCursor = std::function<std::shared_ptr< mir::graphics::CursorImage>(std::string const& name)>;        
++    
++class MirServerHooks
++{
++public:
++    MirServerHooks();
++
++    void operator()(mir::Server& server);
++
++    auto the_prompt_session_listener() const -> PromptSessionListener*;
++    auto the_prompt_session_manager() const -> std::shared_ptr<mir::scene::PromptSessionManager>;
++    auto the_mir_display() const -> std::shared_ptr<mir::graphics::Display>;
++    auto the_display_configuration_controller() const -> std::shared_ptr<mir::shell::DisplayConfigurationController>;
++    void create_named_cursor(CreateNamedCursor func);
++    void create_input_device_observer(std::shared_ptr<InputDeviceObserver> & observer);
++    void create_prompt_session_listener(std::shared_ptr<PromptSessionListener> listener);
++
++private:
++    struct Self;
++    std::shared_ptr<Self> self;
++};
++}
++
++#endif //MIROIL_MIRSERVERHOOKS_H
+diff --git a/src/platforms/mirserver/miral/mirbuffer.h b/src/platforms/mirserver/miroil/include/miroil/mirbuffer.h
+similarity index 96%
+rename from src/platforms/mirserver/miral/mirbuffer.h
+rename to src/platforms/mirserver/miroil/include/miroil/mirbuffer.h
+index 667bfd8..b2a011b 100644
+--- a/src/platforms/mirserver/miral/mirbuffer.h
++++ b/src/platforms/mirserver/miroil/include/miroil/mirbuffer.h
+@@ -1,5 +1,5 @@
+ /*
+- * Copyright © 2017 Canonical Ltd.
++ * Copyright © 2017-2020 Canonical Ltd.
+  *
+  * This program is free software: you can redistribute it and/or modify it
+  * under the terms of the GNU General Public License version 3,
+@@ -14,8 +14,8 @@
+  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  */
+ 
+-#ifndef MIRAL_GLBUFFER_H
+-#define MIRAL_GLBUFFER_H
++#ifndef MIROIL_GLBUFFER_H
++#define MIROIL_GLBUFFER_H
+ 
+ #include <mir/geometry/size.h>
+ 
+diff --git a/src/platforms/mirserver/miroil/include/miroil/open_gl_context.h b/src/platforms/mirserver/miroil/include/miroil/open_gl_context.h
+new file mode 100644
+index 0000000..f05edd6
+--- /dev/null
++++ b/src/platforms/mirserver/miroil/include/miroil/open_gl_context.h
+@@ -0,0 +1,43 @@
++/*
++ * Copyright © 2016 Canonical Ltd.
++ *
++ * This program is free software: you can redistribute it and/or modify it
++ * under the terms of the GNU General Public License version 3,
++ * as published by the Free Software Foundation.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
++ *
++ * Authored by: Alan Griffiths <alan@octopull.co.uk>
++ */
++
++#ifndef MIROIL_OPEN_GL_CONTEXT_H
++#define MIROIL_OPEN_GL_CONTEXT_H
++#include <mir/graphics/gl_config.h>
++#include <memory>
++#include <functional>
++
++namespace mir { class Server; }
++
++namespace miroil
++{
++class OpenGLContext
++{
++public:
++    OpenGLContext(mir::graphics::GLConfig* gl_config);
++
++    void operator()(mir::Server& server);
++    auto the_open_gl_config() const -> std::shared_ptr<mir::graphics::GLConfig>;
++
++private:
++    struct Self;
++    std::shared_ptr<Self> self;
++};
++}
++
++#endif //MIROIL_OPEN_GL_CONTEXT_H
+diff --git a/src/platforms/mirserver/miral/persist_display_config.h b/src/platforms/mirserver/miroil/include/miroil/persist_display_config.h
+similarity index 78%
+rename from src/platforms/mirserver/miral/persist_display_config.h
+rename to src/platforms/mirserver/miroil/include/miroil/persist_display_config.h
+index 45705a0..83a2526 100644
+--- a/src/platforms/mirserver/miral/persist_display_config.h
++++ b/src/platforms/mirserver/miroil/include/miroil/persist_display_config.h
+@@ -1,5 +1,5 @@
+ /*
+- * Copyright © 2016 Canonical Ltd.
++ * Copyright © 2016-2020 Canonical Ltd.
+  *
+  * This program is free software: you can redistribute it and/or modify it
+  * under the terms of the GNU General Public License version 3,
+@@ -16,16 +16,15 @@
+  * Authored by: Alan Griffiths <alan@octopull.co.uk>
+  */
+ 
+-#ifndef MIRAL_PERSIST_DISPLAY_CONFIG_H
+-#define MIRAL_PERSIST_DISPLAY_CONFIG_H
++#ifndef MIROIL_PERSIST_DISPLAY_CONFIG_H
++#define MIROIL_PERSIST_DISPLAY_CONFIG_H
+ 
+ #include <functional>
+ #include <memory>
+ 
+-namespace mir { class Server; }
++namespace mir { class Server; namespace graphics { class DisplayConfigurationPolicy; }}
+ 
+-// Prototyping namespace for later incorporation in MirAL
+-namespace miral
++namespace miroil
+ {
+ class DisplayConfigurationPolicy;
+ class DisplayConfigurationStorage;
+@@ -39,7 +38,7 @@ public:
+     auto operator=(PersistDisplayConfig const&) -> PersistDisplayConfig&;
+ 
+     // TODO factor this out better
+-    using DisplayConfigurationPolicyWrapper = std::function<std::shared_ptr<DisplayConfigurationPolicy>()>;
++    using DisplayConfigurationPolicyWrapper = std::function<std::shared_ptr<DisplayConfigurationPolicy>(std::shared_ptr<mir::graphics::DisplayConfigurationPolicy> const& wrapped)>;
+ 
+     PersistDisplayConfig(std::shared_ptr<DisplayConfigurationStorage> const& storage,
+                          DisplayConfigurationPolicyWrapper const& custom_wrapper);
+@@ -50,7 +49,6 @@ private:
+     struct Self;
+     std::shared_ptr<Self> self;
+ };
+-
+ }
+ 
+-#endif //MIRAL_PERSIST_DISPLAY_CONFIG_H
++#endif //MIROIL_PERSIST_DISPLAY_CONFIG_H
+diff --git a/src/platforms/mirserver/miroil/include/miroil/prompt_session_listener.h b/src/platforms/mirserver/miroil/include/miroil/prompt_session_listener.h
+new file mode 100644
+index 0000000..5049a11
+--- /dev/null
++++ b/src/platforms/mirserver/miroil/include/miroil/prompt_session_listener.h
+@@ -0,0 +1,49 @@
++/*
++ * Copyright © 2016-2021 Canonical Ltd.
++ *
++ * This program is free software: you can redistribute it and/or modify it
++ * under the terms of the GNU General Public License version 3,
++ * as published by the Free Software Foundation.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
++ */
++
++#ifndef MIROIL_PROMPT_SESSION_LISTENER_H
++#define MIROIL_PROMPT_SESSION_LISTENER_H
++#include <memory>
++
++namespace mir { namespace scene { class PromptSession; } }
++namespace mir { namespace scene { class Session; } }
++
++namespace miroil {
++    
++class PromptSessionListener
++{
++public:
++    virtual ~PromptSessionListener();
++    
++    PromptSessionListener& operator=(PromptSessionListener const&) = delete;    
++
++    virtual void starting(std::shared_ptr<mir::scene::PromptSession> const& prompt_session) = 0;
++    virtual void stopping(std::shared_ptr<mir::scene::PromptSession> const& prompt_session) = 0;
++    virtual void suspending(std::shared_ptr<mir::scene::PromptSession> const& prompt_session) = 0;
++    virtual void resuming(std::shared_ptr<mir::scene::PromptSession> const& prompt_session) = 0;
++    virtual void prompt_provider_added(mir::scene::PromptSession const& prompt_session,
++                               std::shared_ptr<mir::scene::Session> const& prompt_provider) = 0;
++    virtual void prompt_provider_removed(mir::scene::PromptSession const& prompt_session,
++                                 std::shared_ptr<mir::scene::Session> const& prompt_provider) = 0;
++                                 
++protected:
++    PromptSessionListener() = default;
++    PromptSessionListener(PromptSessionListener const&) = delete;
++};
++
++}
++
++#endif // MIROIL_PROMPT_SESSION_LISTENER_H
+diff --git a/src/platforms/mirserver/miroil/include/miroil/prompt_session_manager.h b/src/platforms/mirserver/miroil/include/miroil/prompt_session_manager.h
+new file mode 100644
+index 0000000..2e1a538
+--- /dev/null
++++ b/src/platforms/mirserver/miroil/include/miroil/prompt_session_manager.h
+@@ -0,0 +1,51 @@
++/*
++ * Copyright © 2016-2021 Canonical Ltd.
++ *
++ * This program is free software: you can redistribute it and/or modify it
++ * under the terms of the GNU General Public License version 3,
++ * as published by the Free Software Foundation.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
++ */
++
++#ifndef MIROIL_PROMPT_SESSION_MANAGER_H
++#define MIROIL_PROMPT_SESSION_MANAGER_H
++
++#include <miral/application.h>
++
++#include <memory>
++
++namespace mir { namespace scene { class PromptSessionManager; class PromptSession;} }
++
++namespace miroil {
++    
++class PromptSessionManager
++{
++public:
++    PromptSessionManager(std::shared_ptr<mir::scene::PromptSessionManager> const& prompt_session_manager);
++    PromptSessionManager(PromptSessionManager const& src);
++    PromptSessionManager(PromptSessionManager&& src);
++    ~PromptSessionManager();
++
++    auto operator=(PromptSessionManager const& src) -> PromptSessionManager&;
++    auto operator=(PromptSessionManager&& src) -> PromptSessionManager&;
++
++    bool operator==(PromptSessionManager const& other);
++
++    auto application_for(std::shared_ptr<mir::scene::PromptSession> const& prompt_session) const -> miral::Application;
++    void resume_prompt_session(std::shared_ptr<mir::scene::PromptSession> const& prompt_session) const;
++    void stop_prompt_session(std::shared_ptr<mir::scene::PromptSession> const& prompt_session) const;
++    void suspend_prompt_session(std::shared_ptr<mir::scene::PromptSession> const& prompt_session) const;    
++
++private:
++    std::shared_ptr<mir::scene::PromptSessionManager> prompt_session_manager;
++};
++}
++
++#endif //MIROIL_PROMPT_SESSION_MANAGER_H
+diff --git a/src/platforms/mirserver/miroil/include/miroil/set_compositor.h b/src/platforms/mirserver/miroil/include/miroil/set_compositor.h
+new file mode 100644
+index 0000000..1017960
+--- /dev/null
++++ b/src/platforms/mirserver/miroil/include/miroil/set_compositor.h
+@@ -0,0 +1,54 @@
++/*
++ * Copyright © 2021 Canonical Ltd.
++ *
++ * This program is free software: you can redistribute it and/or modify it
++ * under the terms of the GNU General Public License version 3,
++ * as published by the Free Software Foundation.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
++ */
++
++#ifndef MIROIL_SET_COMPOSITOR_H
++#define MIROIL_SET_COMPOSITOR_H
++#include <memory>
++#include <functional>
++
++namespace mir { class Server; }
++namespace mir { namespace graphics { class Display; } }
++namespace mir { namespace compositor { class DisplayListener; } } 
++
++namespace miroil
++{
++    class Compositor;
++       
++// Configure the server for using the Qt compositor
++class SetCompositor
++{
++    using InitFunction = std::function<void(const std::shared_ptr<mir::graphics::Display>& display,
++                       const std::shared_ptr<Compositor> & compositor,
++                       const std::shared_ptr<mir::compositor::DisplayListener>& displayListener)>;
++                       
++    using ConstructorFunction = std::function<std::shared_ptr<Compositor>()>;    
++    
++public:
++    SetCompositor(ConstructorFunction constructor, InitFunction init);
++    
++    void operator()(mir::Server& server);
++
++private:
++    struct CompositorImpl;
++    
++    std::weak_ptr<CompositorImpl> compositor_impl;
++    ConstructorFunction           constructor_function;    
++    InitFunction                  init_function;    
++};
++
++}
++
++#endif //MIROIL_SET_COMPOSITOR_H
+diff --git a/src/platforms/mirserver/miroil/include/miroil/surface.h b/src/platforms/mirserver/miroil/include/miroil/surface.h
+new file mode 100644
+index 0000000..1b0dc2d
+--- /dev/null
++++ b/src/platforms/mirserver/miroil/include/miroil/surface.h
+@@ -0,0 +1,77 @@
++/*
++ * Copyright (C) 2021 Canonical, Ltd.
++ *
++ * This program is free software: you can redistribute it and/or modify it under
++ * the terms of the GNU Lesser General Public License version 3, as published by
++ * the Free Software Foundation.
++ *
++ * This program is distributed in the hope that it will be useful, but WITHOUT
++ * ANY WARRANTY; without even the implied warranties of MERCHANTABILITY,
++ * SATISFACTORY QUALITY, or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++ * Lesser General Public License for more details.
++ *
++ * You should have received a copy of the GNU Lesser General Public License
++ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
++ */
++#ifndef MIROIL_SURFACE_H
++#define MIROIL_SURFACE_H
++#include <memory>
++#include <unordered_map>
++#include <mir_toolkit/mir_input_device_types.h>
++#include <mir_toolkit/common.h>
++#include <mir/graphics/renderable.h>
++
++namespace mir { 
++    namespace scene { class Surface; } 
++    namespace shell { class InputTargeter; }
++    namespace geometry { struct Rectangle; }
++    namespace graphics { class CursorImage; }
++    namespace compositor { class BufferStream; }
++}
++
++namespace miroil {
++    
++class SurfaceObserver;
++class SurfaceObserverImpl;
++
++using CompositorID = void const*;
++    
++class Surface
++{
++public:
++    Surface(std::shared_ptr<mir::scene::Surface> wrapped);
++    ~Surface() = default;
++    
++    mir::scene::Surface *get_wrapped() const;
++    void add_observer(std::shared_ptr<miroil::SurfaceObserver> const& observer);    
++    void remove_observer(std::shared_ptr<miroil::SurfaceObserver> const& observer);
++    
++    int  buffers_ready_for_compositor(void const* compositor_id) const;
++    mir::graphics::RenderableList generate_renderables(miroil::CompositorID id) const; 
++
++    
++    bool is_confined_to_window();
++    void set_orientation(MirOrientation orientation);
++
++    void set_confine_pointer_state(MirPointerConfinementState state);                        
++    std::shared_ptr<mir::scene::Surface> parent() const;
++    /// Top-left corner (of the window frame if present)
++    mir::geometry::Point top_left() const;
++    bool visible() const;
++
++    // TODO a legacy of old interactions and needs removing
++    int configure(MirWindowAttrib attrib, int value);
++    // TODO a legacy of old interactions and needs removing
++    int query(MirWindowAttrib attrib) const;
++    // TODO a legacy of old interactions and needs removing
++    void set_keymap(MirInputDeviceId id, std::string const& model, std::string const& layout,
++                            std::string const& variant, std::string const& options);
++
++private:
++    std::shared_ptr<mir::scene::Surface> wrapped;
++    std::unordered_map<std::shared_ptr<miroil::SurfaceObserver>, std::shared_ptr<miroil::SurfaceObserverImpl>> observers;
++};
++
++}
++
++#endif
+diff --git a/src/platforms/mirserver/miroil/include/miroil/surface_observer.h b/src/platforms/mirserver/miroil/include/miroil/surface_observer.h
+new file mode 100644
+index 0000000..97fc1a0
+--- /dev/null
++++ b/src/platforms/mirserver/miroil/include/miroil/surface_observer.h
+@@ -0,0 +1,63 @@
++/*
++ * Copyright © 2021 Canonical Ltd.
++ *
++ * This program is free software: you can redistribute it and/or modify it
++ * under the terms of the GNU General Public License version 3,
++ * as published by the Free Software Foundation.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
++ */
++#include <mir_toolkit/common.h>
++#include <mir/geometry/size.h>
++#include <mir/geometry/rectangle.h>
++#include <mir/graphics/cursor_image.h>
++#include <glm/glm.hpp>
++#include <mir_toolkit/mir_input_device_types.h>
++#include <vector>
++
++namespace mir { namespace scene { class SurfaceObserver; } }
++namespace mir { namespace scene { class Surface; } }
++
++struct MirEvent;
++struct MirInputEvent;
++
++namespace miroil 
++{
++    
++class SurfaceObserver
++{
++public:
++    SurfaceObserver() = default;
++    SurfaceObserver(SurfaceObserver const&) = delete;
++    SurfaceObserver& operator=(SurfaceObserver const&) = delete;    
++    virtual ~SurfaceObserver() = default;
++    
++    virtual void attrib_changed(mir::scene::Surface const* surf, MirWindowAttrib attrib, int value) = 0;
++    virtual void window_resized_to(mir::scene::Surface const* surf, mir::geometry::Size const& window_size) = 0;
++    virtual void content_resized_to(mir::scene::Surface const* surf, mir::geometry::Size const& content_size) = 0;
++    virtual void moved_to(mir::scene::Surface const* surf, mir::geometry::Point const& top_left) = 0;
++    virtual void hidden_set_to(mir::scene::Surface const* surf, bool hide) = 0;
++    virtual void frame_posted(mir::scene::Surface const* surf, int frames_available, mir::geometry::Size const& size) = 0;
++    virtual void alpha_set_to(mir::scene::Surface const* surf, float alpha) = 0;
++    virtual void orientation_set_to(mir::scene::Surface const* surf, MirOrientation orientation) = 0;
++    virtual void transformation_set_to(mir::scene::Surface const* surf, glm::mat4 const& t) = 0;
++    virtual void cursor_image_set_to(mir::scene::Surface const* surf, mir::graphics::CursorImage const& image) = 0;
++    virtual void client_surface_close_requested(mir::scene::Surface const* surf) = 0;
++    virtual void keymap_changed(mir::scene::Surface const* surf, MirInputDeviceId id, std::string const& model,
++                                std::string const& layout, std::string const& variant, std::string const& options) = 0;
++    virtual void renamed(mir::scene::Surface const* surf, char const* name) = 0;
++    virtual void cursor_image_removed(mir::scene::Surface const* surf) = 0;
++    virtual void placed_relative(mir::scene::Surface const* surf, mir::geometry::Rectangle const& placement) = 0;
++    virtual void input_consumed(mir::scene::Surface const* surf, MirEvent const* event) = 0;
++    virtual void start_drag_and_drop(mir::scene::Surface const* surf, std::vector<uint8_t> const& handle) = 0;
++    virtual void depth_layer_set_to(mir::scene::Surface const* surf, MirDepthLayer depth_layer) = 0;
++    virtual void application_id_set_to(mir::scene::Surface const* surf, std::string const& application_id) = 0;
++};
++
++}
+diff --git a/src/platforms/mirserver/miroil/src/CMakeLists.txt b/src/platforms/mirserver/miroil/src/CMakeLists.txt
+new file mode 100644
+index 0000000..ea71c14
+--- /dev/null
++++ b/src/platforms/mirserver/miroil/src/CMakeLists.txt
+@@ -0,0 +1,39 @@
++add_library(miroil OBJECT
++    compositor.cpp ${miroil_include}/miroil/compositor.h    
++    edid.cpp ${qtmir_include}/qtmir/miroil/edid.h
++    mirbuffer.cpp ${miroil_include}/miroil/mirbuffer.h
++    persist_display_config.cpp ${miroil_include}/miroil/persist_display_config.h
++    display_configuration_policy.cpp ${qtmir_include}/qtmir/miroil/display_configuration_policy.h
++    display_configuration_controller_wrapper.cpp ${miroil_include}/miroil/display_configuration_controller_wrapper.h
++    display_listener_wrapper.cpp ${miroil_include}/miroil/display_listener_wrapper.h
++    eventdispatch.cpp ${miroil_include}/miroil/eventdispatch.h
++    event_builder.cpp ${miroil_include}/miroil/event_builder.h
++    input_device.cpp ${miroil_include}/miroil/input_device.h
++    input_device_observer.cpp ${miroil_include}/miroil/input_device_observer.h
++    mir_server_hooks.cpp ${miroil_include}/miroil/mir_server_hooks.h
++    mir_prompt_session.cpp ${miroil_include}/miroil/mir_prompt_session.h
++    open_gl_context.cpp ${miroil_include}/miroil/open_gl_context.h    
++    prompt_session_listener.cpp ${miroil_include}/miroil/prompt_session_listener.h
++    prompt_session_manager.cpp ${miroil_include}/miroil/prompt_session_manager.h    
++    set_compositor.cpp ${miroil_include}/miroil/set_compositor.h
++    surface.cpp ${miroil_include}/miroil/surface.h
++    ${qtmir_include}/qtmir/miroil/display_configuration_storage.h
++    ${qtmir_include}/qtmir/miroil/display_id.h
++)
++
++target_include_directories(miroil
++    PUBLIC  "${miroil_include}" "${qtmir_include}" "${qtmir_include}/qtmir"
++    PRIVATE ${MIRAL_INCLUDE_DIRS}
++    ${MIRCOMMON_INCLUDE_DIRS}
++    ${MIRSERVER_INCLUDE_DIRS}
++    ${MIRRENDERERGLDEV_INCLUDE_DIRS}
++    ${MIRSERVER_INCLUDE_DIRS}
++)
++
++target_link_libraries(miroil
++    PRIVATE
++    ${MIRAL_LDFLAGS}
++    ${MIRSERVER_LDFLAGS}
++
++    ${EGL_LDFLAGS}
++)
+diff --git a/src/platforms/mirserver/miroil/src/compositor.cpp b/src/platforms/mirserver/miroil/src/compositor.cpp
+new file mode 100644
+index 0000000..eb50aa6
+--- /dev/null
++++ b/src/platforms/mirserver/miroil/src/compositor.cpp
+@@ -0,0 +1,20 @@
++/*
++ * Copyright (C) 2016-2021 Canonical, Ltd.
++ *
++ * This program is free software: you can redistribute it and/or modify it under
++ * the terms of the GNU Lesser General Public License version 3, as published by
++ * the Free Software Foundation.
++ *
++ * This program is distributed in the hope that it will be useful, but WITHOUT
++ * ANY WARRANTY; without even the implied warranties of MERCHANTABILITY,
++ * SATISFACTORY QUALITY, or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++ * Lesser General Public License for more details.
++ *
++ * You should have received a copy of the GNU Lesser General Public License
++ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
++ */
++
++#include <miroil/compositor.h>
++
++miroil::Compositor::~Compositor() = default;
++
+diff --git a/src/platforms/mirserver/miroil/src/display_configuration_controller_wrapper.cpp b/src/platforms/mirserver/miroil/src/display_configuration_controller_wrapper.cpp
+new file mode 100644
+index 0000000..9ca4942
+--- /dev/null
++++ b/src/platforms/mirserver/miroil/src/display_configuration_controller_wrapper.cpp
+@@ -0,0 +1,32 @@
++/*
++ * Copyright (C) 2021 Canonical, Ltd.
++ *
++ * This program is free software: you can redistribute it and/or modify it under
++ * the terms of the GNU Lesser General Public License version 3, as published by
++ * the Free Software Foundation.
++ *
++ * This program is distributed in the hope that it will be useful, but WITHOUT
++ * ANY WARRANTY; without even the implied warranties of MERCHANTABILITY,
++ * SATISFACTORY QUALITY, or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++ * Lesser General Public License for more details.
++ *
++ * You should have received a copy of the GNU Lesser General Public License
++ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
++ */
++
++#include <miroil/display_configuration_controller_wrapper.h>
++#include "mir/shell/display_configuration_controller.h"
++
++namespace miroil {
++
++void DisplayConfigurationControllerWrapper::set_base_configuration(std::shared_ptr<mir::graphics::DisplayConfiguration> const& conf)
++{
++    wrapped->set_base_configuration(conf);
++}
++
++DisplayConfigurationControllerWrapper::DisplayConfigurationControllerWrapper(std::shared_ptr<mir::shell::DisplayConfigurationController> const & wrapped)
++    : wrapped(wrapped)
++{
++}
++
++}
+diff --git a/src/platforms/mirserver/miral/display_configuration_policy.cpp b/src/platforms/mirserver/miroil/src/display_configuration_policy.cpp
+similarity index 73%
+rename from src/platforms/mirserver/miral/display_configuration_policy.cpp
+rename to src/platforms/mirserver/miroil/src/display_configuration_policy.cpp
+index c4f5281..ad74631 100644
+--- a/src/platforms/mirserver/miral/display_configuration_policy.cpp
++++ b/src/platforms/mirserver/miroil/src/display_configuration_policy.cpp
+@@ -1,5 +1,5 @@
+ /*
+- * Copyright © 2016 Canonical Ltd.
++ * Copyright © 2016-2020 Canonical Ltd.
+  *
+  * This program is free software: you can redistribute it and/or modify it
+  * under the terms of the GNU General Public License version 3,
+@@ -16,6 +16,7 @@
+  * Authored by: Nick Dedekind <nick.dedekind@canonical.com>
+  */
+ 
+-#include "qtmir/miral/display_configuration_policy.h"
++#include "miroil/display_configuration_policy.h"
+ 
+-miral::DisplayConfigurationPolicy::DisplayConfigurationPolicy() = default;
++miroil::DisplayConfigurationPolicy::DisplayConfigurationPolicy() = default;
++miroil::DisplayConfigurationPolicy::~DisplayConfigurationPolicy() = default;
+diff --git a/src/platforms/mirserver/miroil/src/display_listener_wrapper.cpp b/src/platforms/mirserver/miroil/src/display_listener_wrapper.cpp
+new file mode 100644
+index 0000000..125cc20
+--- /dev/null
++++ b/src/platforms/mirserver/miroil/src/display_listener_wrapper.cpp
+@@ -0,0 +1,41 @@
++/*
++ * Copyright (C) 2021 Canonical, Ltd.
++ *
++ * This program is free software: you can redistribute it and/or modify it under
++ * the terms of the GNU Lesser General Public License version 3, as published by
++ * the Free Software Foundation.
++ *
++ * This program is distributed in the hope that it will be useful, but WITHOUT
++ * ANY WARRANTY; without even the implied warranties of MERCHANTABILITY,
++ * SATISFACTORY QUALITY, or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++ * Lesser General Public License for more details.
++ *
++ * You should have received a copy of the GNU Lesser General Public License
++ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
++ */
++#include "miroil/display_listener_wrapper.h"
++#include "mir/compositor/display_listener.h"
++
++namespace miroil
++{
++    
++DisplayListenerWrapper::DisplayListenerWrapper(std::shared_ptr<mir::compositor::DisplayListener> const & display_listener)
++ : display_listener(display_listener)
++{
++}
++
++DisplayListenerWrapper::~DisplayListenerWrapper()
++{
++}
++
++void DisplayListenerWrapper::add_display(mir::geometry::Rectangle const& area)
++{
++    display_listener->add_display(area);
++}
++
++void DisplayListenerWrapper::remove_display(mir::geometry::Rectangle const& area)
++{
++    display_listener->remove_display(area);
++}
++
++}
+diff --git a/src/platforms/mirserver/miral/edid.cpp b/src/platforms/mirserver/miroil/src/edid.cpp
+similarity index 91%
+rename from src/platforms/mirserver/miral/edid.cpp
+rename to src/platforms/mirserver/miroil/src/edid.cpp
+index 0f8f80d..094cbc8 100644
+--- a/src/platforms/mirserver/miral/edid.cpp
++++ b/src/platforms/mirserver/miroil/src/edid.cpp
+@@ -1,5 +1,5 @@
+ /*
+- * Copyright © 2016 Canonical Ltd.
++ * Copyright © 2016-2020 Canonical Ltd.
+  *
+  * This program is free software: you can redistribute it and/or modify it
+  * under the terms of the GNU General Public License version 3,
+@@ -16,16 +16,16 @@
+  * Authored by: Nick Dedekind <nick.dedekind@canonical.com>
+  */
+ 
+-#include "qtmir/miral/edid.h"
++#include "miroil/edid.h"
+ 
+ #include <cstring>
+ #include <numeric>
+ #include <stdexcept>
+ 
+-miral::Edid& miral::Edid::parse_data(std::vector<uint8_t> const& data)
++miroil::Edid& miroil::Edid::parse_data(std::vector<uint8_t> const& data)
+ {
+     if (data.size() != 128 && data.size() != 256) {
+-        throw std::runtime_error(std::string("Incorrect EDID structure size:") + std::to_string(data.size()));
++        throw std::runtime_error("Incorrect EDID structure size");
+     }
+ 
+     // check the checksum
+@@ -97,7 +97,7 @@ miral::Edid& miral::Edid::parse_data(std::vector<uint8_t> const& data)
+     return *this;
+ }
+ 
+-std::string miral::Edid::Descriptor::string_value() const
++std::string miroil::Edid::Descriptor::string_value() const
+ {
+     switch(type) {
+     case Type::monitor_name:
+diff --git a/src/platforms/mirserver/miroil/src/event_builder.cpp b/src/platforms/mirserver/miroil/src/event_builder.cpp
+new file mode 100644
+index 0000000..33d963c
+--- /dev/null
++++ b/src/platforms/mirserver/miroil/src/event_builder.cpp
+@@ -0,0 +1,116 @@
++/*
++ * Copyright (C) 2016-2021 Canonical, Ltd.
++ *
++ * This program is free software: you can redistribute it and/or modify it under
++ * the terms of the GNU Lesser General Public License version 3, as published by
++ * the Free Software Foundation.
++ *
++ * This program is distributed in the hope that it will be useful, but WITHOUT
++ * ANY WARRANTY; without even the implied warranties of MERCHANTABILITY,
++ * SATISFACTORY QUALITY, or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++ * Lesser General Public License for more details.
++ *
++ * You should have received a copy of the GNU Lesser General Public License
++ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
++ */
++
++#include "miroil/event_builder.h"
++#include "mir_toolkit/events/input/input_event.h"
++#include "mir_toolkit/mir_cookie.h"
++#include "mir/events/event_builders.h"
++
++namespace miroil {
++    
++EventBuilder::EventBuilder()
++: event_info_vector(10)    
++{
++}
++
++EventBuilder::~EventBuilder() = default;
++    
++void EventBuilder::add_touch(MirEvent &event, MirTouchId touch_id, MirTouchAction action,
++    MirTouchTooltype tooltype, float x_axis_value, float y_axis_value,
++    float pressure_value, float touch_major_value, float touch_minor_value, float size_value)
++{
++    mir::events::add_touch(event, touch_id, action, tooltype, x_axis_value, y_axis_value,
++                           pressure_value, touch_major_value, touch_minor_value, size_value);
++}
++
++// Key event
++mir::EventUPtr EventBuilder::make_key_event(MirInputDeviceId device_id, std::chrono::nanoseconds timestamp,
++    std::vector<uint8_t> const& cookie, MirKeyboardAction action, xkb_keysym_t key_code,
++    int scan_code, MirInputEventModifiers modifiers)
++{
++    return mir::events::make_event(device_id, timestamp,
++                                   cookie, action, key_code,
++                                   scan_code, modifiers);
++}
++
++// Touch event
++mir::EventUPtr EventBuilder::make_touch_event(MirInputDeviceId device_id, std::chrono::nanoseconds timestamp,
++    std::vector<uint8_t> const& mac, MirInputEventModifiers modifiers)
++{
++    return mir::events::make_event(device_id, timestamp,
++                                   mac, modifiers);
++}
++
++// Pointer event
++mir::EventUPtr EventBuilder::make_pointer_event(MirInputDeviceId device_id, std::chrono::nanoseconds timestamp,
++    std::vector<uint8_t> const& mac, MirInputEventModifiers modifiers, MirPointerAction action,
++    MirPointerButtons buttons_pressed,
++    float x_axis_value, float y_axis_value,
++    float hscroll_value, float vscroll_value,
++    float relative_x_value, float relative_y_value)
++{
++    return mir::events::make_event(device_id, timestamp,
++                                   mac, modifiers, action,
++                                   buttons_pressed,
++                                   x_axis_value, y_axis_value,
++                                   hscroll_value, vscroll_value,
++                                   relative_x_value, relative_y_value);
++}
++
++EventBuilder::EventInfo *EventBuilder::find_info(ulong qtTimestamp)
++{
++    for (size_t i = 0; i < event_info_count; ++i) {
++        if (event_info_vector[i].timestamp == qtTimestamp) {
++            return &event_info_vector[i];
++        }
++    }
++    return nullptr;
++}
++
++void EventBuilder::store(const MirInputEvent *mirInputEvent, ulong qtTimestamp)
++{
++    EventInfo &eventInfo = event_info_vector[next_index];
++    eventInfo.store(mirInputEvent, qtTimestamp);
++
++    next_index = (next_index + 1) % event_info_vector.size();
++
++    if (event_info_count < event_info_vector.size()) {
++        ++event_info_count;
++    }
++}
++
++void EventBuilder::EventInfo::store(const MirInputEvent *iev, ulong qtTimestamp)
++{
++    this->timestamp = qtTimestamp;
++    device_id = mir_input_event_get_device_id(iev);
++    if (mir_input_event_has_cookie(iev))
++    {
++        auto cookie_ptr = mir_input_event_get_cookie(iev);
++        cookie.resize(mir_cookie_buffer_size(cookie_ptr));
++        mir_cookie_to_buffer(cookie_ptr, cookie.data(), cookie.size());
++        mir_cookie_release(cookie_ptr);
++    } else {
++        cookie.resize(0);
++    }
++    if (mir_input_event_type_pointer == mir_input_event_get_type(iev))
++    {
++        auto pev = mir_input_event_get_pointer_event(iev);
++        relative_x = mir_pointer_event_axis_value(pev, mir_pointer_axis_relative_x);
++        relative_y = mir_pointer_event_axis_value(pev, mir_pointer_axis_relative_y);
++    }
++}
++
++}
+diff --git a/src/platforms/mirserver/miroil/src/eventdispatch.cpp b/src/platforms/mirserver/miroil/src/eventdispatch.cpp
+new file mode 100644
+index 0000000..6442057
+--- /dev/null
++++ b/src/platforms/mirserver/miroil/src/eventdispatch.cpp
+@@ -0,0 +1,29 @@
++/*
++ * Copyright © 2017 Canonical Ltd.
++ *
++ * This program is free software: you can redistribute it and/or modify it
++ * under the terms of the GNU General Public License version 3,
++ * as published by the Free Software Foundation.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
++ *
++ * Authored by: Alan Griffiths <alan@octopull.co.uk>
++ */
++
++#include "miroil/eventdispatch.h"
++#include <miral/window.h>
++#include <mir/scene/surface.h>
++
++void miroil::dispatch_input_event(const miral::Window& window, const MirInputEvent* event)
++{
++    auto e = reinterpret_cast<MirEvent const*>(event); // naughty
++
++    if (auto surface = std::shared_ptr<mir::scene::Surface>(window))
++        surface->consume(e);
++}
+diff --git a/src/platforms/mirserver/miroil/src/input_device.cpp b/src/platforms/mirserver/miroil/src/input_device.cpp
+new file mode 100644
+index 0000000..4850ee1
+--- /dev/null
++++ b/src/platforms/mirserver/miroil/src/input_device.cpp
+@@ -0,0 +1,80 @@
++/*
++ * Copyright © 2016-2021 Canonical Ltd.
++ *
++ * This program is free software: you can redistribute it and/or modify it
++ * under the terms of the GNU General Public License version 3,
++ * as published by the Free Software Foundation.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
++ */
++
++#include <miroil/input_device.h>
++
++#include "mir/flags.h"
++#include "mir/input/device.h"
++#include "mir/input/mir_keyboard_config.h"
++
++miroil::InputDevice::InputDevice(std::shared_ptr<mir::input::Device> const& device)
++: device(device)
++{
++}
++
++miroil::InputDevice::InputDevice(InputDevice const& ) = default;
++
++miroil::InputDevice::InputDevice() = default;
++
++miroil::InputDevice::~InputDevice() = default;
++
++bool miroil::InputDevice::operator==(InputDevice const& other)
++{
++    return device == other.device;
++}
++        
++void miroil::InputDevice::apply_keymap(std::string const& layout, std::string const& variant)
++{
++    MirKeyboardConfig oldConfig;
++    
++    mir::input::Keymap keymap;
++    if (device->keyboard_configuration().is_set()) { // preserve the model and options
++        oldConfig = device->keyboard_configuration().value();
++        keymap.model = oldConfig.device_keymap().model;
++        keymap.options = oldConfig.device_keymap().options;
++    }
++    keymap.layout  = layout;
++    keymap.variant = variant;
++
++    device->apply_keyboard_configuration(std::move(keymap));
++}
++    
++
++MirInputDeviceId miroil::InputDevice::get_device_id()
++{
++    return device->id();
++}
++
++std::string miroil::InputDevice::get_device_name()
++{
++    return device->name();
++}
++    
++bool miroil::InputDevice::is_keyboard()
++{
++    return mir::contains(device->capabilities(), mir::input::DeviceCapability::keyboard);
++}
++        
++bool miroil::InputDevice::is_alpha_numeric()
++{
++    return mir::contains(device->capabilities(), mir::input::DeviceCapability::alpha_numeric);
++}
++
++miroil::InputDevice::InputDevice(InputDevice&& ) = default;
++
++auto miroil::InputDevice::operator=(InputDevice const& src) -> InputDevice& = default;
++
++auto miroil::InputDevice::operator=(InputDevice&& src) -> InputDevice& = default;
+diff --git a/src/platforms/mirserver/miroil/src/input_device_observer.cpp b/src/platforms/mirserver/miroil/src/input_device_observer.cpp
+new file mode 100644
+index 0000000..35c0464
+--- /dev/null
++++ b/src/platforms/mirserver/miroil/src/input_device_observer.cpp
+@@ -0,0 +1,19 @@
++/*
++ * Copyright (C) 2016-2021 Canonical, Ltd.
++ *
++ * This program is free software: you can redistribute it and/or modify it under
++ * the terms of the GNU Lesser General Public License version 3, as published by
++ * the Free Software Foundation.
++ *
++ * This program is distributed in the hope that it will be useful, but WITHOUT
++ * ANY WARRANTY; without even the implied warranties of MERCHANTABILITY,
++ * SATISFACTORY QUALITY, or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++ * Lesser General Public License for more details.
++ *
++ * You should have received a copy of the GNU Lesser General Public License
++ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
++ */
++
++#include <miroil/input_device_observer.h>
++
++miroil::InputDeviceObserver::~InputDeviceObserver() = default;
+diff --git a/src/platforms/mirserver/miroil/src/mir_connection.cpp b/src/platforms/mirserver/miroil/src/mir_connection.cpp
+new file mode 100644
+index 0000000..8b13789
+--- /dev/null
++++ b/src/platforms/mirserver/miroil/src/mir_connection.cpp
+@@ -0,0 +1 @@
++
+diff --git a/src/platforms/mirserver/miroil/src/mir_prompt_session.cpp b/src/platforms/mirserver/miroil/src/mir_prompt_session.cpp
+new file mode 100644
+index 0000000..607cac4
+--- /dev/null
++++ b/src/platforms/mirserver/miroil/src/mir_prompt_session.cpp
+@@ -0,0 +1,34 @@
++#include <miroil/mir_prompt_session.h>
++#include <mir/uncaught.h>
++
++miroil::MirPromptSession::MirPromptSession(::MirPromptSession * prompt_session)
++{
++    this->prompt_session = prompt_session;
++}
++
++miroil::MirPromptSession::MirPromptSession(MirPromptSession const& src) = default;
++miroil::MirPromptSession::MirPromptSession(MirPromptSession && src) = default;
++miroil::MirPromptSession::~MirPromptSession() = default;
++
++auto miroil::MirPromptSession::operator=(MirPromptSession const& src) -> MirPromptSession&
++{
++    prompt_session = src.prompt_session;
++    return *this;    
++}
++
++auto miroil::MirPromptSession::operator=(MirPromptSession&& src) -> MirPromptSession&
++{
++    prompt_session = src.prompt_session;
++    return *this;    
++}
++
++bool miroil::MirPromptSession::operator==(MirPromptSession const& other)
++{
++    return prompt_session == other.prompt_session;
++}
++
++bool miroil::MirPromptSession::new_fds_for_prompt_providers(unsigned int /*no_of_fds*/, MirClientFdCallback /*callback*/, void * /*context*/)
++{
++//    return mir_prompt_session_new_fds_for_prompt_providers(prompt_session, no_of_fds, callback, context);
++    return false;
++}
+diff --git a/src/platforms/mirserver/miroil/src/mir_server_hooks.cpp b/src/platforms/mirserver/miroil/src/mir_server_hooks.cpp
+new file mode 100644
+index 0000000..3ece6f6
+--- /dev/null
++++ b/src/platforms/mirserver/miroil/src/mir_server_hooks.cpp
+@@ -0,0 +1,252 @@
++/*
++ * Copyright © 2016 Canonical Ltd.
++ *
++ * This program is free software: you can redistribute it and/or modify it
++ * under the terms of the GNU General Public License version 3,
++ * as published by the Free Software Foundation.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
++ *
++ * Authored by: Alan Griffiths <alan@octopull.co.uk>
++ */
++
++#include <miroil/mir_server_hooks.h>
++
++// mir
++#include <mir/server.h>
++#include <mir/graphics/cursor.h>
++#include <mir/scene/prompt_session_listener.h>
++#include <mir/input/input_device_hub.h>
++#include <mir/input/input_device_observer.h>
++#include <mir/input/cursor_images.h>
++#include <mir/version.h>
++
++#include <stdexcept>
++
++namespace mg = mir::graphics;
++namespace ms = mir::scene;
++
++namespace
++{
++struct PromptSessionListenerImpl : mir::scene::PromptSessionListener
++{
++    PromptSessionListenerImpl(std::shared_ptr<miroil::PromptSessionListener> const& listener) : listener(listener) {};
++    ~PromptSessionListenerImpl();
++
++    void starting(std::shared_ptr<mir::scene::PromptSession> const& prompt_session) override;
++    void stopping(std::shared_ptr<mir::scene::PromptSession> const& prompt_session) override;
++    void suspending(std::shared_ptr<mir::scene::PromptSession> const& prompt_session) override;
++    void resuming(std::shared_ptr<mir::scene::PromptSession> const& prompt_session) override;
++
++    void prompt_provider_added(mir::scene::PromptSession const& prompt_session,
++                               std::shared_ptr<mir::scene::Session> const& prompt_provider) override;
++    void prompt_provider_removed(mir::scene::PromptSession const& prompt_session,
++                                 std::shared_ptr<mir::scene::Session> const& prompt_provider) override;
++
++private:   
++    std::shared_ptr<miroil::PromptSessionListener> const listener;
++};
++
++struct MirInputDeviceObserverImpl : mir::input::InputDeviceObserver
++{
++public:    
++    MirInputDeviceObserverImpl(std::shared_ptr<miroil::InputDeviceObserver> & observer) : observer(observer) {};
++    
++    void device_added(std::shared_ptr<mir::input::Device> const& device) override;
++    void device_changed(std::shared_ptr<mir::input::Device> const& /*device*/) override {}
++    void device_removed(std::shared_ptr<mir::input::Device> const& device) override;
++    void changes_complete() override {}
++    
++private:    
++    std::shared_ptr<miroil::InputDeviceObserver> observer;
++};
++
++struct HiddenCursorWrapper : mg::Cursor
++{
++    HiddenCursorWrapper(std::shared_ptr<mg::Cursor> const& wrapped) :
++        wrapped{wrapped} { wrapped->hide(); }
++#if MIR_SERVER_VERSION < MIR_VERSION_NUMBER(2, 3, 0)
++    void show() override { }
++#endif
++    void show(mg::CursorImage const&) override { }
++    void hide() override { wrapped->hide(); }
++
++    void move_to(mir::geometry::Point position) override { wrapped->move_to(position); }
++
++private:
++    std::shared_ptr<mg::Cursor> const wrapped;
++};
++}
++
++class MirCursorImages : public mir::input::CursorImages
++{
++public:
++    MirCursorImages(miroil::CreateNamedCursor func);
++
++    std::shared_ptr<mir::graphics::CursorImage> image(const std::string &cursor_name,
++            const mir::geometry::Size &size) override;
++
++private:
++    miroil::CreateNamedCursor create_func;
++};
++
++MirCursorImages::MirCursorImages(miroil::CreateNamedCursor func)
++{
++    create_func = func;
++}
++
++auto MirCursorImages::image(const std::string &cursor_name, const mir::geometry::Size &)
++-> std::shared_ptr<mir::graphics::CursorImage>
++{
++    return create_func(cursor_name);
++}
++
++struct miroil::MirServerHooks::Self
++{
++    std::shared_ptr<miroil::PromptSessionListener> prompt_session_listener;
++    std::weak_ptr<PromptSessionListenerImpl> prompt_session_listener_impl;
++    std::weak_ptr<mir::graphics::Display> mir_display;
++    std::weak_ptr<mir::shell::DisplayConfigurationController> mir_display_configuration_controller;
++    std::weak_ptr<mir::scene::PromptSessionManager> mir_prompt_session_manager;
++    std::weak_ptr<mir::input::InputDeviceHub> input_device_hub;
++    CreateNamedCursor create_cursor;    
++};
++
++miroil::MirServerHooks::MirServerHooks() :
++    self{std::make_shared<Self>()}
++{
++}
++
++void miroil::MirServerHooks::operator()(mir::Server& server)
++{
++    if (self->create_cursor) {
++        server.override_the_cursor_images([this]
++            { return std::make_shared<MirCursorImages>(self->create_cursor); });
++    }
++
++    server.wrap_cursor([&](std::shared_ptr<mg::Cursor> const& wrapped)
++        { return std::make_shared<HiddenCursorWrapper>(wrapped); });
++
++    if (self->prompt_session_listener) {
++        server.override_the_prompt_session_listener([this]
++        {
++            auto const result = std::make_shared<PromptSessionListenerImpl>(self->prompt_session_listener);
++            self->prompt_session_listener_impl = result;
++            return result;
++        });
++    }
++
++    server.add_init_callback([this, &server]
++        {
++            self->mir_display = server.the_display();
++            self->mir_display_configuration_controller = server.the_display_configuration_controller();
++            self->mir_prompt_session_manager = server.the_prompt_session_manager();
++            self->input_device_hub = server.the_input_device_hub();
++        });
++}
++
++auto miroil::MirServerHooks::the_prompt_session_listener() const
++-> miroil::PromptSessionListener*
++{
++    return self->prompt_session_listener.get();
++}
++
++auto miroil::MirServerHooks::the_prompt_session_manager() const
++-> std::shared_ptr<mir::scene::PromptSessionManager>
++{
++    if (auto result = self->mir_prompt_session_manager.lock())
++        return result;
++
++    throw std::logic_error("No prompt session manager available. Server not running?");
++}
++
++auto miroil::MirServerHooks::the_mir_display() const
++-> std::shared_ptr<mir::graphics::Display>
++{
++    if (auto result = self->mir_display.lock())
++        return result;
++
++    throw std::logic_error("No display available. Server not running?");
++}
++
++auto miroil::MirServerHooks::the_display_configuration_controller() const
++-> std::shared_ptr<mir::shell::DisplayConfigurationController>
++{
++    if (auto result = self->mir_display_configuration_controller.lock())
++        return result;
++
++    throw std::logic_error("No input device hub available. Server not running?");
++}
++
++void miroil::MirServerHooks::create_named_cursor(CreateNamedCursor func)
++{
++    self->create_cursor = func;
++}
++
++void miroil::MirServerHooks::create_input_device_observer(std::shared_ptr<miroil::InputDeviceObserver> & observer)
++{
++    if (auto result = self->input_device_hub.lock()) {
++        result->add_observer(std::make_shared<MirInputDeviceObserverImpl>(observer));
++	return;
++    }
++
++    throw std::logic_error("No input device hub available. Server not running?");
++}
++
++void miroil::MirServerHooks::create_prompt_session_listener(std::shared_ptr<miroil::PromptSessionListener> listener)
++{
++    self->prompt_session_listener = listener;
++}
++
++PromptSessionListenerImpl::~PromptSessionListenerImpl() = default;
++
++void PromptSessionListenerImpl::starting(std::shared_ptr<ms::PromptSession> const& prompt_session)
++{
++    listener->starting(prompt_session);
++}
++
++void PromptSessionListenerImpl::stopping(std::shared_ptr<ms::PromptSession> const& prompt_session)
++{
++    listener->stopping(prompt_session);
++}
++
++void PromptSessionListenerImpl::suspending(std::shared_ptr<ms::PromptSession> const& prompt_session)
++{
++    listener->suspending(prompt_session);
++}
++
++void PromptSessionListenerImpl::resuming(std::shared_ptr<ms::PromptSession> const& prompt_session)
++{
++    listener->resuming(prompt_session);
++}
++
++void PromptSessionListenerImpl::prompt_provider_added(ms::PromptSession const& prompt_session,
++                                                      std::shared_ptr<ms::Session> const& prompt_provider)
++{
++    listener->prompt_provider_added(prompt_session, prompt_provider);
++}
++
++void PromptSessionListenerImpl::prompt_provider_removed(ms::PromptSession const& prompt_session,
++                                                        std::shared_ptr<ms::Session> const& prompt_provider)
++{
++    listener->prompt_provider_removed(prompt_session, prompt_provider);
++}
++
++void MirInputDeviceObserverImpl::device_added(const std::shared_ptr<mir::input::Device> &device)
++{
++    observer->device_added(miroil::InputDevice(device));
++}
++
++void MirInputDeviceObserverImpl::device_removed(const std::shared_ptr<mir::input::Device> &device)
++{
++    if (device) {
++        observer->device_removed(miroil::InputDevice(device));
++    }
++}
++
+diff --git a/src/platforms/mirserver/miral/mirbuffer.cpp b/src/platforms/mirserver/miroil/src/mirbuffer.cpp
+similarity index 97%
+rename from src/platforms/mirserver/miral/mirbuffer.cpp
+rename to src/platforms/mirserver/miroil/src/mirbuffer.cpp
+index 225d2ac..8f25a5a 100644
+--- a/src/platforms/mirserver/miral/mirbuffer.cpp
++++ b/src/platforms/mirserver/miroil/src/mirbuffer.cpp
+@@ -1,6 +1,6 @@
+ /*
+  * Copyright 2021 UBports Foundation.
+- * Copyright © 2017 Canonical Ltd.
++ * Copyright © 2017-2020 Canonical Ltd.
+  *
+  * This program is free software: you can redistribute it and/or modify it
+  * under the terms of the GNU General Public License version 3,
+@@ -15,10 +15,10 @@
+  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  */
+ 
+-#include "mirbuffer.h"
++#include "miroil/mirbuffer.h"
+ 
+ #include <mir/graphics/buffer.h>
+-#include "mir/graphics/texture.h"
++#include <mir/graphics/texture.h>
+ #include <mir/renderer/gl/texture_source.h>
+ 
+ #include <stdexcept>
+diff --git a/src/platforms/mirserver/miroil/src/open_gl_context.cpp b/src/platforms/mirserver/miroil/src/open_gl_context.cpp
+new file mode 100644
+index 0000000..271d9cc
+--- /dev/null
++++ b/src/platforms/mirserver/miroil/src/open_gl_context.cpp
+@@ -0,0 +1,52 @@
++/*
++ * Copyright © 2016 Canonical Ltd.
++ *
++ * This program is free software: you can redistribute it and/or modify it
++ * under the terms of the GNU General Public License version 3,
++ * as published by the Free Software Foundation.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
++ *
++ * Authored by: Alan Griffiths <alan@octopull.co.uk>
++ */
++
++#include "miroil/open_gl_context.h"
++#include <stdexcept>
++
++// mir
++#include <mir/server.h>
++   
++struct miroil::OpenGLContext::Self
++{
++    Self(mir::graphics::GLConfig* gl_config)
++    : gl_config(gl_config)
++    {        
++    }
++    
++    std::shared_ptr<mir::graphics::GLConfig> const gl_config;
++};
++
++miroil::OpenGLContext::OpenGLContext(mir::graphics::GLConfig* gl_config)
++:    self{std::make_shared<Self>(gl_config)}
++{    
++}
++
++void miroil::OpenGLContext::operator()(mir::Server& server)
++{
++    server.override_the_gl_config([this]
++        { return self->gl_config; }
++    );
++}
++
++auto miroil::OpenGLContext::the_open_gl_config() const
++-> std::shared_ptr<mir::graphics::GLConfig>
++{
++    return self->gl_config;
++}
++
+diff --git a/src/platforms/mirserver/miral/persist_display_config.cpp b/src/platforms/mirserver/miroil/src/persist_display_config.cpp
+similarity index 74%
+rename from src/platforms/mirserver/miral/persist_display_config.cpp
+rename to src/platforms/mirserver/miroil/src/persist_display_config.cpp
+index 2bfb98c..bf23bbb 100644
+--- a/src/platforms/mirserver/miral/persist_display_config.cpp
++++ b/src/platforms/mirserver/miroil/src/persist_display_config.cpp
+@@ -1,5 +1,5 @@
+ /*
+- * Copyright © 2016 Canonical Ltd.
++ * Copyright © 2016-2020 Canonical Ltd.
+  *
+  * This program is free software: you can redistribute it and/or modify it
+  * under the terms of the GNU General Public License version 3,
+@@ -16,45 +16,42 @@
+  * Authored by: Alan Griffiths <alan@octopull.co.uk>
+  */
+ 
+-#include "persist_display_config.h"
+-#include "qtmir/miral/display_configuration_policy.h"
+-#include "qtmir/miral/display_configuration_storage.h"
+-#include "qtmir/miral/edid.h"
++#include "miroil/persist_display_config.h"
++#include "miroil/display_configuration_policy.h"
++#include "miroil/display_configuration_storage.h"
+ 
+-#include <mir/graphics/display_configuration_policy.h>
+ #include <mir/graphics/display_configuration.h>
+ #include <mir/graphics/display_configuration_observer.h>
++#include <mir/graphics/display_configuration_policy.h>
+ #include <mir/observer_registrar.h>
+ #include <mir/server.h>
+-#include <mir/version.h>
++#include <mir/log.h>
+ 
+-#include <stdexcept>
++#include <boost/throw_exception.hpp>
+ 
+-// shouldn't really import this
+-#include <qglobal.h>
++#include <stdexcept>
+ 
+ namespace mg = mir::graphics;
+ 
+ namespace
+ {
+-
+ struct PersistDisplayConfigPolicy
+ {
+-    PersistDisplayConfigPolicy(std::shared_ptr<miral::DisplayConfigurationStorage> const& storage) :
++    PersistDisplayConfigPolicy(std::shared_ptr<miroil::DisplayConfigurationStorage> const& storage) :
+         storage(storage) {}
+     virtual ~PersistDisplayConfigPolicy() = default;
+     PersistDisplayConfigPolicy(PersistDisplayConfigPolicy const&) = delete;
+     auto operator=(PersistDisplayConfigPolicy const&) -> PersistDisplayConfigPolicy& = delete;
+ 
+     void apply_to(mg::DisplayConfiguration& conf,
+-                  miral::DisplayConfigurationPolicy& wrapped_policy,
+-                  miral::DisplayConfigurationPolicy& custom_policy);
++                  miroil::DisplayConfigurationPolicy& wrapped_policy,
++                  miroil::DisplayConfigurationPolicy& custom_policy);
+     void save_config(mg::DisplayConfiguration const& base_conf);
+ 
+-    std::shared_ptr<miral::DisplayConfigurationStorage> storage;
++    std::shared_ptr<miroil::DisplayConfigurationStorage> storage;
+ };
+ 
+-struct MiralWrappedMirDisplayConfigurationPolicy : miral::DisplayConfigurationPolicy
++struct MiralWrappedMirDisplayConfigurationPolicy : miroil::DisplayConfigurationPolicy
+ {
+     MiralWrappedMirDisplayConfigurationPolicy(std::shared_ptr<mg::DisplayConfigurationPolicy> const& self) :
+         self{self}
+@@ -72,8 +69,8 @@ struct DisplayConfigurationPolicyAdapter : mg::DisplayConfigurationPolicy
+ {
+     DisplayConfigurationPolicyAdapter(
+         std::shared_ptr<PersistDisplayConfigPolicy> const& self,
+-            std::shared_ptr<miral::DisplayConfigurationPolicy> const& wrapped_policy,
+-            std::shared_ptr<miral::DisplayConfigurationPolicy> const& custom_policy) :
++            std::shared_ptr<miroil::DisplayConfigurationPolicy> const& wrapped_policy,
++            std::shared_ptr<miroil::DisplayConfigurationPolicy> const& custom_policy) :
+         self{self}, wrapped_policy{wrapped_policy}, custom_policy{custom_policy}
+     {}
+ 
+@@ -83,8 +80,8 @@ struct DisplayConfigurationPolicyAdapter : mg::DisplayConfigurationPolicy
+     }
+ 
+     std::shared_ptr<PersistDisplayConfigPolicy> const self;
+-    std::shared_ptr<miral::DisplayConfigurationPolicy> const wrapped_policy;
+-    std::shared_ptr<miral::DisplayConfigurationPolicy> const custom_policy;
++    std::shared_ptr<miroil::DisplayConfigurationPolicy> const wrapped_policy;
++    std::shared_ptr<miroil::DisplayConfigurationPolicy> const custom_policy;
+ };
+ 
+ struct DisplayConfigurationObserver : mg::DisplayConfigurationObserver
+@@ -101,16 +98,14 @@ struct DisplayConfigurationObserver : mg::DisplayConfigurationObserver
+         std::shared_ptr<mg::DisplayConfiguration const> const& /*failed_fallback*/,
+         std::exception const& /*error*/) override {}
+ 
+-#if MIR_SERVER_VERSION >= MIR_VERSION_NUMBER(1, 5, 0)
+     void configuration_updated_for_session(
+         std::shared_ptr<mir::scene::Session> const&,
+         std::shared_ptr<mg::DisplayConfiguration const> const&) override {}
+-#endif
+ };
+ 
+-miral::DisplayConfigurationOptions::DisplayMode current_mode_of(mg::DisplayConfigurationOutput const& output)
++miroil::DisplayConfigurationOptions::DisplayMode current_mode_of(mg::DisplayConfigurationOutput const& output)
+ {
+-    miral::DisplayConfigurationOptions::DisplayMode mode;
++    miroil::DisplayConfigurationOptions::DisplayMode mode;
+     if (output.current_mode_index >= output.modes.size()) return mode;
+ 
+     auto const& current_mode = output.modes[output.current_mode_index];
+@@ -118,9 +113,15 @@ miral::DisplayConfigurationOptions::DisplayMode current_mode_of(mg::DisplayConfi
+     mode.refresh_rate = current_mode.vrefresh_hz;
+     return mode;
+ }
++
++// From Qt
++inline bool qFuzzyCompare(double p1, double p2)
++{
++    return (std::abs(p1 - p2) * 1000000000000. <= std::min(std::abs(p1), std::abs(p2)));
++}
+ }
+ 
+-struct miral::PersistDisplayConfig::Self : PersistDisplayConfigPolicy, DisplayConfigurationObserver
++struct miroil::PersistDisplayConfig::Self : PersistDisplayConfigPolicy, DisplayConfigurationObserver
+ {
+     Self(std::shared_ptr<DisplayConfigurationStorage> const& storage,
+          DisplayConfigurationPolicyWrapper const& custom_wrapper) :
+@@ -133,36 +134,34 @@ struct miral::PersistDisplayConfig::Self : PersistDisplayConfigPolicy, DisplayCo
+     {
+         save_config(*base_config);
+     }
+-#if MIR_SERVER_VERSION >= MIR_VERSION_NUMBER(1, 5, 0)
++
+     void session_configuration_applied(std::shared_ptr<mir::scene::Session> const&,
+-                                       std::shared_ptr<mg::DisplayConfiguration> const&){}
+-    void session_configuration_removed(std::shared_ptr<mir::scene::Session> const&)  {}
+-#else
+-    void session_configuration_applied(std::shared_ptr<mir::frontend::Session> const&,
+-                                       std::shared_ptr<mg::DisplayConfiguration> const&){}
+-    void session_configuration_removed(std::shared_ptr<mir::frontend::Session> const&)  {}
+-#endif
++                                       std::shared_ptr<mg::DisplayConfiguration> const&) override {}
++    void session_configuration_removed(std::shared_ptr<mir::scene::Session> const&) override {}
++    void configuration_updated_for_session(
++        std::shared_ptr<mir::scene::Session> const&,
++        std::shared_ptr<mg::DisplayConfiguration const> const&) override {}
+ };
+ 
+-miral::PersistDisplayConfig::PersistDisplayConfig(std::shared_ptr<DisplayConfigurationStorage> const& storage,
++miroil::PersistDisplayConfig::PersistDisplayConfig(std::shared_ptr<DisplayConfigurationStorage> const& storage,
+                                                   DisplayConfigurationPolicyWrapper const& custom_wrapper) :
+     self{std::make_shared<Self>(storage, custom_wrapper)}
+ {
+ }
+ 
+-miral::PersistDisplayConfig::~PersistDisplayConfig() = default;
++miroil::PersistDisplayConfig::~PersistDisplayConfig() = default;
+ 
+-miral::PersistDisplayConfig::PersistDisplayConfig(PersistDisplayConfig const&) = default;
++miroil::PersistDisplayConfig::PersistDisplayConfig(PersistDisplayConfig const&) = default;
+ 
+-auto miral::PersistDisplayConfig::operator=(PersistDisplayConfig const&) -> PersistDisplayConfig& = default;
++auto miroil::PersistDisplayConfig::operator=(PersistDisplayConfig const&) -> PersistDisplayConfig& = default;
+ 
+-void miral::PersistDisplayConfig::operator()(mir::Server& server)
++void miroil::PersistDisplayConfig::operator()(mir::Server& server)
+ {
+     server.wrap_display_configuration_policy(
+         [this](std::shared_ptr<mg::DisplayConfigurationPolicy> const& wrapped)
+         -> std::shared_ptr<mg::DisplayConfigurationPolicy>
+         {
+-            auto custom_wrapper = self->custom_wrapper();
++            auto custom_wrapper = self->custom_wrapper(wrapped);
+             return std::make_shared<DisplayConfigurationPolicyAdapter>(self,
+                                                                        std::make_shared<MiralWrappedMirDisplayConfigurationPolicy>(wrapped),
+                                                                        custom_wrapper);
+@@ -174,8 +173,8 @@ void miral::PersistDisplayConfig::operator()(mir::Server& server)
+ 
+ void PersistDisplayConfigPolicy::apply_to(
+     mg::DisplayConfiguration& conf,
+-    miral::DisplayConfigurationPolicy& wrapped_policy,
+-    miral::DisplayConfigurationPolicy& custom_policy)
++    miroil::DisplayConfigurationPolicy& wrapped_policy,
++    miroil::DisplayConfigurationPolicy& custom_policy)
+ {
+     // first apply the policy we wrapped by setting a custom policy
+     wrapped_policy.apply_to(conf);
+@@ -183,14 +182,14 @@ void PersistDisplayConfigPolicy::apply_to(
+     custom_policy.apply_to(conf);
+ 
+     if (!storage) {
+-        throw std::runtime_error("No display configuration storage supplied.");
++        BOOST_THROW_EXCEPTION(std::runtime_error("No display configuration storage supplied."));
+     }
+ 
+     conf.for_each_output([this, &conf](mg::UserDisplayConfigurationOutput& output) {
+         if (!output.connected) return;
+ 
+         try {
+-            miral::DisplayId display_id;
++            miroil::DisplayId display_id;
+             // FIXME - output.edid should be std::vector<uint8_t>, not std::vector<uint8_t const>
+             display_id.edid.parse_data(reinterpret_cast<std::vector<uint8_t> const&>(output.edid));
+             display_id.output_id = output.id;
+@@ -198,7 +197,7 @@ void PersistDisplayConfigPolicy::apply_to(
+             // TODO if the h/w profile (by some definition) has changed, then apply corresponding saved config (if any).
+             // TODO Otherwise...
+ 
+-            miral::DisplayConfigurationOptions config;
++            miroil::DisplayConfigurationOptions config;
+             if (storage->load(display_id, config)) {
+ 
+                 if (config.mode.is_set()) {
+@@ -217,7 +216,7 @@ void PersistDisplayConfigPolicy::apply_to(
+                 }
+ 
+                 uint output_index = 0;
+-                conf.for_each_output([this, &output, config, &output_index](mg::DisplayConfigurationOutput const& find_output) {
++                conf.for_each_output([&output, config, &output_index](mg::DisplayConfigurationOutput const& find_output) {
+                     if (output_index == config.clone_output_index.value()) {
+                         output.top_left = find_output.top_left;
+                     }
+@@ -243,15 +242,15 @@ void PersistDisplayConfigPolicy::save_config(mg::DisplayConfiguration const& con
+         if (!output.connected) return;
+ 
+         try {
+-            miral::DisplayId display_id;
++            miroil::DisplayId display_id;
+             // FIXME - output.edid should be std::vector<uint8_t>, not std::vector<uint8_t const>
+             display_id.edid.parse_data(reinterpret_cast<std::vector<uint8_t> const&>(output.edid));
+             display_id.output_id = output.id;
+ 
+-            miral::DisplayConfigurationOptions config;
++            miroil::DisplayConfigurationOptions config;
+ 
+             uint output_index = 0;
+-            conf.for_each_output([this, output, &config, &output_index](mg::DisplayConfigurationOutput const& find_output) {
++            conf.for_each_output([output, &config, &output_index](mg::DisplayConfigurationOutput const& find_output) {
+                 if (!config.clone_output_index.is_set() && output.top_left == find_output.top_left) {
+                     config.clone_output_index = output_index;
+                 }
+diff --git a/src/platforms/mirserver/miroil/src/prompt_session_listener.cpp b/src/platforms/mirserver/miroil/src/prompt_session_listener.cpp
+new file mode 100644
+index 0000000..46c6e0f
+--- /dev/null
++++ b/src/platforms/mirserver/miroil/src/prompt_session_listener.cpp
+@@ -0,0 +1,19 @@
++/*
++ * Copyright (C) 2016-2021 Canonical, Ltd.
++ *
++ * This program is free software: you can redistribute it and/or modify it under
++ * the terms of the GNU Lesser General Public License version 3, as published by
++ * the Free Software Foundation.
++ *
++ * This program is distributed in the hope that it will be useful, but WITHOUT
++ * ANY WARRANTY; without even the implied warranties of MERCHANTABILITY,
++ * SATISFACTORY QUALITY, or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++ * Lesser General Public License for more details.
++ *
++ * You should have received a copy of the GNU Lesser General Public License
++ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
++ */
++
++#include <miroil/prompt_session_listener.h>
++
++miroil::PromptSessionListener::~PromptSessionListener() = default;
+diff --git a/src/platforms/mirserver/miroil/src/prompt_session_manager.cpp b/src/platforms/mirserver/miroil/src/prompt_session_manager.cpp
+new file mode 100644
+index 0000000..7dd86f8
+--- /dev/null
++++ b/src/platforms/mirserver/miroil/src/prompt_session_manager.cpp
+@@ -0,0 +1,54 @@
++/*
++ * Copyright © 2021 Canonical Ltd.
++ *
++ * This program is free software: you can redistribute it and/or modify it
++ * under the terms of the GNU General Public License version 3,
++ * as published by the Free Software Foundation.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
++ */
++
++#include "miroil/prompt_session_manager.h"
++#include "mir/scene/prompt_session_manager.h"
++
++miroil::PromptSessionManager::PromptSessionManager(std::shared_ptr<mir::scene::PromptSessionManager> const& prompt_session_manager) 
++:    prompt_session_manager{prompt_session_manager}
++{
++}
++
++miroil::PromptSessionManager::PromptSessionManager(PromptSessionManager&& /*src*/) = default;
++
++miroil::PromptSessionManager::PromptSessionManager(PromptSessionManager const& /*src*/) = default;
++
++miroil::PromptSessionManager::~PromptSessionManager() = default;
++
++bool miroil::PromptSessionManager::operator==(PromptSessionManager const& other)
++{
++    return prompt_session_manager == other.prompt_session_manager;
++}
++
++miral::Application miroil::PromptSessionManager::application_for(std::shared_ptr<mir::scene::PromptSession> const& prompt_session) const
++{
++    return prompt_session_manager->application_for(prompt_session);
++}
++
++void miroil::PromptSessionManager::stop_prompt_session(std::shared_ptr<mir::scene::PromptSession> const& prompt_session) const
++{
++    prompt_session_manager->stop_prompt_session(prompt_session);
++}
++
++void miroil::PromptSessionManager::suspend_prompt_session(std::shared_ptr<mir::scene::PromptSession> const& prompt_session) const
++{
++    prompt_session_manager->suspend_prompt_session(prompt_session);
++}
++
++void miroil::PromptSessionManager::resume_prompt_session(std::shared_ptr<mir::scene::PromptSession> const& prompt_session) const
++{
++    prompt_session_manager->resume_prompt_session(prompt_session);
++}
+diff --git a/src/platforms/mirserver/miroil/src/set_compositor.cpp b/src/platforms/mirserver/miroil/src/set_compositor.cpp
+new file mode 100644
+index 0000000..a9f524c
+--- /dev/null
++++ b/src/platforms/mirserver/miroil/src/set_compositor.cpp
+@@ -0,0 +1,88 @@
++/*
++ * Copyright © 2021 Canonical Ltd.
++ *
++ * This program is free software: you can redistribute it and/or modify it
++ * under the terms of the GNU General Public License version 3,
++ * as published by the Free Software Foundation.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
++ */
++
++#include "miroil/set_compositor.h"
++#include "miroil/compositor.h"
++#include <stdexcept>
++
++// mir
++#include <mir/server.h>
++#include <mir/shell/shell.h>
++#include <mir/compositor/compositor.h>
++
++namespace miroil {
++
++struct SetCompositor::CompositorImpl : public mir::compositor::Compositor
++{
++    CompositorImpl(const std::shared_ptr<miroil::Compositor> & compositor);
++    
++    auto get_wrapped() -> std::shared_ptr<miroil::Compositor>;    
++    void start();
++    void stop();
++    
++    std::shared_ptr<miroil::Compositor> custom_compositor;
++};
++
++SetCompositor::CompositorImpl::CompositorImpl(const std::shared_ptr<miroil::Compositor> & compositor) 
++: custom_compositor(compositor)
++{
++}
++    
++auto SetCompositor::CompositorImpl::get_wrapped() 
++-> std::shared_ptr<miroil::Compositor>
++{ 
++    return custom_compositor;     
++}
++
++
++void SetCompositor::CompositorImpl::start()
++{
++    return custom_compositor->start();
++}
++
++void SetCompositor::CompositorImpl::stop()
++{
++    return custom_compositor->stop();
++}
++
++SetCompositor::SetCompositor(ConstructorFunction constr, InitFunction init)
++    : constructor_function(constr), init_function(init)
++{
++}
++
++void SetCompositor::operator()(mir::Server& server)
++{
++    server.override_the_compositor([this]
++    {
++        auto result = std::make_shared<CompositorImpl>(constructor_function());
++        compositor_impl = result;
++        return result;
++    });
++
++    server.add_init_callback([&, this]
++        {
++            if (auto const comp = compositor_impl.lock())
++            {
++                init_function(server.the_display(), comp->get_wrapped(), server.the_shell());
++            }
++            else
++            {
++                throw std::logic_error("No m_compositor available. Server not running?");
++            }
++        });
++}
++
++}
+diff --git a/src/platforms/mirserver/miroil/src/surface.cpp b/src/platforms/mirserver/miroil/src/surface.cpp
+new file mode 100644
+index 0000000..514483f
+--- /dev/null
++++ b/src/platforms/mirserver/miroil/src/surface.cpp
+@@ -0,0 +1,267 @@
++/*
++ * Copyright (C) 2021 Canonical, Ltd.
++ *
++ * This program is free software: you can redistribute it and/or modify it under
++ * the terms of the GNU Lesser General Public License version 3, as published by
++ * the Free Software Foundation.
++ *
++ * This program is distributed in the hope that it will be useful, but WITHOUT
++ * ANY WARRANTY; without even the implied warranties of MERCHANTABILITY,
++ * SATISFACTORY QUALITY, or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++ * Lesser General Public License for more details.
++ *
++ * You should have received a copy of the GNU Lesser General Public License
++ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
++ */
++#include <miroil/surface.h>
++#include <miroil/surface_observer.h>
++#include "mir/scene/surface.h"
++#include "mir/scene/surface_observer.h"
++#include "mir/log.h"
++#include "mir/version.h"
++
++class miroil::SurfaceObserverImpl : public mir::scene::SurfaceObserver
++{
++public:
++  SurfaceObserverImpl(std::shared_ptr<miroil::SurfaceObserver> const &wrapped);
++  virtual ~SurfaceObserverImpl();
++
++  void alpha_set_to(mir::scene::Surface const *surf, float alpha) override;
++  void application_id_set_to(mir::scene::Surface const *surf,
++                             std::string const &application_id) override;
++  void attrib_changed(mir::scene::Surface const *surf, MirWindowAttrib attrib,
++                      int value) override;
++  void client_surface_close_requested(mir::scene::Surface const *surf) override;
++  void content_resized_to(mir::scene::Surface const *surf,
++                          mir::geometry::Size const &content_size) override;
++  void cursor_image_removed(mir::scene::Surface const *surf) override;
++  void cursor_image_set_to(mir::scene::Surface const *surf,
++                           mir::graphics::CursorImage const &image) override;
++  void depth_layer_set_to(mir::scene::Surface const *surf,
++                          MirDepthLayer depth_layer) override;
++  void frame_posted(mir::scene::Surface const *surf, int frames_available,
++                    mir::geometry::Size const &size) override;
++  void hidden_set_to(mir::scene::Surface const *surf, bool hide) override;
++  void input_consumed(mir::scene::Surface const *surf,
++                      MirEvent const *event) override;
++#if MIR_SERVER_VERSION < MIR_VERSION_NUMBER(2, 6, 0)
++  void keymap_changed(mir::scene::Surface const* surf, MirInputDeviceId id, std::string const& model,
++                      std::string const& layout, std::string const& variant, std::string const& options) override;
++#endif
++  void moved_to(mir::scene::Surface const *surf,
++                mir::geometry::Point const &top_left) override;
++  void orientation_set_to(mir::scene::Surface const *surf,
++                          MirOrientation orientation) override;
++  void placed_relative(mir::scene::Surface const *surf,
++                       mir::geometry::Rectangle const &placement) override;
++  void
++  reception_mode_set_to(mir::scene::Surface const * /*surf*/,
++                        mir::input::InputReceptionMode /*mode*/) override{};
++  void renamed(mir::scene::Surface const *surf, char const *name) override;
++  void start_drag_and_drop(mir::scene::Surface const *surf,
++                           std::vector<uint8_t> const &handle) override;
++  void transformation_set_to(mir::scene::Surface const *surf,
++                             glm::mat4 const &t) override;
++  void window_resized_to(mir::scene::Surface const *surf,
++                         mir::geometry::Size const &window_size) override;
++
++private:
++  std::shared_ptr<miroil::SurfaceObserver> listener;
++};
++
++miroil::SurfaceObserverImpl::SurfaceObserverImpl(std::shared_ptr<miroil::SurfaceObserver> const & wrapped)
++: listener(wrapped)
++{
++}
++
++miroil::SurfaceObserverImpl::~SurfaceObserverImpl() = default;
++
++void miroil::SurfaceObserverImpl::alpha_set_to(mir::scene::Surface const* surf, float alpha)
++{
++    listener->alpha_set_to(surf, alpha);
++}
++
++void miroil::SurfaceObserverImpl::application_id_set_to(mir::scene::Surface const* surf, std::string const& application_id)
++{
++    listener->application_id_set_to(surf, application_id);
++}
++
++void miroil::SurfaceObserverImpl::attrib_changed(mir::scene::Surface const* surf, MirWindowAttrib attrib, int value)
++{
++    listener->attrib_changed(surf, attrib, value);
++}
++
++void miroil::SurfaceObserverImpl::client_surface_close_requested(mir::scene::Surface const* surf)
++{
++    listener->client_surface_close_requested(surf);
++}
++
++void miroil::SurfaceObserverImpl::content_resized_to(mir::scene::Surface const* surf, mir::geometry::Size const& content_size)
++{
++    listener->content_resized_to(surf, content_size);
++}
++
++void miroil::SurfaceObserverImpl::cursor_image_removed(mir::scene::Surface const* surf)
++{
++    listener->cursor_image_removed(surf);
++}
++
++void miroil::SurfaceObserverImpl::cursor_image_set_to(mir::scene::Surface const* surf, mir::graphics::CursorImage const& image)
++{
++    listener->cursor_image_set_to(surf, image);
++}
++
++void miroil::SurfaceObserverImpl::depth_layer_set_to(mir::scene::Surface const* surf, MirDepthLayer depth_layer)
++{
++    listener->depth_layer_set_to(surf, depth_layer);
++}
++
++void miroil::SurfaceObserverImpl::frame_posted(mir::scene::Surface const* surf, int frames_available, mir::geometry::Size const& size)
++{
++    listener->frame_posted(surf, frames_available, size);
++}
++
++void miroil::SurfaceObserverImpl::hidden_set_to(mir::scene::Surface const* surf, bool hide)
++{
++    listener->hidden_set_to(surf, hide);
++}
++
++void miroil::SurfaceObserverImpl::input_consumed(mir::scene::Surface const* surf, MirEvent const* event)
++{
++    listener->input_consumed(surf, event);
++}
++
++#if MIR_SERVER_VERSION < MIR_VERSION_NUMBER(2, 6, 0)
++void miroil::SurfaceObserverImpl::keymap_changed(mir::scene::Surface const* surf, MirInputDeviceId id, std::string const& model,
++                            std::string const& layout, std::string const& variant, std::string const& options)
++{
++    listener->keymap_changed(surf, id, model, layout, variant, options);
++}
++#endif
++
++void miroil::SurfaceObserverImpl::moved_to(mir::scene::Surface const* surf, mir::geometry::Point const& top_left)
++{
++    listener->moved_to(surf, top_left);
++}
++
++void miroil::SurfaceObserverImpl::orientation_set_to(mir::scene::Surface const* surf, MirOrientation orientation)
++{
++    listener->orientation_set_to(surf, orientation);
++}
++
++void miroil::SurfaceObserverImpl::placed_relative(mir::scene::Surface const* surf, mir::geometry::Rectangle const& placement)
++{
++    listener->placed_relative(surf, placement);
++}
++
++void miroil::SurfaceObserverImpl::renamed(mir::scene::Surface const* surf, char const* name)
++{
++    listener->renamed(surf, name);
++}
++
++void miroil::SurfaceObserverImpl::start_drag_and_drop(mir::scene::Surface const* surf, std::vector<uint8_t> const& handle)
++{
++    listener->start_drag_and_drop(surf, handle);
++}
++
++void miroil::SurfaceObserverImpl::transformation_set_to(mir::scene::Surface const* surf, glm::mat4 const& t)
++{
++    listener->transformation_set_to(surf, t);
++}
++
++void miroil::SurfaceObserverImpl::window_resized_to(mir::scene::Surface const* surf, mir::geometry::Size const& window_size)
++{
++    listener->window_resized_to(surf, window_size);
++}
++
++miroil::Surface::Surface(std::shared_ptr<mir::scene::Surface> wrapped) :
++     wrapped(wrapped)
++{    
++}
++
++void miroil::Surface::add_observer(std::shared_ptr<SurfaceObserver> const& observer)
++{
++    auto it = observers.find(observer);
++    if (it == observers.end()) {
++        std::shared_ptr<SurfaceObserverImpl> impl = std::make_shared<SurfaceObserverImpl>(observer);
++        
++        wrapped->add_observer(impl);
++        observers.insert({observer, impl});
++    }
++}
++
++bool miroil::Surface::is_confined_to_window()
++{
++#if MIR_SERVER_VERSION >= MIR_VERSION_NUMBER(2, 6, 0)
++    return (wrapped->confine_pointer_state() == mir_pointer_confined_oneshot ||
++            wrapped->confine_pointer_state() == mir_pointer_confined_persistent);
++#else
++    return false;
++#endif
++}
++
++void miroil::Surface::remove_observer(std::shared_ptr<miroil::SurfaceObserver> const& observer)
++{
++    auto it = observers.find(observer);
++    if (it != observers.end()) {        
++        wrapped->remove_observer(it->second);
++        observers.erase(it);        
++    }
++}
++
++auto miroil::Surface::get_wrapped() const -> mir::scene::Surface*
++{
++    return wrapped.get();
++}
++
++int miroil::Surface::buffers_ready_for_compositor(void const* compositor_id) const
++{
++    return wrapped->buffers_ready_for_compositor(compositor_id);
++}
++
++mir::graphics::RenderableList miroil::Surface::generate_renderables(miroil::CompositorID id) const
++{
++    return wrapped->generate_renderables(id);
++}
++
++void miroil::Surface::set_orientation(MirOrientation orientation)
++{
++    wrapped->set_orientation(orientation);
++}
++
++void miroil::Surface::set_confine_pointer_state(MirPointerConfinementState state)
++{
++    wrapped->set_confine_pointer_state(state);
++}
++
++std::shared_ptr<mir::scene::Surface> miroil::Surface::parent() const
++{
++    return wrapped->parent();
++}
++
++mir::geometry::Point miroil::Surface::top_left() const
++{
++    return wrapped->top_left();
++}
++
++bool miroil::Surface::visible() const
++{
++    return wrapped->visible();
++}
++
++int miroil::Surface::configure(MirWindowAttrib attrib, int value)
++{
++    return wrapped->configure(attrib, value);
++}
++
++int miroil::Surface::query(MirWindowAttrib attrib) const
++{
++    return wrapped->query(attrib);
++}
++
++void miroil::Surface::set_keymap(MirInputDeviceId /*id*/, const std::string& /*model*/,
++                         const std::string& /*layout*/, const std::string& /*variant*/,
++                         const std::string& /*options*/)
++{
++    printf("Stubbed function miroil::Surface::set_keymap() called - per-surface keymaps no longer supported");
++}
+diff --git a/src/platforms/mirserver/platformscreen.h b/src/platforms/mirserver/platformscreen.h
+index 7cfd92a..28017e8 100644
+--- a/src/platforms/mirserver/platformscreen.h
++++ b/src/platforms/mirserver/platformscreen.h
+@@ -29,7 +29,7 @@
+ 
+ // local
+ #include "qtmir/types.h"
+-#include "qtmir/miral/display_configuration_storage.h"
++#include <qtmir/miroil/display_configuration_storage.h>
+ #include "cursor.h"
+ #include "screenplatformwindow.h"
+ 
+@@ -67,7 +67,7 @@ public:
+     float scale() const { return m_scale; }
+     qtmir::FormFactor formFactor() const { return m_formFactor; }
+     MirPowerMode powerMode() const { return m_powerMode; }
+-    miral::DisplayId displayId() const { return m_displayId; }
++    miroil::DisplayId displayId() const { return m_displayId; }
+     qtmir::OutputTypes outputType() const { return m_type; }
+     uint32_t currentModeIndex() const { return m_currentModeIndex; }
+     bool isActive() const { return m_isActive; }
+@@ -137,7 +137,7 @@ private:
+ 
+     mir::renderer::gl::RenderTarget *m_renderTarget;
+     mir::graphics::DisplaySyncGroup *m_displayGroup;
+-    miral::DisplayId m_displayId;
++    miroil::DisplayId m_displayId;
+     qtmir::OutputTypes m_type;
+     MirPowerMode m_powerMode;
+ 
+diff --git a/src/platforms/mirserver/qmirserver_p.cpp b/src/platforms/mirserver/qmirserver_p.cpp
+index eaba8b0..3fa3a51 100644
+--- a/src/platforms/mirserver/qmirserver_p.cpp
++++ b/src/platforms/mirserver/qmirserver_p.cpp
+@@ -15,7 +15,6 @@
+  */
+ 
+ #include "qmirserver_p.h"
+-#include "qtmir/miral/display_configuration_storage.h"
+ 
+ // local
+ #include "logging.h"
+@@ -25,8 +24,7 @@
+ #include "qteventfeeder.h"
+ #include "qtmir/sessionauthorizer.h"
+ 
+-// prototyping for later incorporation in miral
+-#include <miral/persist_display_config.h>
++#include <miroil/persist_display_config.h>
+ 
+ // miral
+ #include <miral/add_init_callback.h>
+@@ -53,19 +51,14 @@ public:
+     {}
+ };
+ 
+-struct DefaultDisplayConfigurationStorage : miral::DisplayConfigurationStorage
++struct DefaultDisplayConfigurationStorage : miroil::DisplayConfigurationStorage
+ {
+-    void save(const miral::DisplayId&, const miral::DisplayConfigurationOptions&) override {}
++    void save(const miroil::DisplayId&, const miroil::DisplayConfigurationOptions&) override {}
+ 
+-    bool load(const miral::DisplayId&, miral::DisplayConfigurationOptions&) const override { return false; }
++    bool load(const miroil::DisplayId&, miroil::DisplayConfigurationOptions&) const override { return false; }
+ };
+ 
+-std::shared_ptr<miral::DisplayConfigurationPolicy> buildDisplayConfigurationPolicy()
+-{
+-    return std::make_shared<qtmir::DisplayConfigurationPolicy>();
+-}
+-
+-std::shared_ptr<miral::DisplayConfigurationStorage> buildDisplayConfigurationStorage()
++std::shared_ptr<miroil::DisplayConfigurationStorage> buildDisplayConfigurationStorage()
+ {
+     return std::make_shared<DefaultDisplayConfigurationStorage>();
+ }
+@@ -127,7 +120,7 @@ std::shared_ptr<qtmir::SessionAuthorizer> QMirServerPrivate::theApplicationAutho
+ }
+ 
+ QMirServerPrivate::QMirServerPrivate()
+-    : m_displayConfigurationPolicy(buildDisplayConfigurationPolicy)
++    : m_displayConfigurationPolicy{[](auto) { return std::make_shared<qtmir::DisplayConfigurationPolicy>(); }}
+     , m_windowManagementPolicy(buildWindowManagementPolicy)
+     , m_displayConfigurationStorage(buildDisplayConfigurationStorage)
+     , m_wrappedSessionAuthorizer(buildSessionAuthorizer)
+@@ -196,8 +189,8 @@ void QMirServerPrivate::run(const std::function<void()> &startCallback)
+             addInitCallback,
+             qtmir::SetQtCompositor{screensModel},
+             setTerminator,
+-            miral::PersistDisplayConfig{displayStorageBuilder(),
+-                                        m_displayConfigurationPolicy}
++            miroil::PersistDisplayConfig{displayStorageBuilder(),
++                                        m_displayConfigurationPolicy},
+         });
+ }
+ 
+diff --git a/src/platforms/mirserver/screenadaptor.cpp b/src/platforms/mirserver/screenadaptor.cpp
+index 0bdc6ad..1a27461 100644
+--- a/src/platforms/mirserver/screenadaptor.cpp
++++ b/src/platforms/mirserver/screenadaptor.cpp
+@@ -60,7 +60,7 @@ ScreenAdaptor::~ScreenAdaptor()
+     m_modes.clear();
+ }
+ 
+-miral::DisplayId ScreenAdaptor::displayId() const
++miroil::DisplayId ScreenAdaptor::displayId() const
+ {
+     auto platformScreen = static_cast<PlatformScreen*>(m_screen->handle());
+     return platformScreen->displayId();
+diff --git a/src/platforms/mirserver/screenadaptor.h b/src/platforms/mirserver/screenadaptor.h
+index d801b71..a3711eb 100644
+--- a/src/platforms/mirserver/screenadaptor.h
++++ b/src/platforms/mirserver/screenadaptor.h
+@@ -34,7 +34,7 @@ public:
+     ScreenAdaptor(QScreen* screen, QObject* parent = 0);
+     ~ScreenAdaptor();
+ 
+-    miral::DisplayId displayId() const override;
++    miroil::DisplayId displayId() const override;
+     bool used() const override;
+     QString name() const override;
+     float scale() const override;
+diff --git a/src/platforms/mirserver/screenscontroller.cpp b/src/platforms/mirserver/screenscontroller.cpp
+index 318cf61..8a7d07b 100644
+--- a/src/platforms/mirserver/screenscontroller.cpp
++++ b/src/platforms/mirserver/screenscontroller.cpp
+@@ -21,7 +21,6 @@
+ // Mir
+ #include <mir/graphics/display.h>
+ #include <mir/graphics/display_configuration.h>
+-#include <mir/shell/display_configuration_controller.h>
+ #include <mir/geometry/point.h>
+ 
+ namespace mg = mir::graphics;
+@@ -33,7 +32,7 @@ ScreensController::ScreensController(const std::shared_ptr<ScreensModel> &model,
+     : QObject(parent)
+     , m_screensModel(model)
+     , m_display(display)
+-    , m_displayConfigurationController(controller)
++    , m_displayConfigurationController(std::make_shared<miroil::DisplayConfigurationControllerWrapper>(controller))
+ {
+ }
+ 
+@@ -88,7 +87,7 @@ bool ScreensController::setConfiguration(const qtmir::ScreenConfigurationList &n
+     return true;
+ }
+ 
+-qtmir::ScreenConfiguration ScreensController::outputConfiguration(miral::OutputId outputId)
++qtmir::ScreenConfiguration ScreensController::outputConfiguration(miroil::OutputId outputId)
+ {
+     auto displayConfiguration = m_display->configuration();
+     qtmir::ScreenConfiguration config;
+diff --git a/src/platforms/mirserver/screenscontroller.h b/src/platforms/mirserver/screenscontroller.h
+index b363830..db345aa 100644
+--- a/src/platforms/mirserver/screenscontroller.h
++++ b/src/platforms/mirserver/screenscontroller.h
+@@ -26,6 +26,7 @@
+ #include "qtmir/screen.h"
+ 
+ #include <memory>
++#include <miroil/display_configuration_controller_wrapper.h>
+ 
+ class ScreensModel;
+ 
+@@ -48,13 +49,13 @@ public:
+     qtmir::ScreenConfigurationList configuration();
+     bool setConfiguration(const qtmir::ScreenConfigurationList &newConfig);
+ 
+-    qtmir::ScreenConfiguration outputConfiguration(miral::OutputId outputId);
++    qtmir::ScreenConfiguration outputConfiguration(miroil::OutputId outputId);
+     bool setOutputConfiguration(const qtmir::ScreenConfiguration &newConfig);
+ 
+ private:
+     const std::shared_ptr<ScreensModel> m_screensModel;
+     const std::shared_ptr<mir::graphics::Display> m_display;
+-    const std::shared_ptr<mir::shell::DisplayConfigurationController> m_displayConfigurationController;
++    const std::shared_ptr<miroil::DisplayConfigurationControllerWrapper> m_displayConfigurationController;
+ };
+ 
+ #endif // SCREENSCONTROLLER_H
+diff --git a/tests/mirserver/miral/edid_test.cpp b/tests/mirserver/miral/edid_test.cpp
+index 03f83d2..d938d4e 100644
+--- a/tests/mirserver/miral/edid_test.cpp
++++ b/tests/mirserver/miral/edid_test.cpp
+@@ -18,9 +18,9 @@
+ #include <gtest/gtest.h>
+ #include <numeric>
+ 
+-#include "qtmir/miral/edid.h"
++#include "qtmir/miroil/edid.h"
+ 
+-using namespace miral;
++using namespace miroil;
+ 
+ using TestDataParamType =
+     std::tuple<std::vector<uint8_t>, std::string, std::string, uint16_t, uint32_t>;
+diff --git a/tests/modules/SurfaceManager/CMakeLists.txt b/tests/modules/SurfaceManager/CMakeLists.txt
+index 2cc203d..a92543e 100644
+--- a/tests/modules/SurfaceManager/CMakeLists.txt
++++ b/tests/modules/SurfaceManager/CMakeLists.txt
+@@ -7,6 +7,7 @@ set(
+ include_directories(
+   ${CMAKE_SOURCE_DIR}/src/common
+   ${CMAKE_SOURCE_DIR}/src/platforms/mirserver
++  ${CMAKE_SOURCE_DIR}/src/platforms/mirserver/miroil/include
+   ${CMAKE_SOURCE_DIR}/src/modules
+   ${CMAKE_SOURCE_DIR}/tests/framework
+ )
+diff --git a/tests/modules/WindowManager/CMakeLists.txt b/tests/modules/WindowManager/CMakeLists.txt
+index 4e4c808..50c7b28 100644
+--- a/tests/modules/WindowManager/CMakeLists.txt
++++ b/tests/modules/WindowManager/CMakeLists.txt
+@@ -11,6 +11,7 @@ include_directories(
+   ${CMAKE_SOURCE_DIR}/src/common
+   ${CMAKE_SOURCE_DIR}/src/modules
+   ${CMAKE_SOURCE_DIR}/src/platforms/mirserver
++  ${CMAKE_SOURCE_DIR}/src/platforms/mirserver/miroil/include
+   ${CMAKE_SOURCE_DIR}/tests/framework
+ )
+ 
