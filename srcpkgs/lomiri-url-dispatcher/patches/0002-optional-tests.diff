@@ -1,0 +1,38 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index b4d11f3..d0389d3 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -9,7 +9,7 @@ else()
+   option (werror "Treat warnings as errors." TRUE)
+ endif()
+ 
+-enable_testing ()
++option(ENABLE_TESTS "Enable all tests and checks" ON)
+ option (enable_lcov "Generate Coverage Reports" ON)
+ 
+ set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake" "${CMAKE_MODULE_PATH}")
+@@ -66,8 +66,10 @@ include_directories(${GIO_UNIX2_INCLUDE_DIRS})
+ pkg_check_modules(JSONGLIB REQUIRED json-glib-1.0)
+ include_directories(${JSONGLIB_INCLUDE_DIRS})
+ 
+-pkg_check_modules(DBUSTEST REQUIRED dbustest-1>=14.04.0)
+-include_directories(${DBUSTEST_INCLUDE_DIRS})
++if(ENABLE_TESTS)
++  pkg_check_modules(DBUSTEST REQUIRED dbustest-1>=14.04.0)
++  include_directories(${DBUSTEST_INCLUDE_DIRS})
++endif()
+ 
+ pkg_check_modules(SQLITE REQUIRED sqlite3)
+ include_directories(${SQLITE_INCLUDE_DIRS})
+@@ -101,7 +103,10 @@ add_subdirectory(liblomiri-url-dispatcher)
+ add_subdirectory(tools)
+ add_subdirectory(gui)
+ add_subdirectory(po)
+-add_subdirectory(tests)
++if(ENABLE_TESTS)
++  enable_testing ()
++  add_subdirectory(tests)
++endif()
+ 
+ # coverage reporting
+ find_package(CoverageReport)
