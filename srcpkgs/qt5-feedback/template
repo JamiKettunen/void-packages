@@ -1,0 +1,61 @@
+# Template file for 'qt5-feedback'
+pkgname=qt5-feedback
+version=5.0.0r124
+revision=1
+_commit=a14bd0bb1373cde86e09e3619fb9dc70f34c71f2 # tip of master branch (last updated 2018-09-03)
+wrksrc="qtfeedback-${_commit}"
+build_style=qmake
+hostmakedepends="qt5-qmake qt5-host-tools perl git"
+makedepends="qt5-declarative-devel"
+short_desc="Cross-platform application and UI framework (QT5) - Feedback component"
+maintainer="Jami Kettunen <jami.kettunen@protonmail.com>"
+license="GPL-3.0-or-later, LGPL-3.0-or-later"
+homepage="https://code.qt.io/cgit/qt/qtfeedback.git/"
+distfiles="https://github.com/qt/qtfeedback/archive/${_commit}.tar.gz"
+checksum=9d63759185e8faecd92f8d90e5a198010393e3d7fa3cb1e68f06b963d2bf95f9
+
+# FIXME: .qmake.conf: "MODULE_VERSION = 0.0.0" -> "5.15.0"?
+# FIXME: SOVERSION to 5?
+
+# FIXME: why does not doing this result in src being missed from include dirs?!
+# FIXME: enable this as a part of srcpkgs/qt5 build (not included in tarball though?!)
+pre_build() {
+	git init
+}
+
+_cleanup_wrksrc_leak() {
+	if [ -d "${PKGDESTDIR}/usr/lib/cmake" ]; then
+		# Replace references to ${wrksrc} in cmake files
+		sed -i ${PKGDESTDIR}/usr/lib/cmake/*/*.cmake \
+			-e "s;${wrksrc}/host;/usr/lib/qt5;g" \
+			-e "s;devices/void-${XBPS_CROSS_TRIPLET}-g++;linux-g++;g"
+	fi
+	if [ -d "${PKGDESTDIR}/usr/lib/pkgconfig" ]; then
+		# Replace references to ${wrksrc} in pkgconfig files
+		sed -i ${PKGDESTDIR}/usr/lib/pkgconfig/*.pc \
+			-e "s;${wrksrc}/host;/usr/lib/qt5;g" \
+			-e "s;devices/void-${XBPS_CROSS_TRIPLET}-g++;linux-g++;g"
+	fi
+	# Remove QMAKE_PRL_BUILD_DIR from hint files for static libraries
+	# and replace references to ${wrksrc}
+	find ${PKGDESTDIR} -iname "*.prl" -exec sed -i "{}" \
+		-e "/^QMAKE_PRL_BUILD_DIR/d" \
+		-e "s;-L${wrksrc}/qtbase/lib;-L/usr/lib;g" \;
+	# Replace ${wrksrc} in project include files
+	find ${PKGDESTDIR} -iname "*.pri" -exec sed -i "{}" \
+		-e "s;${wrksrc}/qtbase;/usr/lib/qt5;g" \;
+}
+
+qt5-feedback-devel_package() {
+	depends="qt5-devel>=${version} ${sourcepkg}>=${version}_${revision}"
+	short_desc+=" - development files"
+	pkg_install() {
+		vmove usr/include
+		vmove usr/lib/cmake
+		vmove usr/lib/pkgconfig
+		vmove usr/lib/qt5/mkspecs
+		vmove "usr/lib/*.so"
+		vmove "usr/lib/*.prl"
+		_cleanup_wrksrc_leak
+	}
+}

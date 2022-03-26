@@ -1,0 +1,1 @@
+site="${distfiles%/archive*}/commits/master.atom"
