@@ -1,0 +1,49 @@
+From fa7a3c69279773a0ab25e2f7d31b08364cb3b861 Mon Sep 17 00:00:00 2001
+From: Jami Kettunen <jami.kettunen@protonmail.com>
+Date: Fri, 27 May 2022 19:29:03 +0300
+Subject: [PATCH 2/4] CMake: Rename enable_lcov option to ENABLE_COVERAGE and
+ hook it up
+
+This used to do absolutely nothing previously.
+---
+ CMakeLists.txt | 20 +++++++++++---------
+ 1 file changed, 11 insertions(+), 9 deletions(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 2010101..dbda8a8 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -10,7 +10,7 @@ else()
+ endif()
+ 
+ enable_testing ()
+-option (enable_lcov "Generate Coverage Reports" ON)
++option (ENABLE_COVERAGE "Generate Coverage Reports" ON)
+ 
+ set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake" "${CMAKE_MODULE_PATH}")
+ 
+@@ -107,11 +107,13 @@ add_subdirectory(po)
+ add_subdirectory(tests)
+ 
+ # coverage reporting
+-find_package(CoverageReport)
+-get_property(COVERAGE_TARGETS GLOBAL PROPERTY COVERAGE_TARGETS)
+-get_property(COVERAGE_TESTS GLOBAL PROPERTY COVERAGE_TESTS)
+-ENABLE_COVERAGE_REPORT(
+-  TARGETS ${COVERAGE_TARGETS}
+-  TESTS ${COVERAGE_TESTS}
+-  FILTER /usr/include ${CMAKE_BINARY_DIR}/*
+-)
++if (${ENABLE_COVERAGE})
++  find_package(CoverageReport)
++  get_property(COVERAGE_TARGETS GLOBAL PROPERTY COVERAGE_TARGETS)
++  get_property(COVERAGE_TESTS GLOBAL PROPERTY COVERAGE_TESTS)
++  ENABLE_COVERAGE_REPORT(
++    TARGETS ${COVERAGE_TARGETS}
++    TESTS ${COVERAGE_TESTS}
++    FILTER /usr/include ${CMAKE_BINARY_DIR}/*
++  )
++endif()
+-- 
+2.36.1
+

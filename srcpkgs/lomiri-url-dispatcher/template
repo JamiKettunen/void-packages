@@ -1,0 +1,31 @@
+# Template file for 'lomiri-url-dispatcher'
+pkgname=lomiri-url-dispatcher
+version=0.1.1r779
+revision=1
+_commit=8986d2e34afa9079d7b80c859e99197933e72df4 # tip of main branch as of 2022-09-23
+wrksrc="lomiri-url-dispatcher-${_commit}"
+build_style=cmake
+configure_args="-DUSE_SYSTEMD=OFF -DENABLE_COVERAGE=OFF"
+hostmakedepends="pkg-config glib-devel intltool ubports-cmake-extras"
+makedepends="glib-devel lomiri-app-launch-devel mir1-devel protobuf-devel
+ libxkbcommon-devel json-glib-devel sqlite-devel libapparmor-devel gettext-devel
+ dbus-test-runner-devel gtest-devel"
+checkdepends="dbus python3-dbusmock"
+short_desc="Lomiri service for requesting URLs to be opened (git ${_commit:0:7})"
+maintainer="Jami Kettunen <jami.kettunen@protonmail.com>"
+license="LGPL-3.0-only, GPL-3.0-only"
+homepage="https://gitlab.com/ubports/development/core/lomiri-url-dispatcher"
+distfiles="https://gitlab.com/ubports/development/core/lomiri-url-dispatcher/-/archive/${_commit}.tar.gz"
+checksum=8f7c9aeb74cc2399c9fe2fe4095de8e89da8ddc0bb804a78ffb97de1370537d6
+
+lomiri-url-dispatcher-devel_package() {
+	depends="${sourcepkg}>=${version}_${revision}"
+	short_desc+=" - development files"
+	pkg_install() {
+		vmove usr/include
+		vmove usr/lib/pkgconfig
+		vmove "usr/lib/*.so"
+	}
+}
+
+# FIXME: service-test hangs & url-db-test fails!

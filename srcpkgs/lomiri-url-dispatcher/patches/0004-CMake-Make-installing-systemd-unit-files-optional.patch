@@ -1,0 +1,114 @@
+From 45c556a2197e4ed196cb8a9ec4e9ebedb3c889fa Mon Sep 17 00:00:00 2001
+From: Jami Kettunen <jami.kettunen@protonmail.com>
+Date: Fri, 27 May 2022 22:53:07 +0300
+Subject: [PATCH 4/4] CMake: Make installing systemd unit files optional
+
+---
+ CMakeLists.txt      |  7 ++++--
+ data/CMakeLists.txt | 60 +++++++++++++++++++++++----------------------
+ 2 files changed, 36 insertions(+), 31 deletions(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index f32e13d..d3d18df 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -11,6 +11,7 @@ endif()
+ 
+ option(ENABLE_TESTS "Enable all tests and checks" ON)
+ option (ENABLE_COVERAGE "Generate Coverage Reports" ON)
++option(USE_SYSTEMD "Install systemd service units" ON)
+ 
+ set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake" "${CMAKE_MODULE_PATH}")
+ 
+@@ -91,8 +92,10 @@ else()
+ endif()
+ message("Installing DBus interfaces to ${DBUSIFACEDIR}")
+ 
+-pkg_check_modules(SYSTEMD REQUIRED systemd)
+-pkg_get_variable(SYSTEMD_USER_UNIT_DIR systemd systemduserunitdir)
++if(${USE_SYSTEMD})
++  pkg_check_modules(SYSTEMD REQUIRED systemd)
++  pkg_get_variable(SYSTEMD_USER_UNIT_DIR systemd systemduserunitdir)
++endif()
+ 
+ include_directories(${CMAKE_CURRENT_SOURCE_DIR})
+ include_directories(${CMAKE_CURRENT_BINARY_DIR})
+diff --git a/data/CMakeLists.txt b/data/CMakeLists.txt
+index 6da7ef5..5bf0794 100644
+--- a/data/CMakeLists.txt
++++ b/data/CMakeLists.txt
+@@ -30,40 +30,42 @@ DESTINATION ${DBUSIFACEDIR}
+ # systemd
+ ###########################
+ 
+-configure_file(
+-lomiri-url-dispatcher.service.in
+-${CMAKE_CURRENT_BINARY_DIR}/lomiri-url-dispatcher.service
+-)
++if(${USE_SYSTEMD})
++  configure_file(
++  lomiri-url-dispatcher.service.in
++  ${CMAKE_CURRENT_BINARY_DIR}/lomiri-url-dispatcher.service
++  )
+ 
+-configure_file(
+-lomiri-url-dispatcher-update-system-dir.path.in
+-${CMAKE_CURRENT_BINARY_DIR}/lomiri-url-dispatcher-update-system-dir.path
+-)
++  configure_file(
++  lomiri-url-dispatcher-update-system-dir.path.in
++  ${CMAKE_CURRENT_BINARY_DIR}/lomiri-url-dispatcher-update-system-dir.path
++  )
+ 
+-configure_file(
+-lomiri-url-dispatcher-update-system-dir.service.in
+-${CMAKE_CURRENT_BINARY_DIR}/lomiri-url-dispatcher-update-system-dir.service
+-)
++  configure_file(
++  lomiri-url-dispatcher-update-system-dir.service.in
++  ${CMAKE_CURRENT_BINARY_DIR}/lomiri-url-dispatcher-update-system-dir.service
++  )
+ 
+-configure_file(
+-lomiri-url-dispatcher-update-user-dir.path.in
+-${CMAKE_CURRENT_BINARY_DIR}/lomiri-url-dispatcher-update-user-dir.path
+-)
++  configure_file(
++  lomiri-url-dispatcher-update-user-dir.path.in
++  ${CMAKE_CURRENT_BINARY_DIR}/lomiri-url-dispatcher-update-user-dir.path
++  )
+ 
+-configure_file(
+-lomiri-url-dispatcher-update-user-dir.service.in
+-${CMAKE_CURRENT_BINARY_DIR}/lomiri-url-dispatcher-update-user-dir.service
+-)
++  configure_file(
++  lomiri-url-dispatcher-update-user-dir.service.in
++  ${CMAKE_CURRENT_BINARY_DIR}/lomiri-url-dispatcher-update-user-dir.service
++  )
+ 
+-install(
+-FILES
+-${CMAKE_CURRENT_BINARY_DIR}/lomiri-url-dispatcher.service
+-${CMAKE_CURRENT_BINARY_DIR}/lomiri-url-dispatcher-update-system-dir.path
+-${CMAKE_CURRENT_BINARY_DIR}/lomiri-url-dispatcher-update-system-dir.service
+-${CMAKE_CURRENT_BINARY_DIR}/lomiri-url-dispatcher-update-user-dir.path
+-${CMAKE_CURRENT_BINARY_DIR}/lomiri-url-dispatcher-update-user-dir.service
+-DESTINATION ${SYSTEMD_USER_UNIT_DIR}
+-)
++  install(
++  FILES
++  ${CMAKE_CURRENT_BINARY_DIR}/lomiri-url-dispatcher.service
++  ${CMAKE_CURRENT_BINARY_DIR}/lomiri-url-dispatcher-update-system-dir.path
++  ${CMAKE_CURRENT_BINARY_DIR}/lomiri-url-dispatcher-update-system-dir.service
++  ${CMAKE_CURRENT_BINARY_DIR}/lomiri-url-dispatcher-update-user-dir.path
++  ${CMAKE_CURRENT_BINARY_DIR}/lomiri-url-dispatcher-update-user-dir.service
++  DESTINATION ${SYSTEMD_USER_UNIT_DIR}
++  )
++endif()
+ 
+ ###########################
+ # QML
+-- 
+2.36.1
+
