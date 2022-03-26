@@ -1,0 +1,79 @@
+# TODO: drop after Lomiri works on 2.7+!
+# Template file for 'mir1'
+pkgname=mir1
+version=1.8.2r38397
+revision=1
+_commit=0543fd7647e52b23a8020851cc4cf235f5ade08b # tip of 1.x/miroil branch as of 2022-03-27
+wrksrc="mir-${_commit}"
+build_style=cmake
+configure_args="-DMIR_LINK_TIME_OPTIMIZATION=$(vopt_if lto ON OFF) -DMIR_FATAL_COMPILE_WARNINGS=OFF"
+hostmakedepends="pkg-config python3-Pillow protobuf glib-devel lttng-ust libdrm-devel
+ libglvnd-devel capnproto"
+makedepends="boost-devel libglvnd-devel glm glog-devel gflags-devel lttng-ust-devel
+ eudev-libudev-devel glib-devel wayland-devel libXcursor-devel libXrender-devel
+ libdrm-devel libgbm-devel libepoxy-devel nettle-devel libxkbcommon-devel
+ libinput-devel libxml++-devel yaml-cpp-devel gmpxx-devel libatomic-devel
+ protobuf-devel capnproto-devel"
+checkdepends="gtest-devel wlcs-devel umockdev-devel"
+short_desc="Canonical's Wayland compositor (legacy version 1 with MirOil)"
+maintainer="Jami Kettunen <jami.kettunen@protonmail.com>"
+license="GPL-2.0-or-later, LGPL-2.0-or-later"
+homepage="https://github.com/MirServer/mir"
+distfiles="https://github.com/MirServer/mir/archive/${_commit}.tar.gz"
+checksum=d6fe4889b326ab5b646cb3d3167dadc4dd2d1696bb1c0f9c9ca8e87fb202a106
+
+build_options="lto"
+desc_option_lto="Build with link-time optimization (LTO)"
+build_options_default="" # lto
+
+if [ "$XBPS_TARGET_LIBC" = "glibc" ]; then
+	makedepends+=" systemtap-devel"
+fi
+
+if [ -z "$XBPS_CHECK_PKGS" ] || [ "$CROSS_BUILD" ]; then
+	configure_args+=" -DMIR_ENABLE_TESTS=OFF"
+fi
+
+# FIXME: these tests get stuck without any output for 10 minutes
+# -> try e.g. "mir_acceptance_tests --logging on"
+configure_args+=" -DMIR_BUILD_ACCEPTANCE_TESTS=OFF -DMIR_BUILD_UNIT_TESTS=OFF"
+
+# FIXME: /usr/aarch64-linux-musl/usr/bin/capnpc-c++: no such plugin (executable should be '/usr/aarch64-linux-musl/usr/bin/capnpc-c++')
+# https://github.com/capnproto/capnproto/blob/master/c%2B%2B/cmake/CapnProtoMacros.cmake
+# https://github.com/MirServer/mir/blob/release/1.8/CMakeLists.txt#L278
+# https://github.com/MirServer/mir/blob/release/1.8/src/capnproto/CMakeLists.txt#L19-L20
+build_helper="qemu"
+
+if [ "$CROSS_BUILD" ]; then
+	configure_args+=" -DMIR_USE_LD=${XBPS_CROSS_TRIPLET}-ld -DCAPNP_EXECUTABLE=/usr/bin/capnp"
+fi
+
+mir1-demo_package() {
+	depends="${sourcepkg}>=${version}_${revision} weston xterm"
+	short_desc+=" - demo programs"
+	pkg_install() {
+		vmove usr/bin/mir-shell
+		vmove "usr/bin/mir_demo_*"
+		vmove "usr/bin/miral-*"
+	}
+}
+
+# TODO: usr/include/mirtest not packaged if not also building tests (i.e. native builds)
+# -> shouldn't be problem since tests cannot be done anyway on cross builds
+mir1-devel_package() {
+	depends="${sourcepkg}>=${version}_${revision} protobuf-devel libxkbcommon-devel"
+	short_desc+=" - development files"
+	pkg_install() {
+		vmove usr/include
+		vmove usr/lib/pkgconfig
+		vmove "usr/lib/*.so"
+		if [[ "${XBPS_CHECK_PKGS}" && -z "${CROSS_BUILD}" ]]; then
+			vmove "usr/lib/*.a" # libmir-test-assist.a
+		fi
+	}
+}
+
+# MUSL FIXME?
+# CMake Warning at src/common/sharedlibrary/CMakeLists.txt:38 (message):
+#  dlvsym() not supported by libc.  Mir may attempt to load ABI-incompatible
+#  platform modules
