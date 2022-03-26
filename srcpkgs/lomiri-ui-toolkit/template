@@ -1,0 +1,59 @@
+# TODO: rename whole package to liblomiri-ui-toolkit?
+# Template file for 'lomiri-ui-toolkit'
+pkgname=lomiri-ui-toolkit
+version=1.3.3000r18176
+revision=1
+_commit=7a596d16132cae5972fa4a4b1eac2ea7bbfda52c # tip of main as of 2022-03-19
+wrksrc="lomiri-ui-toolkit-${_commit}"
+build_style=qmake
+# TODO: qt5-graphicaleffects in host or target chroot? can qmltypes even be made for cross?
+hostmakedepends="pkg-config qt5-host-tools qt5-tools qt5-qmake gettext perl
+ qt5-plugin-sqlite python3"
+makedepends="qt5-devel qt5-declarative-devel qt5-svg-devel qt5-systems-devel
+ qt5-pim-devel qt5-feedback-devel qt5-graphicaleffects lttng-ust-devel
+ libXi-devel"
+#checkdepends="xvfb-run ..."
+short_desc="The Ubuntu UI toolkit used in Ubuntu Touch"
+maintainer="Jami Kettunen <jami.kettunen@protonmail.com>"
+license="LGPL-3.0-only, CC-BY-SA-3.0"
+homepage="https://lomiri.com"
+distfiles="https://gitlab.com/ubports/core/lomiri-ui-toolkit/-/archive/${_commit}.tar.gz"
+checksum=90ac89766dd98fbbedf5f0a52a344202dd98c3dae52f1be5007616827e8cd233
+
+# FIXME: optional (html) docs -> qmake_args+=" CONFIG+=no_docs" (didn't appear to work though)
+#build_options="doc"
+#desc_option_doc="Build qdoc"
+#build_options_default=""
+#if [ "$build_option_doc" ]; then
+#	hostmakedepends+=" qt5-plugin-sqlite"
+#else
+#	qmake_args+=" CONFIG+=no_docs"
+#fi
+
+lomiri-ui-toolkit-devel_package() {
+	short_desc+=" - development files"
+	depends="${sourcepkg}>=${version}_${revision}"
+	pkg_install() {
+		vmove usr/lib/pkgconfig
+		vmove "usr/lib/*.so"
+		vmove usr/include
+		vmove usr/lib/qt5/mkspecs
+		vmove usr/share/doc
+		vmove usr/share/lomiri-ui-toolkit
+	}
+}
+
+#lomiri-ui-toolkit-tests_package() {
+#	short_desc+=" - runtime testing files"
+#	depends="${sourcepkg}>=${version}_${revision}"
+#	pkg_install() {
+#		vmove "usr/lib/python*" # autopilot
+#		#vmove usr/lib/qt5/qml/Extinct
+#	}
+#}
+
+# TODO: tests/tests.pro
+#<string>:1: DeprecationWarning: The distutils package is deprecated and slated for removal in Python 3.12. Use setuptools or check PEP 632 for potential alternatives
+#<string>:1: DeprecationWarning: The distutils.sysconfig module is deprecated, use sysconfig instead
+
+# TODO: cmake port?

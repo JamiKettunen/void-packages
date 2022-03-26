@@ -1,0 +1,114 @@
+Link: https://gitlab.com/ubports/core/lomiri-ui-toolkit/-/merge_requests/28 @ 533d3981
+---
+diff --git a/app-launch-profiler/app-launch-profiler.pro b/app-launch-profiler/app-launch-profiler.pro
+index 5c2d15b8d..9963601d2 100644
+--- a/app-launch-profiler/app-launch-profiler.pro
++++ b/app-launch-profiler/app-launch-profiler.pro
+@@ -10,15 +10,13 @@ warnings_are_errors:!contains(QMAKE_CXXFLAGS_WARN_ON, -Werror){
+ 
+ HEADERS += app-launch-tracepoints.h
+ SOURCES += app-launch-tracepoints.c
+-TARGET = app-launch-tracepoints
++TARGET = lomiri-app-launch-tracepoints
+ installPath = $$[QT_INSTALL_PREFIX]/bin/
+ app-launch-tracepoints.path = $$installPath
+-app-launch-tracepoints.files = app-launch-tracepoints
++app-launch-tracepoints.files = lomiri-app-launch-tracepoints
+ app-launch-scripts.path = $$installPath
+-app-launch-scripts.files = app-launch-profiler-lttng \
+-                           profile_appstart.sh \
+-                           appstart_test
++app-launch-scripts.files = lomiri-app-launch-profiler-lttng \
++                           lomiri-appstart-profile \
++                           lomiri-appstart-test
+ INSTALLS += app-launch-tracepoints
+ INSTALLS += app-launch-scripts
+-
+-
+diff --git a/app-launch-profiler/app-launch-profiler-lttng b/app-launch-profiler/lomiri-app-launch-profiler-lttng
+similarity index 95%
+rename from app-launch-profiler/app-launch-profiler-lttng
+rename to app-launch-profiler/lomiri-app-launch-profiler-lttng
+index 531d9bf79..3a9bb4525 100755
+--- a/app-launch-profiler/app-launch-profiler-lttng
++++ b/app-launch-profiler/lomiri-app-launch-profiler-lttng
+@@ -30,11 +30,11 @@ if __name__ == '__main__':
+         opts, args = getopt.getopt(sys.argv[1:], "hi:v", ["help",
+                                    "inputdata="])
+     except getopt.GetoptError:
+-        print("app-launch-profiler-lttng -i <inputdata>")
++        print("lomiri-app-launch-profiler-lttng -i <inputdata>")
+         sys.exit(2)
+     for opt, arg in opts:
+         if opt == '-h':
+-            print("app-launch-profiler-lttng -i <inputdata>")
++            print("lomiri-app-launch-profiler-lttng -i <inputdata>")
+             sys.exit()
+         elif opt in ("-i", "--idata"):
+             inputdata = arg
+diff --git a/app-launch-profiler/profile_appstart.sh b/app-launch-profiler/lomiri-appstart-profile
+similarity index 92%
+rename from app-launch-profiler/profile_appstart.sh
+rename to app-launch-profiler/lomiri-appstart-profile
+index 2da9d38b3..f495bec34 100755
+--- a/app-launch-profiler/profile_appstart.sh
++++ b/app-launch-profiler/lomiri-appstart-profile
+@@ -26,7 +26,7 @@ WITH_CACHE=false
+ while getopts ":u:p:a:c:s:qh" opt; do
+     case $opt in
+         h)
+-            echo "Usage: profile_appstart.sh -u [IP address|local if left empty] -p [phabelt password] -c [count] -a [app] -s [sleep timme] -q"
++            echo "Usage: lomiri-appstart-profile -u [IP address|local if left empty] -p [phabelt password] -c [count] -a [app] -s [sleep timme] -q"
+             echo -e "\t-u : The IP address of the profiler:. Default: ${URL}"
+             echo -e "\t-p : Password of the phablet user. Default: ${PASSWORD}"
+             echo -e "\t-a : The name of the application. Default: ${APP_NAME}"
+@@ -84,7 +84,7 @@ for x in $(seq 1 ${COUNT}); do
+       # Cleaning QML cache  
+       rm -rf ~/.cache/QML/Apps/${APP_NAME}
+     fi
+-    echo ${PASSWORD}|sudo -S /usr/bin/app-launch-tracepoints
++    echo ${PASSWORD}|sudo -S /usr/bin/lomiri-app-launch-tracepoints
+     lomiri-app-launch ${APP_NAME}
+     sleep ${SLEEP_TIME}
+     lomiri-app-stop ${APP_NAME}
+diff --git a/app-launch-profiler/appstart_test b/app-launch-profiler/lomiri-appstart-test
+similarity index 96%
+rename from app-launch-profiler/appstart_test
+rename to app-launch-profiler/lomiri-appstart-test
+index ee6a63fa2..7afc9ee98 100755
+--- a/app-launch-profiler/appstart_test
++++ b/app-launch-profiler/lomiri-appstart-test
+@@ -186,13 +186,13 @@ function measure_app_startups {
+ 					LTTNG_TRACE_FILE=${LINE/Traces will be written in /}
+ 					LTTNG_TRACE_FILE="${LTTNG_TRACE_FILE/$'\r'/}"
+ 				fi
+-			done < <(adb -s ${SERIALNUMBER} shell "/usr/bin/profile_appstart.sh -a ${APPLICATION} -u ${IP_ADDRESS} -c ${COUNT} -s ${SLEEP_TIME} ${CLEAR_CACHE--q}")
+-			[ -z "${LTTNG_SESSION_NAME}" ] && echo "The lttng session is not available" || app-launch-profiler-lttng -i ~/lttng-traces/lomiri-phablet/${LTTNG_SESSION_NAME} ${VERBOSE_PARAMETER--v}
++			done < <(adb -s ${SERIALNUMBER} shell "/usr/bin/lomiri-appstart-profile -a ${APPLICATION} -u ${IP_ADDRESS} -c ${COUNT} -s ${SLEEP_TIME} ${CLEAR_CACHE--q}")
++			[ -z "${LTTNG_SESSION_NAME}" ] && echo "The lttng session is not available" || lomiri-app-launch-profiler-lttng -i ~/lttng-traces/lomiri-phablet/${LTTNG_SESSION_NAME} ${VERBOSE_PARAMETER--v}
+ 			if [[ $REMOTE_LTTNG_SESSION == false ]]; then
+ 				LTTNG_TRACE_PATH=${LTTNG_TRACE_FILE/$LTTNG_SESSION_NAME/}
+ 				adb -s ${SERIALNUMBER} shell "echo ${PASSWORD}|sudo -S chown phablet $LTTNG_TRACE_PATH -R 2>&1|grep -v password > /dev/null"
+ 				adb -s ${SERIALNUMBER} pull ${LTTNG_TRACE_FILE} ${LTTNG_SESSION_NAME}  > /dev/null 2>&1
+-				app-launch-profiler-lttng -i ${LTTNG_SESSION_NAME} ${VERBOSE_PARAMETER--v}
++				lomiri-app-launch-profiler-lttng -i ${LTTNG_SESSION_NAME} ${VERBOSE_PARAMETER--v}
+ 				if [ -z "${LTTNG_SESSION_NAME}" ];then
+ 					rm -rf ${LTTNG_SESSION_NAME}
+ 				fi
+@@ -235,14 +235,14 @@ while getopts ":cqhvn:s:w:p:f:a:o:" opt; do
+ 
+ 	h)
+ 		VERBOSE=true
+-		echo "Usage: appstart_test -c -p 025 -n 5 -s 10"
++		echo "Usage: lomiri-appstart-test -c -p 025 -n 5 -s 10"
+ 		echo -e "\t-c : Provision the device from the rc-proposed channel"
+ 		echo -e "\t-n : Number of times the applications are started during the test. Default $COUNT"
+ 		echo -e "\t-s : Sleep time between application starts. Default $SLEEP_TIME"
+ 		echo -e "\t-p : Run tests against a silo Default is ${TEST_SILO} the default silo is: ${SILO}"
+ 		echo -e "\t-w : Password of the phablet user on the device. Default ${PASSWORD}"
+ 		echo -e "\t-f : Filter for the test suite. Default $FILTER"
+-                echo -e "\t-v : Turn appstart_test to be verbose. Default $VERBOSE"
++                echo -e "\t-v : Turn lomiri-appstart-test to be verbose. Default $VERBOSE"
+                 echo -e "\t-q : Test the application startup with QML cache. Default ${CLEAR_CACHE-true} ${CLEAR_CACHE+false}"
+ 		echo -e "\t-h : Show this help"
+ 		exit
