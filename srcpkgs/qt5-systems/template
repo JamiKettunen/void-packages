@@ -1,0 +1,58 @@
+# Template file for 'qt5-systems'
+pkgname=qt5-systems
+version=5.4.0r805
+revision=1
+_commit=e3332ee38d27a134cef6621fdaf36687af1b6f4a # tip of dev branch as of 2022-03-19 (last updated 2019-01-03)
+wrksrc="qtsystems-${_commit}"
+build_style=qmake
+hostmakedepends="qt5-qmake qt5-host-tools perl git"
+makedepends="qt5-declarative-devel"
+short_desc="Cross-platform application and UI framework (QT5) - Systems component"
+maintainer="Jami Kettunen <jami.kettunen@protonmail.com>"
+license="GPL-3.0-or-later, LGPL-3.0-or-later"
+homepage="https://code.qt.io/cgit/qt/qtsystems.git"
+distfiles="https://github.com/qt/qtsystems/archive/${_commit}.tar.gz"
+checksum=5259cf350e5e1f755c53bcba066dd40fea7b20f4e661b0973b24ae46454a9e75
+
+# FIXME: why does not doing this result in src being missed from include dirs?!
+# FIXME: enable this as a part of srcpkgs/qt5 build (not included in tarball though?!)
+pre_build() {
+	git init
+}
+
+_cleanup_wrksrc_leak() {
+	if [ -d "${PKGDESTDIR}/usr/lib/cmake" ]; then
+		# Replace references to ${wrksrc} in cmake files
+		sed -i ${PKGDESTDIR}/usr/lib/cmake/*/*.cmake \
+			-e "s;${wrksrc}/host;/usr/lib/qt5;g" \
+			-e "s;devices/void-${XBPS_CROSS_TRIPLET}-g++;linux-g++;g"
+	fi
+	if [ -d "${PKGDESTDIR}/usr/lib/pkgconfig" ]; then
+		# Replace references to ${wrksrc} in pkgconfig files
+		sed -i ${PKGDESTDIR}/usr/lib/pkgconfig/*.pc \
+			-e "s;${wrksrc}/host;/usr/lib/qt5;g" \
+			-e "s;devices/void-${XBPS_CROSS_TRIPLET}-g++;linux-g++;g"
+	fi
+	# Remove QMAKE_PRL_BUILD_DIR from hint files for static libraries
+	# and replace references to ${wrksrc}
+	find ${PKGDESTDIR} -iname "*.prl" -exec sed -i "{}" \
+		-e "/^QMAKE_PRL_BUILD_DIR/d" \
+		-e "s;-L${wrksrc}/qtbase/lib;-L/usr/lib;g" \;
+	# Replace ${wrksrc} in project include files
+	find ${PKGDESTDIR} -iname "*.pri" -exec sed -i "{}" \
+		-e "s;${wrksrc}/qtbase;/usr/lib/qt5;g" \;
+}
+
+qt5-systems-devel_package() {
+	depends="qt5-devel>=${version} ${sourcepkg}>=${version}_${revision}"
+	short_desc+=" - development files"
+	pkg_install() {
+		vmove usr/include
+		vmove usr/lib/cmake
+		vmove usr/lib/pkgconfig
+		vmove usr/lib/qt5/mkspecs
+		vmove "usr/lib/*.so"
+		vmove "usr/lib/*.prl"
+		_cleanup_wrksrc_leak
+	}
+}
