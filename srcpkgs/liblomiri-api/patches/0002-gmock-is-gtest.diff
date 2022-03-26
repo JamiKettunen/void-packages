@@ -1,0 +1,11 @@
+diff --git a/test/gtest/CMakeLists.txt b/test/gtest/CMakeLists.txt
+index 68c5596..ef768a7 100644
+--- a/test/gtest/CMakeLists.txt
++++ b/test/gtest/CMakeLists.txt
+@@ -1,5 +1,5 @@
+ find_package(Threads REQUIRED)
+-find_package(GMock REQUIRED)
++find_package(GTest REQUIRED)
+ set(TESTLIBS ${TESTLIBS} ${GTEST_BOTH_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
+ 
+ # gtest does weird things with its own implementation of tr1::tuple. For clang, we need to
