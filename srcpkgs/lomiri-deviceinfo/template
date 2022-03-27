@@ -1,0 +1,27 @@
+# Template file for 'lomiri-deviceinfo'
+pkgname=lomiri-deviceinfo
+version=0.1.0r68
+revision=1
+_commit=8483ed614cffecbcc33cbe757deb7d1e41801ecc # tip of main branch as of 2022-09-25
+wrksrc="deviceinfo-${_commit}"
+build_style=cmake
+hostmakedepends="pkg-config"
+makedepends="yaml-cpp-devel gtest-devel"
+short_desc="Library to detect and configure devices for Lomiri (git ${_commit:0:7})"
+maintainer="Jami Kettunen <jami.kettunen@protonmail.com>"
+license="GPL-3.0-only"
+homepage="https://gitlab.com/ubports/development/core/deviceinfo"
+distfiles="https://gitlab.com/ubports/development/core/deviceinfo/-/archive/${_commit}.tar.gz"
+checksum=f10ec270716437db0db96bc7a6caea90c782f28bc09dfebf6c503182ad582122
+
+# TODO: optionally link against "libandroid-properties" (libhybris)?
+
+lomiri-deviceinfo-devel_package() {
+	depends="${sourcepkg}>=${version}_${revision}"
+	short_desc+=" - development files"
+	pkg_install() {
+		vmove usr/include
+		vmove usr/lib/pkgconfig
+		vmove "usr/lib/*.so"
+	}
+}

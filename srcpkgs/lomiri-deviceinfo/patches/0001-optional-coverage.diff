@@ -1,0 +1,41 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index b3ccbf7..e13b8fc 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -45,4 +45,6 @@ endif()
+ #  * Find html report in subdir coveragereport
+ #  * Find xml report feasible for jenkins in coverage.xml
+ #####################################################################
+-find_package(CoverageReport)
++if(cmake_build_type_lower MATCHES coverage)
++    find_package(CoverageReport)
++endif()
+diff --git a/tests/unit/CMakeLists.txt b/tests/unit/CMakeLists.txt
+index 34838a2..a27b7ac 100644
+--- a/tests/unit/CMakeLists.txt
++++ b/tests/unit/CMakeLists.txt
+@@ -35,13 +35,14 @@ declare_test(TestConfig tst_config)
+ declare_test(TestDeviceinfo tst_deviceinfo)
+ declare_test(TestUtils tst_utils)
+ 
+-find_package(CoverageReport)
+-enable_coverage_report(
+-  TARGETS
+-    deviceinfo
+-  FILTER
+-    ${CMAKE_SOURCE_DIR}/tests/*
+-    ${CMAKE_BINARY_DIR}/*
+-  TESTS
+-    ${TESTS}
+-)
++if(cmake_build_type_lower MATCHES coverage)
++  enable_coverage_report(
++    TARGETS
++      deviceinfo
++    FILTER
++      ${CMAKE_SOURCE_DIR}/tests/*
++      ${CMAKE_BINARY_DIR}/*
++    TESTS
++      ${TESTS}
++  )
++endif()
