@@ -1,0 +1,16 @@
+# Template file for 'ayatana-indicator-session'
+pkgname=ayatana-indicator-session
+version=22.9.0
+revision=1
+build_style=cmake
+configure_args="-DENABLE_TESTS=ON"
+hostmakedepends="pkg-config intltool ubports-cmake-extras python3 glib"
+makedepends="libayatana-common-devel glib-devel gtest-devel"
+checkdepends="dbus"
+short_desc="The session menu indicator for Lomiri"
+maintainer="Jami Kettunen <jami.kettunen@protonmail.com>"
+license="GPL-3.0-only"
+homepage="https://github.com/AyatanaIndicators/ayatana-indicator-session"
+changelog="https://raw.githubusercontent.com/AyatanaIndicators/ayatana-indicator-session/main/ChangeLog"
+distfiles="https://github.com/AyatanaIndicators/ayatana-indicator-session/archive/refs/tags/${version}.tar.gz"
+checksum=bc6e259b0689dee046aa84f9c8185c23e7729fd363e7e87994d569d75a35549c
