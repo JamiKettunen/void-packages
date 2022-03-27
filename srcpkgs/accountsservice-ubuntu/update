@@ -1,0 +1,2 @@
+site="file://$XBPS_DISTDIR/srcpkgs/accountsservice/template"
+pattern='^version=\K.*'
