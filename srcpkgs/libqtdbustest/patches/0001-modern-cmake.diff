@@ -1,0 +1,24 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 0133877..b313789 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -1,5 +1,5 @@
+ project(libqtdbustest CXX)
+-cmake_minimum_required(VERSION 2.8.9)
++cmake_minimum_required(VERSION 3.0)
+ 
+ set(API_VERSION 1)
+ set(ABI_VERSION 1)
+diff --git a/src/CMakeLists.txt b/src/CMakeLists.txt
+index 9f07623..1b485e3 100644
+--- a/src/CMakeLists.txt
++++ b/src/CMakeLists.txt
+@@ -1,6 +1,5 @@
+ include(GenerateExportHeader)
+-add_compiler_export_flags()
+ 
+ add_subdirectory(watchdog)
+ add_subdirectory(libqtdbustest)
+-add_subdirectory(qdbus-test-runner)
+\ No newline at end of file
++add_subdirectory(qdbus-test-runner)

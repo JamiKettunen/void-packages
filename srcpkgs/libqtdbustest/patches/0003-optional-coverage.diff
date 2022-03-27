@@ -1,0 +1,44 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index a60c3fe..bf5ca02 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -70,16 +70,26 @@ if(ENABLE_TESTS)
+ 	)
+ endif()
+ 
+-find_package(CoverageReport)
+-enable_coverage_report(
+-  TARGETS
+-    qtdbustest
+-    qdbus-simple-test-runner
+-    unit-tests
+-    watchdog
+-  FILTER
+-    ${CMAKE_SOURCE_DIR}/tests/*
+-    ${CMAKE_BINARY_DIR}/*
+-  TESTS
+-    unit-tests
+-)
++#####################################################################
++# Enable code coverage calculation with gcov/gcovr/lcov
++# Usage:
++#  * Switch build type to coverage (use ccmake or cmake-gui)
++#  * Invoke make, make test, make coverage (or ninja if you use that backend)
++#  * Find html report in subdir coveragereport
++#  * Find xml report feasible for jenkins in coverage.xml
++#####################################################################
++if(cmake_build_type_lower MATCHES coverage)
++  find_package(CoverageReport)
++  enable_coverage_report(
++    TARGETS
++      qtdbustest
++      qdbus-simple-test-runner
++      unit-tests
++      watchdog
++    FILTER
++      ${CMAKE_SOURCE_DIR}/tests/*
++      ${CMAKE_BINARY_DIR}/*
++    TESTS
++      unit-tests
++  )
++endif()

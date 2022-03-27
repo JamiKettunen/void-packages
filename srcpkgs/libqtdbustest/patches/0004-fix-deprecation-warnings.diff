@@ -1,0 +1,39 @@
+diff --git a/src/libqtdbustest/QProcessDBusService.cpp b/src/libqtdbustest/QProcessDBusService.cpp
+index c98b794..11c657e 100644
+--- a/src/libqtdbustest/QProcessDBusService.cpp
++++ b/src/libqtdbustest/QProcessDBusService.cpp
+@@ -95,7 +95,7 @@ void QProcessDBusService::start(const QDBusConnection &connection) {
+ }
+ 
+ Q_PID QProcessDBusService::pid() const {
+-	return p->m_process.pid();
++	return p->m_process.processId();
+ }
+ 
+ const QProcess & QProcessDBusService::underlyingProcess() const {
+diff --git a/src/libqtdbustest/SuicidalProcess.cpp b/src/libqtdbustest/SuicidalProcess.cpp
+index 96fa060..6d4d8b2 100644
+--- a/src/libqtdbustest/SuicidalProcess.cpp
++++ b/src/libqtdbustest/SuicidalProcess.cpp
+@@ -51,7 +51,7 @@ SuicidalProcess::~SuicidalProcess() {
+ void SuicidalProcess::setSuicidal() {
+ 	d->m_watchdog.start(d->m_watchdogCommand,
+ 			QStringList() << QString::number(QCoreApplication::applicationPid())
+-					<< QString::number(pid()));
++					<< QString::number(processId()));
+ }
+ 
+ void SuicidalProcess::setWatchdogCommand(const QString &watchdogCommand) {
+diff --git a/tests/libqtdbustest/TestSuicidalProcess.cpp b/tests/libqtdbustest/TestSuicidalProcess.cpp
+index 3bdaeea..87289eb 100644
+--- a/tests/libqtdbustest/TestSuicidalProcess.cpp
++++ b/tests/libqtdbustest/TestSuicidalProcess.cpp
+@@ -47,7 +47,7 @@ TEST_F(TestSuicidalProcess, BehavesLikeNormalQProcess) {
+ 	QProcess pgrep;
+ 	pgrep.start("ps",
+ 			QStringList() << "--no-headers" << "--pid"
+-					<< QString::number(process.pid()) << "-o" << "args");
++					<< QString::number(process.processId()) << "-o" << "args");
+ 	pgrep.waitForFinished();
+ 	pgrep.waitForReadyRead();
+ 
