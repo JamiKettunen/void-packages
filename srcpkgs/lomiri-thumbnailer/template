@@ -1,0 +1,48 @@
+# Template file for 'lomiri-thumbnailer'
+pkgname=lomiri-thumbnailer
+version=3.0.0r1978
+revision=1
+_commit=5ea5dc704922c088c0e1c68a12f7535e936ecff8 # tip of main branch as of 2022-03-27
+wrksrc="lomiri-thumbnailer-${_commit}"
+build_style=cmake
+build_helper="gir"
+# -DENABLE_UBUNTU_COMPAT=ON -DWORKAROUND_LIBGOMP_STATIC_TLS=ON
+configure_args="-DWerror=OFF -Dskip-dbus-tests=OFF"
+hostmakedepends="pkg-config qt5-host-tools qt5-qmake"
+makedepends="qt5-declarative-devel boost-devel gst-plugins-base1-devel
+ $(vopt_if gir 'gobject-introspection') glib-devel gdk-pixbuf-devel libexif-devel
+ liblomiri-api-devel libapparmor-devel taglib-devel persistent-cache-cpp-devel
+ leveldb-devel"
+checkdepends="gtest-devel libqtdbustest-devel dbus python3-tornado xvfb-run
+ mesa-dri"
+short_desc="D-Bus service for out of process thumbnailing in Lomiri"
+maintainer="Jami Kettunen <jami.kettunen@protonmail.com>"
+license="GPL-3.0-only, LGPL-3.0-only"
+homepage="https://gitlab.com/ubports/core/lomiri-thumbnailer"
+distfiles="https://gitlab.com/ubports/core/lomiri-thumbnailer/-/archive/${_commit}.tar.gz"
+checksum=380d4769a771970d2e8fda5a9f1a0ec30d5afbbb2b90c263af176fa0850b7a29
+
+build_options="gir"
+build_options_default="gir"
+
+if [ -z "$XBPS_CHECK_PKGS" ] || [ "$CROSS_BUILD" ]; then
+	configure_args+=" -DENABLE_TESTS=OFF"
+fi
+
+lomiri-thumbnailer-devel_package() {
+	depends="${sourcepkg}>=${version}_${revision}"
+	short_desc+=" - development files"
+	pkg_install() {
+		vmove usr/include
+		vmove usr/lib/pkgconfig
+		vmove "usr/lib/*.so"
+	}
+}
+
+# /usr/etc ???
+
+# TODO:
+# - look for leveldb (leveldbConfig.cmake)!
+# - optional gir
+# - optional xvfb-run qml tests
+# - running xbfb tests without mesa-dri?

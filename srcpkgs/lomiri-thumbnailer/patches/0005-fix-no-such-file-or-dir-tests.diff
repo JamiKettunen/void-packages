@@ -1,0 +1,62 @@
+It appears newer boost(?) versions can add additional info to the emitted
+"No such file or directory" so we should account for this in the tests.
+
+Example:
+
+  ../tests/dbus/dbus_test.cpp:178: Failure
+  Value of: boost::contains(message, " No such file or directory: ")
+    Actual: false
+  Expected: true
+  DBusInterface::GetThumbnail(): /builddir/lomiri-thumbnailer-5ea5dc704922c088c0e1c68a12f7535e936ecff8/tests/media/no-such-file.jpg: lomiri::ResourceException: Thumbnailer::get_thumbnail():
+      boost::filesystem::canonical: No such file or directory [generic:2]: "/builddir/lomiri-thumbnailer-5ea5dc704922c088c0e1c68a12f7535e936ecff8/tests/media/no-such-file.jpg"
+  thumbnailer-service: [16:06:46.149] Exiting
+  [  FAILED  ] DBusTest.thumbnail_no_such_file (126 ms)
+---
+diff --git a/tests/dbus/dbus_test.cpp b/tests/dbus/dbus_test.cpp
+index 533fa86..8513ec8 100644
+--- a/tests/dbus/dbus_test.cpp
++++ b/tests/dbus/dbus_test.cpp
+@@ -175,7 +175,7 @@ TEST_F(DBusTest, thumbnail_no_such_file)
+         dbus_->thumbnailer_->GetThumbnail(no_such_file, QSize(256, 256));
+     EXPECT_FALSE(reply.isValid());
+     auto message = reply.error().message().toStdString();
+-    EXPECT_TRUE(boost::contains(message, " No such file or directory: ")) << message;
++    EXPECT_TRUE(boost::contains(message, " No such file or directory")) << message;
+ }
+ 
+ TEST_F(DBusTest, server_error)
+diff --git a/tests/liblomiri-thumbnailer-qt/liblomiri-thumbnailer-qt_test.cpp b/tests/liblomiri-thumbnailer-qt/liblomiri-thumbnailer-qt_test.cpp
+index bc37874..25c1947 100644
+--- a/tests/liblomiri-thumbnailer-qt/liblomiri-thumbnailer-qt_test.cpp
++++ b/tests/liblomiri-thumbnailer-qt/liblomiri-thumbnailer-qt_test.cpp
+@@ -386,7 +386,7 @@ TEST_F(LibThumbnailerTest, thumbnail_no_such_file)
+     ASSERT_EQ(1, spy.count());
+ 
+     EXPECT_TRUE(reply->isFinished());
+-    EXPECT_TRUE(boost::contains(reply->errorMessage(), " No such file or directory: ")) << reply->errorMessage();
++    EXPECT_TRUE(boost::contains(reply->errorMessage(), " No such file or directory")) << reply->errorMessage();
+     EXPECT_FALSE(reply->isValid());
+ }
+ 
+@@ -424,7 +424,7 @@ TEST_F(LibThumbnailerTest, thumbnail_no_such_file_sync)
+     reply->waitForFinished();
+ 
+     EXPECT_TRUE(reply->isFinished());
+-    EXPECT_TRUE(boost::contains(reply->errorMessage(), " No such file or directory: ")) << reply->errorMessage();
++    EXPECT_TRUE(boost::contains(reply->errorMessage(), " No such file or directory")) << reply->errorMessage();
+     EXPECT_FALSE(reply->isValid());
+ }
+ 
+diff --git a/tests/thumbnailer/thumbnailer_test.cpp b/tests/thumbnailer/thumbnailer_test.cpp
+index 7018d4b..4f83bd0 100644
+--- a/tests/thumbnailer/thumbnailer_test.cpp
++++ b/tests/thumbnailer/thumbnailer_test.cpp
+@@ -814,7 +814,7 @@ TEST_F(RemoteServer, no_such_local_image)
+         string msg = e.to_string();
+         EXPECT_TRUE(boost::starts_with(msg,
+                                        "lomiri::ResourceException: Thumbnailer::get_thumbnail():\n"
+-                                       "    boost::filesystem::canonical: No such file or directory: ")) << msg;
++                                       "    boost::filesystem::canonical: No such file or directory")) << msg;
+         auto new_stats = tn.stats();
+         EXPECT_EQ(old_stats.failure_stats.size(), new_stats.failure_stats.size());
+     }

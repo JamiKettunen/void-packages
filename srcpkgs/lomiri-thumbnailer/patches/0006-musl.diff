@@ -1,0 +1,24 @@
+diff --git a/src/file_lock.cpp b/src/file_lock.cpp
+index 1c858bf..053e73d 100644
+--- a/src/file_lock.cpp
++++ b/src/file_lock.cpp
+@@ -24,6 +24,7 @@
+ 
+ #include <sys/file.h>
+ #include <unistd.h>
++#include <fcntl.h>
+ 
+ using namespace std;
+ 
+diff --git a/src/vs-thumb/vs-thumb.cpp b/src/vs-thumb/vs-thumb.cpp
+index af1bed2..566e43e 100644
+--- a/src/vs-thumb/vs-thumb.cpp
++++ b/src/vs-thumb/vs-thumb.cpp
+@@ -20,6 +20,7 @@
+ #include "thumbnailextractor.h"
+ 
+ #include <internal/trace.h>
++#include <libgen.h>
+ 
+ #include <QUrl>
+ 

@@ -1,0 +1,13 @@
+diff --git a/tests/CMakeLists.txt b/tests/CMakeLists.txt
+index 03a4900..cdeb870 100644
+--- a/tests/CMakeLists.txt
++++ b/tests/CMakeLists.txt
+@@ -3,7 +3,7 @@
+ 
+ set(old_cxx_flags ${CMAKE_CXX_FLAGS})
+ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -Wno-old-style-cast -Wno-missing-field-initializers")
+-find_package(GMock)
++find_package(GTest REQUIRED)
+ set(CMAKE_CXX_FLAGS ${old_cxx_flags})
+ 
+ set(TESTDATADIR ${CMAKE_CURRENT_SOURCE_DIR}/media)

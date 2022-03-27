@@ -1,0 +1,39 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 59121ec..4583547 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -7,6 +7,9 @@ endif()
+ cmake_minimum_required(VERSION 3.0.2)
+ project(lomiri-thumbnailer VERSION "3.0.0" LANGUAGES C CXX)
+ 
++# Options
++option(ENABLE_TESTS "Enable all tests and checks" ON)
++
+ set(CMAKE_INCLUDE_CURRENT_DIR ON)
+ 
+ 
+@@ -132,9 +135,6 @@ else()
+     message(WARNING "Cannot find valgrind: valgrind target will not be available")
+ endif()
+ 
+-include(CTest)
+-enable_testing()
+-
+ #include(EnableCoverageReport)
+ 
+ include(cmake/UseGSettings.cmake)
+@@ -176,7 +176,13 @@ add_subdirectory(plugins/Lomiri/Thumbnailer.0.1)
+ if (${ENABLE_UBUNTU_COMPAT})
+     add_subdirectory(plugins/Ubuntu/Thumbnailer.0.1)
+ endif()
+-add_subdirectory(tests)
++
++if (ENABLE_TESTS)
++    include(CTest)
++    enable_testing()
++    add_subdirectory(tests)
++endif()
++
+ add_subdirectory(include)
+ add_subdirectory(man)
+ #add_subdirectory(doc)
