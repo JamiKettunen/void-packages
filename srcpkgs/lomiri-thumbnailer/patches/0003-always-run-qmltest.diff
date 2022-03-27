@@ -1,0 +1,32 @@
+CMAKE_LIBRARY_ARCHITECTURE appears to be not set on Void...
+
+CMake Error at tests/qml/CMakeLists.txt:12 (if):
+  if given arguments:
+
+    "STREQUAL" "powerpc-linux-gnu" "OR" "STREQUAL" "s390x-linux-gnu"
+
+  Unknown arguments specified
+---
+diff --git a/tests/qml/CMakeLists.txt b/tests/qml/CMakeLists.txt
+index a165c8a..7cec991 100644
+--- a/tests/qml/CMakeLists.txt
++++ b/tests/qml/CMakeLists.txt
+@@ -9,13 +9,8 @@ target_link_libraries(qml_test
+ )
+ add_dependencies(qml_test thumbnailer-service LomiriThumbnailer-qml)
+ 
+-if (${CMAKE_LIBRARY_ARCHITECTURE} STREQUAL "powerpc-linux-gnu"
+-    OR ${CMAKE_LIBRARY_ARCHITECTURE} STREQUAL "s390x-linux-gnu")
+-    message("Skipping qml test for ${CMAKE_LIBRARY_ARCHITECTURE}")
+-else()
+-    add_test(qml ${CMAKE_SOURCE_DIR}/tools/run-xvfb.sh ./qml_test -import ${CMAKE_BINARY_DIR}/plugins)
+-    # Clear some environment variables that can interfere with the tests
+-    set_tests_properties(qml PROPERTIES
+-      ENVIRONMENT "DBUS_SESSION_BUS_ADDRESS=;QT_QPA_PLATFORMTHEME="
+-    )
+-endif()
++add_test(qml ${CMAKE_SOURCE_DIR}/tools/run-xvfb.sh ./qml_test -import ${CMAKE_BINARY_DIR}/plugins)
++# Clear some environment variables that can interfere with the tests
++set_tests_properties(qml PROPERTIES
++  ENVIRONMENT "DBUS_SESSION_BUS_ADDRESS=;QT_QPA_PLATFORMTHEME="
++)

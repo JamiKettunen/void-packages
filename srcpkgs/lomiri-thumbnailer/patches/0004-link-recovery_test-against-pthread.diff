@@ -1,0 +1,14 @@
+Fixes:
+
+  /usr/bin/ld: tests/recovery/CMakeFiles/recovery_test.dir/recovery_test.cpp.o: undefined reference to symbol 'pthread_setspecific@@GLIBC_2.2.5'
+---
+diff --git a/tests/recovery/CMakeLists.txt b/tests/recovery/CMakeLists.txt
+index 3385ce4..85a07fb 100644
+--- a/tests/recovery/CMakeLists.txt
++++ b/tests/recovery/CMakeLists.txt
+@@ -1,4 +1,4 @@
+ add_executable(recovery_test recovery_test.cpp MockCache.cpp)
+ qt5_use_modules(recovery_test Network Core)
+-target_link_libraries(recovery_test Qt5::Core thumbnailer-static gtest gmock)
++target_link_libraries(recovery_test Qt5::Core thumbnailer-static gtest gmock pthread)
+ add_test(recovery recovery_test)
