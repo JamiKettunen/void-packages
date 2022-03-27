@@ -1,0 +1,26 @@
+# Template file for 'lomiri-ui-extras'
+pkgname=lomiri-ui-extras
+version=0.6r657
+revision=1
+_commit=01204b383ba10a5e4bfeb81c4e90aa882fb7ccf9 # tip of main branch as of 2022-09-25
+wrksrc="lomiri-ui-extras-${_commit}"
+build_style=cmake
+hostmakedepends="pkg-config qt5-host-tools qt5-qmake ubports-cmake-extras gettext"
+makedepends="qt5-declarative-devel exiv2-devel pam-devel"
+short_desc="Lomiri QML components not in lomiri-ui-toolkit"
+maintainer="Jami Kettunen <jami.kettunen@protonmail.com>"
+license="GPL-3.0-only"
+homepage="https://gitlab.com/ubports/development/core/lomiri-ui-extras"
+distfiles="https://gitlab.com/ubports/development/core/lomiri-ui-extras/-/archive/${_commit}.tar.gz"
+checksum=df5c00e0b7ee114163d25dc563fd68515b01be7fc505e13808b52fe141b137d9
+
+# FIXME:
+# CMake Warning at tests/qml/CMakeLists.txt:24 (message):
+#   Qml tests disabled: qmltestrunner not found
+
+# TODO:
+# - stop using qt5_use_modules()
+# - modules/Lomiri/Components/Extras/TabsBar/TabContourHalf.qml:42: warning: unterminated string literal
+#   modules/Lomiri/Components/Extras/TabsBar/TabContourHalf.qml:57: warning: unterminated string literal
+# - fix the insane amount of -Wdeprecated-declarations spam...
+# - look for gettext & pam

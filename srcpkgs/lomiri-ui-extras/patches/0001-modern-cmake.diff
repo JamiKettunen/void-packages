@@ -1,0 +1,11 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 9b12c5b..9bb853c 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -1,5 +1,5 @@
+ project(lomiri-ui-extras)
+-cmake_minimum_required(VERSION 2.8.9)
++cmake_minimum_required(VERSION 3.5)
+ 
+ # Standard install paths
+ include(GNUInstallDirs)
