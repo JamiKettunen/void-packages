@@ -1,0 +1,34 @@
+# Template file for 'lomiri-schemas'
+pkgname=lomiri-schemas
+version=0.1.1r13
+revision=1
+_commit=60e0cdbf4bd3eeb998ef649f4d3e6b0ea1e62b03 # tip of main branch as of 2022-03-27
+wrksrc="lomiri-schemas-${_commit}"
+build_style=cmake
+hostmakedepends="ubports-cmake-extras pkg-config intltool"
+makedepends="gsettings-desktop-schemas-devel glib-devel"
+short_desc="GSettings and AccountsService schema files for Lomiri"
+maintainer="Jami Kettunen <jami.kettunen@protonmail.com>"
+license="LGPL-2.1-or-later"
+homepage="https://gitlab.com/ubports/core/lomiri-schemas"
+distfiles="https://gitlab.com/ubports/core/lomiri-schemas/-/archive/${_commit}.tar.gz"
+checksum=0a40774c097739d25379eb9ee7a7e2846d18a525136ffcaf9fd4a78ee24ebaad
+
+# FIXME: REPORT UPSTREAM!
+# ninja: error: build.ninja:301: multiple rules generate
+# data/schemas/com.lomiri.Shell.gschema.xml [-w dupbuild=err]
+make_cmd="make"
+export CMAKE_GENERATOR="Unix Makefiles"
+
+# TODO: usr/share/pkgconfig -> usr/lib/pkgconfig?
+lomiri-schemas-devel_package() {
+	depends="${sourcepkg}>=${version}_${revision}"
+	short_desc+=" - development files"
+	pkg_install() {
+		vmove usr/share/pkgconfig
+	}
+}
+
+# TODO:
+# - error if glib not found
+# - also errors if tools fail to generate things (avoid e.g. /share directory is not allowed)
