@@ -1,0 +1,21 @@
+# Template file for 'lomiri-sounds'
+pkgname=lomiri-sounds
+version=22.02r24
+revision=1
+_commit=4e71c32b2181ae00feb09818c304a7e8e4574fed # tip of main branch as of 2022-03-27
+wrksrc="lomiri-sounds-${_commit}"
+build_style=cmake
+short_desc="Ringtones and notification tones recommended for Lomiri"
+maintainer="Jami Kettunen <jami.kettunen@protonmail.com>"
+license="CC0-1.0, CC-BY-3.0, CC-BY-SA-3.0, CC-BY-4.0"
+homepage="https://gitlab.com/ubports/core/lomiri-sounds"
+distfiles="https://gitlab.com/ubports/core/lomiri-sounds/-/archive/${_commit}.tar.gz"
+checksum=541168c5480b3fbe20d9e97ee275f44b99c69eb222cdc71442b00f735e7d99ca
+
+lomiri-sounds-devel_package() {
+	depends="${sourcepkg}>=${version}_${revision}"
+	short_desc+=" - development files"
+	pkg_install() {
+		vmove usr/share/pkgconfig
+	}
+}
