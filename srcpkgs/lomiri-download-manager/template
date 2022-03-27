@@ -1,0 +1,36 @@
+# Template file for 'lomiri-download-manager'
+pkgname=lomiri-download-manager
+version=0.1.1r2583
+revision=1
+_commit=d928ac3b372719200afad1c802075090d3be6c82 # tip of main branch as of 2022-03-27
+wrksrc="lomiri-download-manager-${_commit}"
+build_style=cmake
+configure_args="-DENABLE_WERROR=OFF"
+hostmakedepends="pkg-config qt5-host-tools qt5-qmake qt5-tools gettext"
+makedepends="qt5-devel boost-devel dbus-devel glog-devel liblomiri-api-devel
+ qt5-plugin-mysql qt5-plugin-odbc qt5-plugin-pgsql qt5-plugin-sqlite qt5-plugin-tds
+ qt5-declarative-devel"
+checkdepends="gtest-devel dbus-test-runner-devel dbus xvfb-run"
+short_desc="A service for downloading files while an application is suspended"
+maintainer="Jami Kettunen <jami.kettunen@protonmail.com>"
+license="LGPL-3.0-only"
+homepage="https://gitlab.com/ubports/core/lomiri-download-manager"
+distfiles="https://gitlab.com/ubports/core/lomiri-download-manager/-/archive/${_commit}.tar.gz"
+checksum=f9433b56113fa72aa926636fb5854bb5e0f63cb41c06c8d1c658e0984ed3524d
+
+if [ -z "$XBPS_CHECK_PKGS" ] || [ "$CROSS_BUILD" ]; then
+	configure_args+=" -DENABLE_TESTS=OFF"
+fi
+
+lomiri-download-manager-devel_package() {
+	depends="${sourcepkg}>=${version}_${revision}"
+	short_desc+=" - development files"
+	pkg_install() {
+		vmove usr/include
+		# FIXME: relocate pkgconfig default install path!
+		vmove usr/libexec/pkgconfig
+		vmkdir usr/lib
+		mv ${PKGDESTDIR}/usr/libexec/pkgconfig ${PKGDESTDIR}/usr/lib
+		vmove "usr/lib/*.so"
+	}
+}
