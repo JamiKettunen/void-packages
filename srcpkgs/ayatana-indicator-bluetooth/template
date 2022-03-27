@@ -1,0 +1,25 @@
+# Template file for 'ayatana-indicator-bluetooth'
+pkgname=ayatana-indicator-bluetooth
+version=22.2.0
+revision=1
+build_style=cmake
+hostmakedepends="pkg-config vala ubports-cmake-extras intltool"
+makedepends="glib-devel libayatana-common-devel"
+short_desc="The bluetooth menu indicator for Lomiri"
+maintainer="Jami Kettunen <jami.kettunen@protonmail.com>"
+license="GPL-3.0-only"
+homepage="https://github.com/AyatanaIndicators/ayatana-indicator-bluetooth"
+changelog="https://raw.githubusercontent.com/AyatanaIndicators/ayatana-indicator-bluetooth/main/ChangeLog"
+distfiles="https://github.com/AyatanaIndicators/ayatana-indicator-bluetooth/archive/refs/tags/${version}.tar.gz"
+checksum=38410111cf8f4a9879a2375ac66beb0835fce844793a76660b4a416323600b17
+
+# TODO: contains no unit tests for now
+if [ "$XBPS_CHECK_PKGS" ] && [ -z "$CROSS_BUILD" ]; then
+	configure_args+=" -DENABLE_TESTS=ON"
+fi
+
+# FIXME: build fails with ninja as CMake generator
+# https://github.com/AyatanaIndicators/libayatana-common/issues/60
+# https://github.com/AyatanaIndicators/ayatana-indicator-bluetooth/issues/39
+make_cmd="make"
+export CMAKE_GENERATOR="Unix Makefiles"
