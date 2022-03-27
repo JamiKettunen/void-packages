@@ -1,0 +1,15 @@
+# Template file for 'ayatana-indicator-notifications'
+pkgname=ayatana-indicator-notifications
+version=22.9.0
+revision=1
+build_style=cmake
+configure_args="-DENABLE_TESTS=ON"
+hostmakedepends="pkg-config ubports-cmake-extras intltool"
+makedepends="glib-devel"
+short_desc="The notifications menu indicator for Lomiri"
+maintainer="Jami Kettunen <jami.kettunen@protonmail.com>"
+license="GPL-3.0-only"
+homepage="https://github.com/AyatanaIndicators/ayatana-indicator-notifications"
+changelog="https://raw.githubusercontent.com/AyatanaIndicators/ayatana-indicator-notifications/main/ChangeLog"
+distfiles="https://github.com/AyatanaIndicators/ayatana-indicator-notifications/archive/refs/tags/${version}.tar.gz"
+checksum=a7137a6bd0e451b12bc004c152461144efec857dc413ee80aa2c4763c8990894
