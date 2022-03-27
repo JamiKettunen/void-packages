@@ -1,0 +1,22 @@
+# Template file for 'ayatana-indicator-power'
+pkgname=ayatana-indicator-power
+version=22.9.0
+revision=1
+build_style=cmake
+configure_args="-DENABLE_TESTS=ON $(vopt_bool lomiri ENABLE_LOMIRI_FEATURES)"
+hostmakedepends="pkg-config ubports-cmake-extras intltool python3 lomiri-schemas glib"
+makedepends="glib-devel libnotify-devel libayatana-common-devel gtest-devel dbus-test-runner-devel
+ $(vopt_if lomiri 'lomiri-schemas-devel lomiri-sounds-devel')"
+#depends="$(vopt_if lomiri 'lomiri-sounds')" ?
+checkdepends="dbus python3-dbusmock"
+short_desc="The power menu indicator for Lomiri"
+maintainer="Jami Kettunen <jami.kettunen@protonmail.com>"
+license="GPL-3.0-only"
+homepage="https://github.com/AyatanaIndicators/ayatana-indicator-power"
+changelog="https://raw.githubusercontent.com/AyatanaIndicators/ayatana-indicator-power/main/ChangeLog"
+distfiles="https://github.com/AyatanaIndicators/ayatana-indicator-power/archive/refs/tags/${version}.tar.gz"
+checksum=6662d07b33e791a2aac84cdd54e7e4bc17069fb4ab609d56970f2c4e36c8f256
+
+build_options="lomiri"
+desc_option_lomiri="Build with Lomiri-specific libraries, schemas and media"
+build_options_default="lomiri"
