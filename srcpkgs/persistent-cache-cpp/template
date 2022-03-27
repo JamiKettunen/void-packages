@@ -1,0 +1,34 @@
+# Template file for 'persistent-cache-cpp'
+pkgname=persistent-cache-cpp
+version=1.0.5r125
+revision=1
+_commit=b93792fcdca04705a9d0114927a1b6b03c3390aa # tip of main branch as of 2022-03-27
+wrksrc="persistent-cache-cpp-${_commit}"
+build_style=cmake
+configure_args="-DWerror=OFF"
+hostmakedepends="pkg-config doxygen ubports-cmake-extras"
+# FIXME: only ubports-cmake-extras on host!
+makedepends="boost-devel leveldb-devel ubports-cmake-extras"
+checkdepends="gtest-devel"
+short_desc="Cache of key-value pairs with persistent storage for C++"
+maintainer="Jami Kettunen <jami.kettunen@protonmail.com>"
+license="LGPL-3.0-only"
+homepage="https://gitlab.com/ubports/core/lib-cpp/persistent-cache-cpp"
+distfiles="https://gitlab.com/ubports/core/lib-cpp/persistent-cache-cpp/-/archive/${_commit}.tar.gz"
+checksum=bd0e7e44522eedfb05b0901bc7ba2af740000062e78e2ee6eefa4ae4c782270e
+
+if [ -z "$XBPS_CHECK_PKGS" ] || [ "$CROSS_BUILD" ]; then
+	configure_args+=" -DENABLE_TESTS=OFF"
+fi
+
+persistent-cache-cpp-devel_package() {
+	depends="${sourcepkg}>=${version}_${revision}"
+	short_desc+=" - development files"
+	pkg_install() {
+		vmove usr/include
+		vmove usr/lib/pkgconfig
+		vmove "usr/lib/*.a"
+	}
+}
+
+# FIXME: optional docs & coverage!
