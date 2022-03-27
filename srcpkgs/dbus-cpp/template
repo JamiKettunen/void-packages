@@ -1,0 +1,38 @@
+# Template file for 'dbus-cpp'
+pkgname=dbus-cpp
+version=5.0.3r435
+revision=1
+_commit=bd45565a30be74cb5eea15e9e3a3370419168fca # tip of main branch as of 2022-03-27
+wrksrc="dbus-cpp-${_commit}"
+build_style=cmake
+hostmakedepends="pkg-config"
+makedepends="boost-devel libxml2-devel dbus-devel libprocess-cpp-devel properties-cpp"
+checkdepends="gtest-devel dbus"
+short_desc="A header-only dbus-binding for C++"
+maintainer="Jami Kettunen <jami.kettunen@protonmail.com>"
+license="LGPL-3.0-only"
+homepage="https://gitlab.com/ubports/core/lib-cpp/dbus-cpp"
+distfiles="https://gitlab.com/ubports/core/lib-cpp/dbus-cpp/-/archive/${_commit}.tar.gz"
+checksum=37e88e803f725f453b88d7b3cbe35bfaa9012dc75a6aaee03cf8b87f3361f761
+
+if [ -z "$XBPS_CHECK_PKGS" ] || [ "$CROSS_BUILD" ]; then
+	configure_args+=" -DENABLE_TESTS=OFF"
+fi
+
+dbus-cpp-devel_package() {
+	depends="${sourcepkg}>=${version}_${revision}"
+	short_desc+=" - development files"
+	pkg_install() {
+		vmove usr/include
+		vmove usr/lib/pkgconfig
+		vmove "usr/lib/*.so"
+	}
+}
+
+# FIXME: optional Werror, tests & PrePush(?)
+#CMake Error at cmake/PrePush.cmake:82 (add_dependencies):
+#  The dependency target "android-build" of target "pre-push" does not exist.
+
+# TODO:
+# - examples subpackage usr/libexec/examples
+# - check for properties-cpp -> core/signal.h

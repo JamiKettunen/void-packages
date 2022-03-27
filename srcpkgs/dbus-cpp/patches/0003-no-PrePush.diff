@@ -1,0 +1,13 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index c396696..12d3557 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -34,7 +34,7 @@ pkg_check_modules(PROCESS_CPP process-cpp)
+ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
+ 
+ include(cmake/EnableCoverageReport.cmake)
+-include(cmake/PrePush.cmake)
++#include(cmake/PrePush.cmake)
+ 
+ include(GNUInstallDirs)
+ 
