@@ -1,0 +1,38 @@
+# Template file for 'lomiri-indicator-network'
+pkgname=lomiri-indicator-network
+version=1.0.0r2162
+revision=1
+_commit=ea27f1169099f2f124ed5cf9d24a2475ce8e42d4 # tip of main branch as of 2022-03-27
+wrksrc="lomiri-indicator-network-${_commit}"
+build_style=cmake
+hostmakedepends="pkg-config qt5-host-tools qt5-qmake ubports-cmake-extras intltool qt5-tools"
+makedepends="gsettings-qt-devel qt5-devel liblomiri-api-devel ofono-devel libsecret-devel
+ libnma-devel lomiri-url-dispatcher-devel qt5-declarative-devel libqofono-devel"
+checkdepends="libqtdbustest-devel libqtdbusmock-devel libgmenuharness-devel gtest-devel
+ python3-dbusmock dbus"
+short_desc="The Network indicator for Lomiri"
+maintainer="Jami Kettunen <jami.kettunen@protonmail.com>"
+license="GPL-3.0-only, LGPL-3.0-only"
+homepage="https://gitlab.com/ubports/core/lomiri-indicator-network"
+distfiles="https://gitlab.com/ubports/core/lomiri-indicator-network/-/archive/${_commit}.tar.gz"
+checksum=e67fbff554ad6e135e61041336452e7ac564f0addcfba1bf84bb2bac2b31197f
+
+if [ -z "$XBPS_CHECK_PKGS" ] || [ "$CROSS_BUILD" ]; then
+	configure_args+=" -DENABLE_TESTS=OFF"
+fi
+
+lomiri-indicator-network-devel_package() {
+	depends="${sourcepkg}>=${version}_${revision}"
+	short_desc+=" - development files"
+	pkg_install() {
+		vmove usr/include
+		vmove usr/lib/pkgconfig
+		vmove "usr/lib/*.so"
+	}
+}
+
+# FIXME:
+# - 3 failing tests: TestConnectivityApiSim.{{SingleSim,TwoSims}AtStartup,AddASim}
+# - tethering depends on hybris getprop: https://gitlab.com/ubports/core/lomiri-indicator-network/-/blob/ea27f116/src/indicator/nmofono/hotspot-manager.cpp#L253-271
+# - check for glib before attempting data/CMakeLists.txt:102 add_schema()!
+# - support for ModemManager as well (mainline Linux)?!
