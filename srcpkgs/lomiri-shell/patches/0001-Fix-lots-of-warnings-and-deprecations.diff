@@ -1,0 +1,695 @@
+Link: https://gitlab.com/ubports/core/lomiri/-/merge_requests/33 @ 693fb5c0
+---
+diff --git a/include/paths.h.in b/include/paths.h.in
+index b6b0807eb..b025a75ee 100644
+--- a/include/paths.h.in
++++ b/include/paths.h.in
+@@ -151,7 +151,7 @@ inline void prependImportPaths(QQmlEngine *engine, const QStringList &paths)
+     for (int i = paths.count() -1; i >= 0; i--) {
+         // don't duplicate
+         const QString& path = paths[i];
+-        QStringList::iterator iter = qFind(importPathList.begin(), importPathList.end(), path);
++        QStringList::iterator iter = std::find(importPathList.begin(), importPathList.end(), path);
+         if (iter == importPathList.end()) {
+             engine->addImportPath(path);
+         }
+@@ -166,7 +166,7 @@ inline void appendImportPaths(QQmlEngine *engine, const QStringList &paths)
+     QStringList importPathList = engine->importPathList();
+     Q_FOREACH(const QString& path, paths) {
+         // don't duplicate
+-        QStringList::iterator iter = qFind(importPathList.begin(), importPathList.end(), path);
++        QStringList::iterator iter = std::find(importPathList.begin(), importPathList.end(), path);
+         if (iter == importPathList.end()) {
+             importPathList.append(path);
+         }
+diff --git a/plugins/LightDM/IntegratedLightDM/liblightdm/UsersModel.cpp b/plugins/LightDM/IntegratedLightDM/liblightdm/UsersModel.cpp
+index 84bbefcb1..10be011af 100644
+--- a/plugins/LightDM/IntegratedLightDM/liblightdm/UsersModel.cpp
++++ b/plugins/LightDM/IntegratedLightDM/liblightdm/UsersModel.cpp
+@@ -40,18 +40,19 @@ UsersModel::UsersModel(QObject *parent) :
+     QAbstractListModel(parent),
+     d_ptr(new UsersModelPrivate(this))
+ {
++    Q_D(UsersModel);
++
+     // Extend roleNames (we want to keep the "display" role)
+-    QHash<int, QByteArray> roles = roleNames();
+-    roles[NameRole] = "name";
+-    roles[RealNameRole] = "realName";
+-    roles[LoggedInRole] = "loggedIn";
+-    roles[BackgroundRole] = "background";
+-    roles[BackgroundPathRole] = "backgroundPath";
+-    roles[SessionRole] = "session";
+-    roles[HasMessagesRole] = "hasMessages";
+-    roles[ImagePathRole] = "imagePath";
+-    roles[UidRole] = "uid";
+-    setRoleNames(roles);
++    d->roles = roleNames();
++    d->roles[NameRole] = "name";
++    d->roles[RealNameRole] = "realName";
++    d->roles[LoggedInRole] = "loggedIn";
++    d->roles[BackgroundRole] = "background";
++    d->roles[BackgroundPathRole] = "backgroundPath";
++    d->roles[SessionRole] = "session";
++    d->roles[HasMessagesRole] = "hasMessages";
++    d->roles[ImagePathRole] = "imagePath";
++    d->roles[UidRole] = "uid";
+ 
+     connect(d_ptr, &UsersModelPrivate::dataChanged, this, [this](int i) {
+         QModelIndex index = createIndex(i, 0);
+@@ -107,4 +108,11 @@ QVariant UsersModel::data(const QModelIndex &index, int role) const
+     }
+ }
+ 
++QHash<int, QByteArray> UsersModel::roleNames() const
++{
++    Q_D(const UsersModel);
++
++    return d->roles;
++}
++
+ }
+diff --git a/plugins/LightDM/IntegratedLightDM/liblightdm/UsersModel.h b/plugins/LightDM/IntegratedLightDM/liblightdm/UsersModel.h
+index 5cdeb8365..ad8612f2c 100644
+--- a/plugins/LightDM/IntegratedLightDM/liblightdm/UsersModel.h
++++ b/plugins/LightDM/IntegratedLightDM/liblightdm/UsersModel.h
+@@ -55,6 +55,7 @@ public:
+ 
+     int rowCount(const QModelIndex &parent) const override;
+     QVariant data(const QModelIndex &index, int role) const override;
++    QHash<int, QByteArray> roleNames() const override;
+ 
+ private:
+     UsersModelPrivate * const d_ptr;
+diff --git a/plugins/LightDM/IntegratedLightDM/liblightdm/UsersModelPrivate.h b/plugins/LightDM/IntegratedLightDM/liblightdm/UsersModelPrivate.h
+index de1b565d5..15113f727 100644
+--- a/plugins/LightDM/IntegratedLightDM/liblightdm/UsersModelPrivate.h
++++ b/plugins/LightDM/IntegratedLightDM/liblightdm/UsersModelPrivate.h
+@@ -22,6 +22,7 @@
+ #include <QList>
+ #include <QObject>
+ #include <QString>
++#include <QHash>
+ 
+ class AccountsServiceDBusAdaptor;
+ 
+@@ -52,6 +53,7 @@ public:
+     virtual ~UsersModelPrivate() = default;
+ 
+     QList<Entry> entries;
++    QHash<int, QByteArray> roles;
+ 
+ Q_SIGNALS:
+     void dataChanged(int);
+diff --git a/plugins/LightDM/plugin.cpp b/plugins/LightDM/plugin.cpp
+index be28fa8fb..a4a193513 100644
+--- a/plugins/LightDM/plugin.cpp
++++ b/plugins/LightDM/plugin.cpp
+@@ -74,8 +74,13 @@ static QObject *infographic_provider(QQmlEngine *engine, QJSEngine *scriptEngine
+ 
+ void PLUGIN_CLASSNAME::registerTypes(const char *uri)
+ {
++#if QT_VERSION >= QT_VERSION_CHECK(5, 14, 0)
++    qmlRegisterAnonymousType<QAbstractItemModel>(uri, 0);
++    qmlRegisterAnonymousType<UserMetricsOutput::ColorTheme>(uri, 0);
++#else
+     qmlRegisterType<QAbstractItemModel>();
+     qmlRegisterType<UserMetricsOutput::ColorTheme>();
++#endif
+ 
+ #if defined INTEGRATED_LIGHTDM
+     Q_ASSERT(uri == QLatin1String("LightDM.IntegratedLightDM"));
+diff --git a/plugins/Lomiri/Gestures/TouchDispatcher.cpp b/plugins/Lomiri/Gestures/TouchDispatcher.cpp
+index a3a44aec4..05fd3730b 100644
+--- a/plugins/Lomiri/Gestures/TouchDispatcher.cpp
++++ b/plugins/Lomiri/Gestures/TouchDispatcher.cpp
+@@ -244,7 +244,7 @@ QTouchEvent *TouchDispatcher::createQTouchEvent(QEvent::Type eventType,
+         QWindow *window,
+         ulong timestamp)
+ {
+-    Qt::TouchPointStates eventStates = 0;
++    Qt::TouchPointStates eventStates;
+     for (int i = 0; i < touchPoints.count(); i++)
+         eventStates |= touchPoints[i].state();
+     // if all points have the same state, set the event type accordingly
+@@ -278,7 +278,11 @@ void TouchDispatcher::transformTouchPoints(QList<QTouchEvent::TouchPoint> &touch
+     QMatrix4x4 transformMatrix(transform);
+     for (int i=0; i<touchPoints.count(); i++) {
+         QTouchEvent::TouchPoint &touchPoint = touchPoints[i];
+-        touchPoint.setRect(transform.mapRect(touchPoint.sceneRect()));
++
++        // Should be the same as god'ol screenRect()
++        // https://github.com/qt/qtbase/commit/68916fede41d1eca5d07eb6b1db518d41a007616
++        touchPoint.setPos(transform.map(touchPoint.screenPos()));
++        touchPoint.setEllipseDiameters(touchPoint.ellipseDiameters());
+         touchPoint.setStartPos(transform.map(touchPoint.startScenePos()));
+         touchPoint.setLastPos(transform.map(touchPoint.lastScenePos()));
+         touchPoint.setVelocity(transformMatrix.mapVector(touchPoint.velocity()).toVector2D());
+@@ -378,7 +382,7 @@ QEvent::Type TouchDispatcher::resolveEventType(const QList<QTouchEvent::TouchPoi
+ {
+     QEvent::Type eventType;
+ 
+-    Qt::TouchPointStates eventStates = 0;
++    Qt::TouchPointStates eventStates;
+     for (int i = 0; i < touchPoints.count(); i++)
+         eventStates |= touchPoints[i].state();
+ 
+diff --git a/plugins/Lomiri/Gestures/TouchGestureArea.cpp b/plugins/Lomiri/Gestures/TouchGestureArea.cpp
+index 64dba2b7b..7da8dc70c 100644
+--- a/plugins/Lomiri/Gestures/TouchGestureArea.cpp
++++ b/plugins/Lomiri/Gestures/TouchGestureArea.cpp
+@@ -798,7 +798,15 @@ int TouchGestureArea::touchPoint_count(QQmlListProperty<GestureTouchPoint> *list
+ GestureTouchPoint *TouchGestureArea::touchPoint_at(QQmlListProperty<GestureTouchPoint> *list, int index)
+ {
+     TouchGestureArea *q = static_cast<TouchGestureArea*>(list->object);
+-    return (q->m_cachedTouchPoints.begin()+index).value();
++
++    // Because qt did a qute thing....
++    // + operator is depricated and no .at() exists
++    // so lets loop over as operator ++ is still here
++    auto p = q->m_cachedTouchPoints.begin();
++    for (int i = 0; i < index; i++)
++        p++;
++
++    return p.value();
+ }
+ 
+ GestureTouchPoint* TouchGestureArea::addTouchPoint(QTouchEvent::TouchPoint const* tp)
+diff --git a/plugins/Lomiri/Indicators/indicatorsmanager.cpp b/plugins/Lomiri/Indicators/indicatorsmanager.cpp
+index 86189c255..90631192f 100644
+--- a/plugins/Lomiri/Indicators/indicatorsmanager.cpp
++++ b/plugins/Lomiri/Indicators/indicatorsmanager.cpp
+@@ -57,7 +57,7 @@ void IndicatorsManager::load()
+ 
+     m_fsWatcher.reset(new QFileSystemWatcher(this));
+ 
+-    for (const auto xdgPath : shellDataDirs()) {
++    for (const auto &xdgPath : shellDataDirs()) {
+         // For legacy reasons we keep the old unity indicator path
+         const auto unityPath = QDir::cleanPath(xdgPath + "/unity/indicators");
+         if (QFile::exists(unityPath)) {
+diff --git a/plugins/Lomiri/Indicators/modelprinter.cpp b/plugins/Lomiri/Indicators/modelprinter.cpp
+index 7a40067aa..96fdfbe4b 100644
+--- a/plugins/Lomiri/Indicators/modelprinter.cpp
++++ b/plugins/Lomiri/Indicators/modelprinter.cpp
+@@ -76,7 +76,11 @@ QString ModelPrinter::getModelDataString(AyatanaMenuModel* sourceModel, int leve
+     int rowCount = sourceModel->rowCount();
+     for (int row = 0; row < rowCount; row++) {
+ 
++#if QT_VERSION >= QT_VERSION_CHECK(5, 14, 0)
++        stream << getRowSring(sourceModel, row, level) << Qt::endl;
++#else
+         stream << getRowSring(sourceModel, row, level) << endl;
++#endif
+ 
+         AyatanaMenuModel* childMenuModel = qobject_cast<AyatanaMenuModel*>(sourceModel->submenu(row));
+         if (childMenuModel) {
+@@ -101,7 +105,7 @@ QString ModelPrinter::getRowSring(AyatanaMenuModel* sourceModel, int row, int de
+     // Print out this row
+     QHash<int, QByteArray> roleNames = sourceModel->roleNames();
+     QList<int> roles = roleNames.keys();
+-    qSort(roles);
++    std::sort(roles.begin(), roles.end());
+ 
+     Q_FOREACH(int role, roles) {
+         const QByteArray& roleName = roleNames[role];
+@@ -138,7 +142,11 @@ QString ModelPrinter::getVariantString(const QString& roleName, const QVariant &
+                 << iter.key()
+                 << ": "
+                 << getVariantString(iter.value())
++#if QT_VERSION >= QT_VERSION_CHECK(5, 14, 0)
++                << Qt::endl;
++#else
+                 << endl;
++#endif
+         }
+     }
+     else {
+@@ -146,7 +154,11 @@ QString ModelPrinter::getVariantString(const QString& roleName, const QVariant &
+             stream << roleName
+                 << ": "
+                 << getVariantString(vData)
++#if QT_VERSION >= QT_VERSION_CHECK(5, 14, 0)
++                << Qt::endl;
++#else
+                 << endl;
++#endif
+     }
+     return str;
+ }
+diff --git a/plugins/Lomiri/Session/plugin.cpp b/plugins/Lomiri/Session/plugin.cpp
+index 3336efa29..d5cf22c9a 100644
+--- a/plugins/Lomiri/Session/plugin.cpp
++++ b/plugins/Lomiri/Session/plugin.cpp
+@@ -40,7 +40,11 @@ static QObject *orientationlock_provider(QQmlEngine */*engine*/, QJSEngine */*js
+ 
+ void SessionPlugin::registerTypes(const char *uri)
+ {
++#if QT_VERSION >= QT_VERSION_CHECK(5, 14, 0)
++    qmlRegisterAnonymousType<QAbstractItemModel>(uri, 0);
++#else
+     qmlRegisterType<QAbstractItemModel>();
++#endif
+ 
+     Q_ASSERT(uri == QLatin1String("Lomiri.Session"));
+     qmlRegisterSingletonType<DBusLomiriSessionService>(uri, 0, 1, "DBusLomiriSessionService", dbuslomirisessionservice_provider);
+diff --git a/plugins/ScreenshotDirectory/ScreenshotDirectory.cpp b/plugins/ScreenshotDirectory/ScreenshotDirectory.cpp
+index 432168706..35e6824d1 100644
+--- a/plugins/ScreenshotDirectory/ScreenshotDirectory.cpp
++++ b/plugins/ScreenshotDirectory/ScreenshotDirectory.cpp
+@@ -30,9 +30,9 @@ ScreenshotDirectory::ScreenshotDirectory(QObject *parent)
+     if (qEnvironmentVariableIsSet("LOMIRI_TESTING")) {
+         QTemporaryDir tDir;
+         tDir.setAutoRemove(false);
+-        screenshotsDir = tDir.path();
++        screenshotsDir.setPath(tDir.path());
+     } else {
+-        screenshotsDir = QStandardPaths::writableLocation(QStandardPaths::PicturesLocation);
++        screenshotsDir.setPath(QStandardPaths::writableLocation(QStandardPaths::PicturesLocation));
+     }
+     screenshotsDir.mkpath(QStringLiteral("Screenshots"));
+     screenshotsDir.cd(QStringLiteral("Screenshots"));
+diff --git a/plugins/Utils/lomirimenumodelpaths.cpp b/plugins/Utils/lomirimenumodelpaths.cpp
+index e14a7cb2a..b7b8fc9a2 100644
+--- a/plugins/Utils/lomirimenumodelpaths.cpp
++++ b/plugins/Utils/lomirimenumodelpaths.cpp
+@@ -22,7 +22,7 @@
+ 
+ static QVariant parseVariantData(const QVariant& var);
+ 
+-const QDBusArgument &operator>>(const QDBusArgument &arg, QVariantMap &map)
++const QDBusArgument &operator>>(const QDBusArgument &arg, QMultiMap<QString, QVariant> &map)
+ {
+     arg.beginMap();
+     map.clear();
+@@ -32,7 +32,7 @@ const QDBusArgument &operator>>(const QDBusArgument &arg, QVariantMap &map)
+         arg.beginMapEntry();
+ 
+         arg >> key >> value;
+-        map.insertMulti(key, parseVariantData(value)); // re-parse for qdbusargument
++        map.insert(key, parseVariantData(value)); // re-parse for qdbusargument
+ 
+         arg.endMapEntry();
+     }
+@@ -44,7 +44,7 @@ static QVariant parseVariantData(const QVariant& var) {
+     if ((int)var.type() == QMetaType::User && var.userType() == qMetaTypeId<QDBusArgument>()) {
+         QDBusArgument arg(var.value<QDBusArgument>());
+         if (arg.currentType() == QDBusArgument::MapType) {
+-            QVariantMap map;
++            QMultiMap<QString, QVariant> map;
+             arg >> map;
+             return map;
+         }
+diff --git a/plugins/Utils/plugin.cpp b/plugins/Utils/plugin.cpp
+index b61f7b20e..9398e24be 100644
+--- a/plugins/Utils/plugin.cpp
++++ b/plugins/Utils/plugin.cpp
+@@ -69,7 +69,11 @@ void UtilsPlugin::registerTypes(const char *uri)
+ {
+     Q_ASSERT(uri == QLatin1String("Utils"));
+     qmlRegisterType<WindowInputMonitor>(uri, 0, 1, "WindowInputMonitor");
++#if QT_VERSION >= QT_VERSION_CHECK(5, 14, 0)
++    qmlRegisterAnonymousType<QAbstractItemModel>(uri, 0);
++#else
+     qmlRegisterType<QAbstractItemModel>();
++#endif
+     qmlRegisterType<QLimitProxyModelQML>(uri, 0, 1, "LimitProxyModel");
+     qmlRegisterType<LomiriSortFilterProxyModelQML>(uri, 0, 1, "LomiriSortFilterProxyModel");
+     qmlRegisterType<LomiriMenuModelPaths>(uri, 0, 1, "LomiriMenuModelPaths");
+diff --git a/plugins/Utils/qvariantlistmodel.cpp b/plugins/Utils/qvariantlistmodel.cpp
+index 2c88a9d3d..731e6501d 100644
+--- a/plugins/Utils/qvariantlistmodel.cpp
++++ b/plugins/Utils/qvariantlistmodel.cpp
+@@ -87,9 +87,8 @@
+ QVariantListModel::QVariantListModel(QObject *parent) :
+         QAbstractListModel(parent)
+ {
+-    QHash<int, QByteArray> roles(roleNames());
++    roles = roleNames();
+     roles[Qt::DisplayRole] = "modelData";
+-    setRoleNames(roles);
+ }
+ 
+ /*!
+@@ -100,9 +99,8 @@ QVariantListModel::QVariantListModel(QObject *parent) :
+ QVariantListModel::QVariantListModel(const QVariantList &list, QObject *parent) :
+         QAbstractListModel(parent), lst(list)
+ {
+-    QHash<int, QByteArray> roles(roleNames());
++    roles = roleNames();
+     roles[Qt::DisplayRole] = "modelData";
+-    setRoleNames(roles);
+ }
+ 
+ QVariantListModel::~QVariantListModel() {
+@@ -267,3 +265,8 @@ void QVariantListModel::setVariantList(const QVariantList &list)
+                 QAbstractListModel::index(size - 1));
+     }
+ }
++
++QHash<int, QByteArray> QVariantListModel::roleNames() const
++{
++    return roles;
++}
+\ No newline at end of file
+diff --git a/plugins/Utils/qvariantlistmodel.h b/plugins/Utils/qvariantlistmodel.h
+index 2606817ae..7aadbb58f 100644
+--- a/plugins/Utils/qvariantlistmodel.h
++++ b/plugins/Utils/qvariantlistmodel.h
+@@ -66,8 +66,11 @@ public:
+     QVariantList variantList() const;
+     void setVariantList(const QVariantList &list);
+ 
++    QHash<int, QByteArray> roleNames() const override;
++
+ private:
+     QVariantList lst;
++    QHash<int, QByteArray> roles;
+ };
+ 
+ 
+diff --git a/plugins/WindowManager/TopLevelWindowModel.h b/plugins/WindowManager/TopLevelWindowModel.h
+index aeceb8aef..254ce75a0 100644
+--- a/plugins/WindowManager/TopLevelWindowModel.h
++++ b/plugins/WindowManager/TopLevelWindowModel.h
+@@ -135,7 +135,11 @@ public:
+     lomiri::shell::application::MirSurfaceInterface* inputMethodSurface() const;
+     Window* focusedWindow() const;
+ 
++#if QT_VERSION >= QT_VERSION_CHECK(5, 14, 0)
++    int nextId() const { return m_nextId.loadRelaxed(); }
++#else
+     int nextId() const { return m_nextId.load(); }
++#endif
+ 
+ public:
+     /**
+diff --git a/src/DisplayConfigurationStorage.cpp b/src/DisplayConfigurationStorage.cpp
+index d1e98a5c0..0e1ac8263 100644
+--- a/src/DisplayConfigurationStorage.cpp
++++ b/src/DisplayConfigurationStorage.cpp
+@@ -86,7 +86,11 @@ bool DisplayConfigurationStorage::load(const miral::DisplayId &displayId, miral:
+ 
+             if (jsonMode.contains("size") && jsonMode.contains("refresh_rate")) {
+                 QString sz(jsonMode["size"].toString());
++#if QT_VERSION >= QT_VERSION_CHECK(5, 14, 0)
++                QStringList geo = sz.split("x", Qt::SkipEmptyParts);
++#else
+                 QStringList geo = sz.split("x", QString::SkipEmptyParts);
++#endif
+                 if (geo.count() == 2) {
+                     miral::DisplayConfigurationOptions::DisplayMode mode;
+                     mode.size = mir::geometry::Size(geo[0].toInt(), geo[1].toInt());
+diff --git a/src/main.cpp b/src/main.cpp
+index 8497c57cf..d067e2863 100644
+--- a/src/main.cpp
++++ b/src/main.cpp
+@@ -31,10 +31,8 @@ int main(int argc, const char *argv[])
+ {
+     qSetMessagePattern("[%{time yyyy-MM-dd:hh:mm:ss.zzz}] %{if-category}%{category}: %{endif}%{message}");
+ 
+-    bool isMirServer = qgetenv("QT_QPA_PLATFORM") ==  "mirserver";
+     if (qgetenv("QT_QPA_PLATFORM") == "lomirimirclient" || qgetenv("QT_QPA_PLATFORM") == "wayland") {
+         setenv("QT_QPA_PLATFORM", "mirserver", 1 /* overwrite */);
+-        isMirServer = true;
+ 
+         qInfo("Using mirserver qt platform");
+     }
+diff --git a/tests/mocks/Lomiri/InputInfo/plugin.cpp b/tests/mocks/Lomiri/InputInfo/plugin.cpp
+index aaf7401fe..850ad4368 100644
+--- a/tests/mocks/Lomiri/InputInfo/plugin.cpp
++++ b/tests/mocks/Lomiri/InputInfo/plugin.cpp
+@@ -24,9 +24,8 @@
+ #include "qdeclarativeinputdevicemodel_p.h"
+ #include "mockcontroller.h"
+ 
+-static QObject *backendProvider(QQmlEngine *engine, QJSEngine *scriptEngine)
++static QObject *backendProvider(QQmlEngine* /* engine */, QJSEngine* /* scriptEngine */)
+ {
+-    Q_UNUSED(scriptEngine)
+     return MockController::instance();
+ }
+ 
+diff --git a/tests/mocks/Lomiri/Launcher/MockAppDrawerModel.cpp b/tests/mocks/Lomiri/Launcher/MockAppDrawerModel.cpp
+index bc85402e9..f8d50f75c 100644
+--- a/tests/mocks/Lomiri/Launcher/MockAppDrawerModel.cpp
++++ b/tests/mocks/Lomiri/Launcher/MockAppDrawerModel.cpp
+@@ -20,6 +20,7 @@
+ #include <QDebug>
+ #include <QDateTime>
+ #include <QTimer>
++#include <QRandomGenerator>
+ 
+ MockAppDrawerModel::MockAppDrawerModel(QObject *parent):
+     AppDrawerModelInterface(parent),
+@@ -51,8 +52,6 @@ MockAppDrawerModel::MockAppDrawerModel(QObject *parent):
+     m_list.append(item);
+     item = new MockLauncherItem("libreoffice", "/usr/share/applications/libreoffice.desktop","Libre Office Writer", "libreoffice", this);
+     m_list.append(item);
+-
+-    qsrand(QDateTime::currentMSecsSinceEpoch() / 1000);
+ }
+ 
+ int MockAppDrawerModel::rowCount(const QModelIndex & /*parent*/) const
+@@ -70,7 +69,7 @@ QVariant MockAppDrawerModel::data(const QModelIndex &index, int role) const
+     case RoleIcon:
+         return m_list.at(index.row())->icon();
+     case RoleUsage:
+-        return qrand();
++        return QRandomGenerator::global()->generate();
+     }
+ 
+     return QVariant();
+diff --git a/tests/mocks/QtMultimedia/mediaplayer.cpp b/tests/mocks/QtMultimedia/mediaplayer.cpp
+index 77529b19b..76157438f 100644
+--- a/tests/mocks/QtMultimedia/mediaplayer.cpp
++++ b/tests/mocks/QtMultimedia/mediaplayer.cpp
+@@ -20,6 +20,7 @@
+ 
+ #include <QDebug>
+ #include <QSize>
++#include <QRandomGenerator>
+ 
+ class MetaDataObject: public QObject
+ {
+@@ -56,7 +57,6 @@ MediaPlayer::MediaPlayer(QObject* parent)
+     , m_metaData(new MetaDataObject(this))
+     , m_playlist(nullptr)
+ {
+-    qsrand(time(nullptr));
+     m_timer.setInterval(100);
+     connect(&m_timer, &QTimer::timeout, this, &MediaPlayer::processTimer);
+ 
+@@ -231,7 +231,7 @@ QObject *MediaPlayer::metaData() const
+ MediaDataSource::MediaDataSource(QObject *parent)
+     : QObject(parent)
+     , m_seekable(true)
+-    , m_duration((qrand() % 20000) + 10000)
++    , m_duration((QRandomGenerator::global()->generate() % 20000) + 10000)
+     , m_availability(MediaPlayer::Available)
+ {
+ }
+diff --git a/tests/mocks/Utils/plugin.cpp b/tests/mocks/Utils/plugin.cpp
+index b9e48f386..6ec741c51 100644
+--- a/tests/mocks/Utils/plugin.cpp
++++ b/tests/mocks/Utils/plugin.cpp
+@@ -69,7 +69,11 @@ static QObject *createGlobalFunctions(QQmlEngine *engine, QJSEngine *scriptEngin
+ void FakeUtilsPlugin::registerTypes(const char *uri)
+ {
+     Q_ASSERT(uri == QLatin1String("Utils"));
++#if QT_VERSION >= QT_VERSION_CHECK(5, 14, 0)
++    qmlRegisterAnonymousType<QAbstractItemModel>(uri, 0);
++#else
+     qmlRegisterType<QAbstractItemModel>();
++#endif
+     qmlRegisterType<QLimitProxyModelQML>(uri, 0, 1, "LimitProxyModel");
+     qmlRegisterType<LomiriSortFilterProxyModelQML>(uri, 0, 1, "LomiriSortFilterProxyModel");
+     qmlRegisterType<LomiriMenuModelPaths>(uri, 0, 1, "LomiriMenuModelPaths");
+diff --git a/tests/mocks/WindowManager/MockScreens.cpp b/tests/mocks/WindowManager/MockScreens.cpp
+index 40f968b96..03711689b 100644
+--- a/tests/mocks/WindowManager/MockScreens.cpp
++++ b/tests/mocks/WindowManager/MockScreens.cpp
+@@ -96,9 +96,12 @@ public:
+     uint currentModeIndex() const override { return m_currentModeIndex; }
+     bool isActive() const override { return m_active; }
+ 
++#pragma GCC diagnostic push
++#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+     QQmlListProperty<qtmir::ScreenMode> availableModes() override {
+         return QQmlListProperty<qtmir::ScreenMode>(this, m_sizes);
+     }
++#pragma GCC diagnostic pop
+ 
+     void setActive(bool active) override {
+         if (m_active != active) {
+diff --git a/tests/mocks/liblightdm/MockSessionsModel.cpp b/tests/mocks/liblightdm/MockSessionsModel.cpp
+index 269c772ec..0909b82f3 100644
+--- a/tests/mocks/liblightdm/MockSessionsModel.cpp
++++ b/tests/mocks/liblightdm/MockSessionsModel.cpp
+@@ -43,7 +43,6 @@ SessionsModel::SessionsModel(QObject* parent)
+     d->roleNames = QAbstractListModel::roleNames();
+     d->roleNames[KeyRole] = "key";
+     d->roleNames[TypeRole] = "type";
+-    setRoleNames(d->roleNames);
+ 
+     connect(MockController::instance(), &MockController::sessionModeChanged,
+             this, &SessionsModel::resetEntries);
+diff --git a/tests/mocks/liblightdm/MockUsersModel.cpp b/tests/mocks/liblightdm/MockUsersModel.cpp
+index cb5a84d1a..7e3ae5942 100644
+--- a/tests/mocks/liblightdm/MockUsersModel.cpp
++++ b/tests/mocks/liblightdm/MockUsersModel.cpp
+@@ -46,24 +46,26 @@ class UsersModelPrivate
+ {
+ public:
+     QList<Entry> entries;
++    QHash<int, QByteArray> roles;
+ };
+ 
+ UsersModel::UsersModel(QObject *parent)
+     : QAbstractListModel(parent)
+     , d_ptr(new UsersModelPrivate)
+ {
++    Q_D(UsersModel);
++
+     // Extend roleNames (we want to keep the "display" role)
+-    QHash<int, QByteArray> roles = roleNames();
+-    roles[NameRole] = "name";
+-    roles[RealNameRole] = "realName";
+-    roles[LoggedInRole] = "loggedIn";
+-    roles[BackgroundRole] = "background";
+-    roles[BackgroundPathRole] = "backgroundPath";
+-    roles[SessionRole] = "session";
+-    roles[HasMessagesRole] = "hasMessages";
+-    roles[ImagePathRole] = "imagePath";
+-    roles[UidRole] = "uid";
+-    setRoleNames(roles);
++    d->roles = roleNames();
++    d->roles[NameRole] = "name";
++    d->roles[RealNameRole] = "realName";
++    d->roles[LoggedInRole] = "loggedIn";
++    d->roles[BackgroundRole] = "background";
++    d->roles[BackgroundPathRole] = "backgroundPath";
++    d->roles[SessionRole] = "session";
++    d->roles[HasMessagesRole] = "hasMessages";
++    d->roles[ImagePathRole] = "imagePath";
++    d->roles[UidRole] = "uid";
+ 
+     connect(MockController::instance(), &MockController::hasGuestAccountHintChanged,
+             this, &UsersModel::resetEntries);
+@@ -217,4 +219,11 @@ void UsersModel::resetEntries()
+     endResetModel();
+ }
+ 
++QHash<int, QByteArray> UsersModel::roleNames() const
++{
++    Q_D(const UsersModel);
++
++    return d->roles;
++}
++
+ }
+diff --git a/tests/mocks/liblightdm/MockUsersModel.h b/tests/mocks/liblightdm/MockUsersModel.h
+index ac4442c0a..2d3556cc0 100644
+--- a/tests/mocks/liblightdm/MockUsersModel.h
++++ b/tests/mocks/liblightdm/MockUsersModel.h
+@@ -47,6 +47,7 @@ public:
+ 
+     int rowCount(const QModelIndex &parent) const override;
+     QVariant data(const QModelIndex &index, int role) const override;
++    QHash<int, QByteArray> roleNames() const override;
+ 
+     void setCurrentSessionName(const QString &sessionName, const QString &username);
+ 
+diff --git a/tests/plugins/GlobalShortcut/GlobalShortcutTest.cpp b/tests/plugins/GlobalShortcut/GlobalShortcutTest.cpp
+index c75c6e89b..db93b73db 100644
+--- a/tests/plugins/GlobalShortcut/GlobalShortcutTest.cpp
++++ b/tests/plugins/GlobalShortcut/GlobalShortcutTest.cpp
+@@ -39,7 +39,7 @@ private Q_SLOTS:
+         QVERIFY(m_inactiveShortcut);
+         m_view->show();
+         m_view->requestActivate();
+-        QTest::qWaitForWindowExposed(m_view);
++        Q_UNUSED(QTest::qWaitForWindowExposed(m_view);)
+     }
+ 
+     void cleanupTestCase()
+diff --git a/tests/plugins/LightDM/IntegratedLightDM/dbus.cpp b/tests/plugins/LightDM/IntegratedLightDM/dbus.cpp
+index 81789407c..5b5efaebe 100644
+--- a/tests/plugins/LightDM/IntegratedLightDM/dbus.cpp
++++ b/tests/plugins/LightDM/IntegratedLightDM/dbus.cpp
+@@ -65,7 +65,7 @@ private Q_SLOTS:
+         QVERIFY(greeter);
+         QVERIFY(greeter->authenticationUser() == "");
+         view->show();
+-        QTest::qWaitForWindowExposed(view);
++        Q_UNUSED(QTest::qWaitForWindowExposed(view));
+ 
+         dbusMain = new QDBusInterface("com.lomiri.LomiriGreeter",
+                                       "/com/lomiri/LomiriGreeter",
+diff --git a/tests/plugins/Lomiri/Gestures/tst_PressedOutsideNotifier.cpp b/tests/plugins/Lomiri/Gestures/tst_PressedOutsideNotifier.cpp
+index 8edb3bbe4..2ceade7a3 100644
+--- a/tests/plugins/Lomiri/Gestures/tst_PressedOutsideNotifier.cpp
++++ b/tests/plugins/Lomiri/Gestures/tst_PressedOutsideNotifier.cpp
+@@ -101,13 +101,20 @@ void tst_PressedOutsideNotifier::mousePressOutsideAreaTriggersSignal()
+ 
+     QSignalSpy pressedOutsideSpy(m_notifier, &PressedOutsideNotifier::pressedOutside);
+ 
++    // Silly gcc thinks this is using the depricated QFlag (with the same name)....
++#pragma GCC diagnostic push
++#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+     QTest::mousePress(m_view, Qt::LeftButton, 0 /*modifiers*/, mousePos);
++#pragma GCC diagnostic pop
+ 
+     qApp->processEvents();
+ 
+     QCOMPARE(pressedOutsideSpy.count(), 1);
+ 
++#pragma GCC diagnostic push
++#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+     QTest::mouseRelease(m_view, Qt::LeftButton, 0 /*modifiers*/, mousePos);
++#pragma GCC diagnostic pop
+ }
+ 
+ void tst_PressedOutsideNotifier::mousePresssInsideAreaHasNoEffect()
+@@ -117,13 +124,19 @@ void tst_PressedOutsideNotifier::mousePresssInsideAreaHasNoEffect()
+ 
+     QSignalSpy pressedOutsideSpy(m_notifier, &PressedOutsideNotifier::pressedOutside);
+ 
++#pragma GCC diagnostic push
++#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+     QTest::mousePress(m_view, Qt::LeftButton, 0 /*modifiers*/, mousePos);
++#pragma GCC diagnostic pop
+ 
+     qApp->processEvents();
+ 
+     QCOMPARE(pressedOutsideSpy.count(), 0);
+ 
++#pragma GCC diagnostic push
++#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+     QTest::mouseRelease(m_view, Qt::LeftButton, 0 /*modifiers*/, mousePos);
++#pragma GCC diagnostic pop
+ }
+ 
+ void tst_PressedOutsideNotifier::nothingHappensWhileDisabled()
+diff --git a/tests/plugins/Utils/WindowInputMonitorTest.cpp b/tests/plugins/Utils/WindowInputMonitorTest.cpp
+index 273b7921e..124f0126f 100644
+--- a/tests/plugins/Utils/WindowInputMonitorTest.cpp
++++ b/tests/plugins/Utils/WindowInputMonitorTest.cpp
+@@ -18,7 +18,7 @@
+ 
+ #include <QTest>
+ #include <QSignalSpy>
+-
++#include <QRandomGenerator>
+ 
+ namespace LomiriUtil {
+ class FakeElapsedTimer : public AbstractElapsedTimer {
+@@ -29,7 +29,7 @@ public:
+ 
+     void start() override { m_msecsSinceReference = msecsSinceEpoch; m_valid = true; }
+     qint64 msecsSinceReference() const override { return m_msecsSinceReference; }
+-    qint64 elapsed() const override { return m_valid ? msecsSinceEpoch - m_msecsSinceReference : qrand(); }
++    qint64 elapsed() const override { return m_valid ? msecsSinceEpoch - m_msecsSinceReference : QRandomGenerator::global()->generate(); }
+ 
+ private:
+     qint64 m_msecsSinceReference{0};

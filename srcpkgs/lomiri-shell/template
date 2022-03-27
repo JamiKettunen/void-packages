@@ -1,0 +1,75 @@
+# Template file for 'lomiri-shell'
+pkgname=lomiri-shell
+version=0.1r18743
+revision=1
+_commit=0c22fb13e749fcf190abdffa71e6acf715dfd733 # tip of main branch as of 2022-03-27
+wrksrc="lomiri-${_commit}"
+build_style=cmake
+configure_args="-DUSE_SYSTEMD=0 -DUSE_DEBIAN_CHANGELOG_VERSION=OFF
+ -DUSE_USERMETRICS=$(vopt_if usermetrics 1 0)"
+# TODO: liblomiri-api-devel should only be needed on target?!
+hostmakedepends="pkg-config qt5-host-tools qt5-qmake ubports-cmake-extras gettext
+ liblomiri-api-devel"
+makedepends="qt5-devel qt5-declarative-devel qt5-plugin-mysql qt5-plugin-odbc
+ qt5-plugin-pgsql qt5-plugin-sqlite qt5-plugin-tds qt5-svg-devel
+ liblomiri-api-devel qtmir-devel libgeonames-devel glib-devel lomiri-app-launch-devel
+ gnome-desktop-devel mir1-devel libqmenumodel-devel lomiri-ui-toolkit-devel
+ lomiri-deviceinfo-devel lomiri-system-settings-devel lomiri-indicator-network-devel
+ gsettings-qt-devel lightdm-devel lomiri-download-manager-devel libevdev-devel pam-devel
+ $(vopt_if usermetrics 'libusermetrics-devel')"
+checkdepends="libqtdbustest-devel libqtdbusmock-devel dbus-test-runner dbus python3-dbusmock
+ gdb xvfb-run glm boost-devel"
+# NOTE: for more dependencies see the lomiri meta-package
+depends="gsettings-qt lomiri-schemas lomiri-notifications biometryd qt5-graphicaleffects
+ lomiri-settings-components lomiri-thumbnailer hfd-service void-artwork"
+short_desc="A convergent shell by UBports"
+maintainer="Jami Kettunen <jami.kettunen@protonmail.com>"
+license="GPL-3.0-only, LGPL-2.1-only"
+homepage="https://lomiri.com"
+distfiles="https://gitlab.com/ubports/core/lomiri/-/archive/${_commit}.tar.gz"
+checksum=538400c2a1e07c1ca722784f48d374994e90e7cc95ba98d3f30320d3738f8ed0
+
+build_options="usermetrics"
+desc_option_usermetrics="Enable support for collection of anonymous metrics about users"
+
+if [ -z "$XBPS_CHECK_PKGS" ] || [ "$CROSS_BUILD" ]; then
+	configure_args+=" -DNO_TESTS=ON"
+fi
+
+# FIXME: this wouldn't be needed if CMakeLists.txt defined a version
+#        (instead of data/CMakeLists.txt parsing it from debian/changelog with dpkg-parsechangelog)...
+#        what is this version even used for anyway?
+pre_install() {
+	echo "${version%r*}" > build/data/version
+}
+
+lomiri-shell-devel_package() {
+	short_desc+=" - development files"
+	depends="${sourcepkg}>=${version}_${revision}"
+	pkg_install() {
+		vmove "usr/lib/*.so"
+	}
+}
+
+# CROSS BUILD FIXME:
+#FAILED: plugins/Lomiri/Launcher/CMakeFiles/LomiriLauncher-qml.dir/LomiriLauncher-qml_autogen/mocs_compilation.cpp.o 
+#/builddir/.xbps-lomiri-shell/wrappers/aarch64-linux-musl-c++ -DLOMIRI_ENABLE_TOUCH_EMULATION -DLomiriLauncher_qml_EXPORTS -DQT_CONCURRENT_LIB -DQT_CORE_LIB -DQT_DBUS_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_NO_DEBUG -DQT_NO_KEYWORDS -DQT_QML_LIB -DQT_STRICT_ITERATORS -DQT_USE_QSTRINGBUILDER -DSM_BUSNAME=systemBus -DUSE_USERMETRICS=0 -I/builddir/lomiri-676b54931fc659ffbbcd249225f5808719b5a189/build/plugins/Lomiri/Launcher/LomiriLauncher-qml_autogen/include -I/builddir/lomiri-676b54931fc659ffbbcd249225f5808719b5a189/include -I/builddir/lomiri-676b54931fc659ffbbcd249225f5808719b5a189/build/include -I/builddir/lomiri-676b54931fc659ffbbcd249225f5808719b5a189/plugins/Lomiri/Launcher -I/builddir/lomiri-676b54931fc659ffbbcd249225f5808719b5a189/plugins/AccountsService -I/builddir/lomiri-676b54931fc659ffbbcd249225f5808719b5a189/src/liblomiri-private -I /usr/aarch64-linux-musl/usr/include/qt5/QtCore -I /usr/aarch64-linux-musl/usr/include/qt5 -I /usr/aarch64-linux-musl/usr/include/qt5/QGSettings -I /usr/aarch64-linux-musl/usr/include/glib-2.0 -I /usr/aarch64-linux-musl/usr/lib64/glib-2.0/include -I /usr/aarch64-linux-musl/usr/include/liblomiri-app-launch-0 -I /usr/aarch64-linux-musl/usr/include/mirclient -I /usr/aarch64-linux-musl/usr/include/mircookie -I /usr/aarch64-linux-musl/usr/include/mircore -I /usr/aarch64-linux-musl/usr/include/qt5/QtDBus -I /usr/aarch64-linux-musl/usr/../usr/lib/qt5/mkspecs/linux-g++ -I /usr/aarch64-linux-musl/usr/include/qt5/QtQml -I /usr/aarch64-linux-musl/usr/include/qt5/QtNetwork -I /usr/aarch64-linux-musl/usr/include/qt5/QtGui -I /usr/aarch64-linux-musl/usr/include/qt5/QtConcurrent -DNDEBUG -fstack-clash-protection -D_FORTIFY_SOURCE=2 -O2 -march=armv8-a   -I/usr/aarch64-linux-musl/usr/include -fdebug-prefix-map=/builddir/lomiri-676b54931fc659ffbbcd249225f5808719b5a189=. -Wsuggest-override -fvisibility=hidden -fno-permissive -pedantic -Wall -Wextra -fPIC -fPIC -std=gnu++14 -MD -MT plugins/Lomiri/Launcher/CMakeFiles/LomiriLauncher-qml.dir/LomiriLauncher-qml_autogen/mocs_compilation.cpp.o -MF plugins/Lomiri/Launcher/CMakeFiles/LomiriLauncher-qml.dir/LomiriLauncher-qml_autogen/mocs_compilation.cpp.o.d -o plugins/Lomiri/Launcher/CMakeFiles/LomiriLauncher-qml.dir/LomiriLauncher-qml_autogen/mocs_compilation.cpp.o -c /builddir/lomiri-676b54931fc659ffbbcd249225f5808719b5a189/build/plugins/Lomiri/Launcher/LomiriLauncher-qml_autogen/mocs_compilation.cpp
+#In file included from plugins/Lomiri/Launcher/LomiriLauncher-qml_autogen/XRTVWPJ4RW/moc_AppDrawerModelInterface.cpp:10,
+#                 from plugins/Lomiri/Launcher/LomiriLauncher-qml_autogen/mocs_compilation.cpp:17:
+#plugins/Lomiri/Launcher/LomiriLauncher-qml_autogen/XRTVWPJ4RW/../../../../../../../../usr/include/lomiri/shell/launcher/AppDrawerModelInterface.h:32:18: error: redefinition of 'class lomiri::shell::launcher::AppDrawerModelInterface'
+#   32 | class LOMIRI_API AppDrawerModelInterface: public QAbstractListModel
+#      |                  ^~~~~~~~~~~~~~~~~~~~~~~
+#In file included from plugins/Lomiri/Launcher/LomiriLauncher-qml_autogen/EWIEGA46WW/../../../../../../plugins/Lomiri/Launcher/appdrawermodel.h:20,
+#                 from plugins/Lomiri/Launcher/LomiriLauncher-qml_autogen/EWIEGA46WW/moc_appdrawermodel.cpp:10,
+#                 from plugins/Lomiri/Launcher/LomiriLauncher-qml_autogen/mocs_compilation.cpp:3:
+#/usr/aarch64-linux-musl/usr/include/lomiri/shell/launcher/AppDrawerModelInterface.h:32:18: note: previous definition of 'class lomiri::shell::launcher::AppDrawerModelInterface'
+#   32 | class LOMIRI_API AppDrawerModelInterface: public QAbstractListModel
+#      |                  ^~~~~~~~~~~~~~~~~~~~~~~
+
+# FIXME:
+# - checkdepends: massive CMake spam if gdb or xvfb-run run not found
+#   - look for glm & boost (filesystem, system)
+
+# TODO:
+# - drop packaged /usr/var/lib/lomiri/version if nothing reads it? (data/CMakeLists.txt:27)
+# - look for pam-devel pc (security/pam_appl.h) in CMakeLists.txt

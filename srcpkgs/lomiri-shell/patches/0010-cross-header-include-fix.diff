@@ -1,0 +1,13 @@
+diff --git a/plugins/Lomiri/Gestures/PressedOutsideNotifier.h b/plugins/Lomiri/Gestures/PressedOutsideNotifier.h
+index ef6afc697..fdfa52389 100644
+--- a/plugins/Lomiri/Gestures/PressedOutsideNotifier.h
++++ b/plugins/Lomiri/Gestures/PressedOutsideNotifier.h
+@@ -23,7 +23,7 @@
+ #include <QPointer>
+ #include <QTimer>
+ 
+-#include <lomirigesturesglobal.h>
++#include <LomiriGestures/lomirigesturesglobal.h>
+ 
+ /*
+    Notifies when a point, mouse or touch, is pressed outside its area.

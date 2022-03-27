@@ -1,0 +1,15 @@
+Fixes missing uid_t errors under musl
+---
+diff --git a/plugins/LightDM/IntegratedLightDM/liblightdm/UsersModelPrivate.h b/plugins/LightDM/IntegratedLightDM/liblightdm/UsersModelPrivate.h
+index de1b565d5..b0ccd8dc3 100644
+--- a/plugins/LightDM/IntegratedLightDM/liblightdm/UsersModelPrivate.h
++++ b/plugins/LightDM/IntegratedLightDM/liblightdm/UsersModelPrivate.h
+@@ -19,6 +19,8 @@
+ #ifndef LOMIRI_MOCK_USERSMODEL_PRIVATE_H
+ #define LOMIRI_MOCK_USERSMODEL_PRIVATE_H
+ 
++#include <unistd.h>
++
+ #include <QList>
+ #include <QObject>
+ #include <QString>

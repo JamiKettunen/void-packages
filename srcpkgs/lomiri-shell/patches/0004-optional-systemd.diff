@@ -1,0 +1,82 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index ad924ffbb..cab82f2cb 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -138,6 +138,8 @@ if (Werror)
+     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror")
+ endif()
+ 
++option(USE_SYSTEMD "Build against libsystemd" 1)
++
+ # gtk and lomiri-core (actually sigc++) do not like Qt defining macros named
+ # "signals" and "slots"
+ add_definitions(-DQT_NO_KEYWORDS)
+diff --git a/data/CMakeLists.txt b/data/CMakeLists.txt
+index 06abd21f9..d838cd3b4 100644
+--- a/data/CMakeLists.txt
++++ b/data/CMakeLists.txt
+@@ -24,4 +24,6 @@ add_custom_target(pkgversion ALL COMMAND dpkg-parsechangelog -l${CMAKE_SOURCE_DI
+ 
+ install(FILES ${CMAKE_CURRENT_BINARY_DIR}/version DESTINATION ${CMAKE_INSTALL_LOCALSTATEDIR}/lib/lomiri)
+ 
+-add_subdirectory(systemd-user)
++if(USE_SYSTEMD)
++    add_subdirectory(systemd-user)
++endif()
+diff --git a/src/CMakeLists.txt b/src/CMakeLists.txt
+index ac03204b6..c3558fbd7 100644
+--- a/src/CMakeLists.txt
++++ b/src/CMakeLists.txt
+@@ -43,14 +43,18 @@ if (ENABLE_TOUCH_EMULATION)
+     set(SOURCE_FILES ${SOURCE_FILES} MouseTouchAdaptor.cpp)
+ endif()
+ 
+-pkg_check_modules(SYSTEMD REQUIRED libsystemd)
++if(USE_SYSTEMD)
++    pkg_check_modules(SYSTEMD REQUIRED libsystemd)
+ 
+-include_directories(
+-    ${SYSTEMD_INCLUDE_DIRS}
+-)
++    include_directories(
++        ${SYSTEMD_INCLUDE_DIRS}
++    )
++endif()
+ 
+ add_executable(${SHELL_APP} ${SOURCE_FILES})
+ 
++target_compile_definitions(${SHELL_APP} PRIVATE USE_SYSTEMD=${USE_SYSTEMD})
++
+ target_link_libraries(${SHELL_APP}
+     Qt5::DBus Qt5::Gui Qt5::Qml Qt5::Quick Qt5::Test
+     ${GSETTINGS_QT_LDFLAGS}
+diff --git a/src/main.cpp b/src/main.cpp
+index 8497c57cf..1badc68de 100644
+--- a/src/main.cpp
++++ b/src/main.cpp
+@@ -25,7 +25,9 @@
+ #include <QLocale>
+ #include <QTimer>
+ 
++#if USE_SYSTEMD
+ #include <systemd/sd-daemon.h>
++#endif
+ 
+ int main(int argc, const char *argv[])
+ {
+@@ -62,6 +64,7 @@ int main(int argc, const char *argv[])
+         application->installTranslator(&qtTranslator);
+     }
+ 
++#if USE_SYSTEMD
+     // When the event loop starts, signal systemd that we're ready.
+     // Shouldn't do anything if we're not under systemd or it's not waiting
+     // for our answer.
+@@ -75,6 +78,7 @@ int main(int argc, const char *argv[])
+         // I don't plan to call sd_notify() again.
+         qunsetenv("NOTIFY_SOCKET");
+     });
++#endif
+ 
+     int result = application->exec();
+ 
