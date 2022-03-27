@@ -1,0 +1,26 @@
+diff --git a/tests/CMakeLists.txt b/tests/CMakeLists.txt
+index 34e780a..ad07548 100644
+--- a/tests/CMakeLists.txt
++++ b/tests/CMakeLists.txt
+@@ -1,4 +1,4 @@
+-find_package(GMock)
++find_package(GTest REQUIRED)
+ 
+ add_subdirectory(data)
+ add_subdirectory(unit)
+diff --git a/tests/unit/CMakeLists.txt b/tests/unit/CMakeLists.txt
+index 34838a2..54dfec9 100644
+--- a/tests/unit/CMakeLists.txt
++++ b/tests/unit/CMakeLists.txt
+@@ -11,10 +11,7 @@ macro(declare_test test testname)
+     add_executable(${testname} ${testname}.cpp)
+     target_link_libraries(${testname}
+         ${TARGET}
+-
+-        ${GTEST_LIBRARIES}
+-        ${GTEST_BOTH_LIBRARIES}
+-        ${GMOCK_LIBRARIES}
++        GTest::gmock_main
+     )
+ 
+     if(TEST_XML_OUTPUT)
