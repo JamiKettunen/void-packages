@@ -1,0 +1,26 @@
+--- a/CMakeLists.txt.orig	2022-03-22 15:06:35.431806228 +0200
++++ b/CMakeLists.txt	2022-03-22 15:07:33.007805334 +0200
+@@ -142,6 +142,8 @@
+ 
+ option(USE_USERMETRICS "Enable support for collection of anonymous metrics about users" 1)
+ 
++option(USE_DEBIAN_CHANGELOG_VERSION "Enable usage of dpkg-parsechangelog to set output data/version value" 1)
++
+ add_definitions(-DUSE_USERMETRICS=${USE_USERMETRICS})
+ 
+ # gtk and lomiri-core (actually sigc++) do not like Qt defining macros named
+diff --git a/data/CMakeLists.txt b/data/CMakeLists.txt
+index 06abd21f9..4a1ceb3c9 100644
+--- a/data/CMakeLists.txt
++++ b/data/CMakeLists.txt
+@@ -20,7 +20,9 @@ install(FILES
+     DESTINATION ${CMAKE_INSTALL_DATADIR}/lightdm/lightdm.conf.d
+     )
+ 
+-add_custom_target(pkgversion ALL COMMAND dpkg-parsechangelog -l${CMAKE_SOURCE_DIR}/debian/changelog --show-field version > ${CMAKE_CURRENT_BINARY_DIR}/version)
++if(USE_DEBIAN_CHANGELOG_VERSION)
++    add_custom_target(pkgversion ALL COMMAND dpkg-parsechangelog -l${CMAKE_SOURCE_DIR}/debian/changelog --show-field version > ${CMAKE_CURRENT_BINARY_DIR}/version)
++endif()
+ 
+ install(FILES ${CMAKE_CURRENT_BINARY_DIR}/version DESTINATION ${CMAKE_INSTALL_LOCALSTATEDIR}/lib/lomiri)
+ 

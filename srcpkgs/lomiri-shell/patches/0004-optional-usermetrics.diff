@@ -1,0 +1,92 @@
+TODO: upstream!
+---
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index ad924ffbb..263405986 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -138,6 +138,10 @@ if (Werror)
+     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror")
+ endif()
+ 
++option(USE_USERMETRICS "Enable support for collection of anonymous metrics about users" 1)
++
++add_definitions(-DUSE_USERMETRICS=${USE_USERMETRICS})
++
+ # gtk and lomiri-core (actually sigc++) do not like Qt defining macros named
+ # "signals" and "slots"
+ add_definitions(-DQT_NO_KEYWORDS)
+diff --git a/plugins/LightDM/CMakeLists.txt b/plugins/LightDM/CMakeLists.txt
+index aa27e12be..bdec46953 100644
+--- a/plugins/LightDM/CMakeLists.txt
++++ b/plugins/LightDM/CMakeLists.txt
+@@ -1,4 +1,6 @@
+-pkg_check_modules(LIBUSERMETRICSOUTPUT REQUIRED libusermetricsoutput-1)
++if(USE_USERMETRICS)
++    pkg_check_modules(LIBUSERMETRICSOUTPUT REQUIRED libusermetricsoutput-1)
++endif()
+ 
+ find_package(Qt5Core REQUIRED)
+ find_package(Qt5Quick REQUIRED)
+diff --git a/plugins/LightDM/IntegratedLightDM/liblightdm/CMakeLists.txt b/plugins/LightDM/IntegratedLightDM/liblightdm/CMakeLists.txt
+index 493122652..8f31da695 100644
+--- a/plugins/LightDM/IntegratedLightDM/liblightdm/CMakeLists.txt
++++ b/plugins/LightDM/IntegratedLightDM/liblightdm/CMakeLists.txt
+@@ -1,4 +1,6 @@
+-pkg_check_modules(LIBUSERMETRICSOUTPUT REQUIRED libusermetricsoutput-1)
++if(USE_USERMETRICS)
++    pkg_check_modules(LIBUSERMETRICSOUTPUT REQUIRED libusermetricsoutput-1)
++endif()
+ 
+ set(LibLightDM_SOURCES
+     Greeter.cpp
+diff --git a/plugins/LightDM/plugin.cpp b/plugins/LightDM/plugin.cpp
+index be28fa8fb..f86dae559 100644
+--- a/plugins/LightDM/plugin.cpp
++++ b/plugins/LightDM/plugin.cpp
+@@ -22,8 +22,10 @@
+ #include "PromptsModel.h"
+ #include "SessionsModel.h"
+ #include "UsersModel.h"
++#if USE_USERMETRICS
+ #include <libusermetricsoutput/ColorTheme.h>
+ #include <libusermetricsoutput/UserMetrics.h>
++#endif
+ #include <QLightDM/SessionsModel>
+ #include <QLightDM/UsersModel>
+ 
+@@ -67,21 +67,27 @@
+     return new UsersModel();
+ }
+ 
++#if USE_USERMETRICS
+ static QObject *infographic_provider(QQmlEngine *engine, QJSEngine *scriptEngine)
+ {
+     Q_UNUSED(engine)
+     Q_UNUSED(scriptEngine)
+     return UserMetricsOutput::UserMetrics::getInstance();
+ }
++#endif
+ 
+ void PLUGIN_CLASSNAME::registerTypes(const char *uri)
+ {
+ #if QT_VERSION >= QT_VERSION_CHECK(5, 14, 0)
+     qmlRegisterAnonymousType<QAbstractItemModel>(uri, 0);
++#if USE_USERMETRICS
+     qmlRegisterAnonymousType<UserMetricsOutput::ColorTheme>(uri, 0);
++#endif /* USE_USERMETRICS */
+ #else
+     qmlRegisterType<QAbstractItemModel>();
++#if USE_USERMETRICS
+     qmlRegisterType<UserMetricsOutput::ColorTheme>();
++#endif /* USE_USERMETRICS */
+ #endif
+ 
+ #if defined INTEGRATED_LIGHTDM
+@@ -95,5 +101,7 @@ void PLUGIN_CLASSNAME::registerTypes(const char *uri)
+     qmlRegisterSingletonType<UsersModel>(uri, 0, 1, "Users", users_provider);
+     qmlRegisterUncreatableType<QLightDM::UsersModel>(uri, 0, 1, "UserRoles", QStringLiteral("Type is not instantiable"));
+ 
++#if USE_USERMETRICS
+     qmlRegisterSingletonType<UserMetricsOutput::UserMetrics>(uri, 0, 1, "Infographic", infographic_provider);
++#endif
+ }

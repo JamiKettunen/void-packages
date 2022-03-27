@@ -1,0 +1,39 @@
+Fixes missing uid_t errors (and others) under musl:
+
+  In file included from plugins/LightDM/IntegratedLightDM/liblightdm/integratedLightDM_autogen/EWIEGA46WW/moc_UsersModelPrivate.cpp:10,
+                   from plugins/LightDM/IntegratedLightDM/liblightdm/integratedLightDM_autogen/mocs_compilation.cpp:6:
+  plugins/LightDM/IntegratedLightDM/liblightdm/integratedLightDM_autogen/EWIEGA46WW/../../../../../../../plugins/LightDM/IntegratedLightDM/liblightdm/UsersModelPrivate.h:44:5: error: 'uid_t' does not name a type; did you mean 'pid_t'?
+     44 |     uid_t uid;
+        |     ^~~~~
+        |     pid_t
+
+  ../tests/mocks/liblightdm/MockUsersModel.cpp:42:5: error: 'uid_t' does not name a type; did you mean 'pid_t'?
+     42 |     uid_t uid;
+        |     ^~~~~
+        |     pid_t
+---
+diff --git a/plugins/LightDM/IntegratedLightDM/liblightdm/UsersModelPrivate.h b/plugins/LightDM/IntegratedLightDM/liblightdm/UsersModelPrivate.h
+index de1b565d5..b0ccd8dc3 100644
+--- a/plugins/LightDM/IntegratedLightDM/liblightdm/UsersModelPrivate.h
++++ b/plugins/LightDM/IntegratedLightDM/liblightdm/UsersModelPrivate.h
+@@ -19,6 +19,8 @@
+ #ifndef LOMIRI_MOCK_USERSMODEL_PRIVATE_H
+ #define LOMIRI_MOCK_USERSMODEL_PRIVATE_H
+ 
++#include <unistd.h>
++
+ #include <QList>
+ #include <QObject>
+ #include <QString>
+diff --git a/tests/mocks/liblightdm/MockUsersModel.cpp b/tests/mocks/liblightdm/MockUsersModel.cpp
+index cb5a84d1a..49e6943b8 100644
+--- a/tests/mocks/liblightdm/MockUsersModel.cpp
++++ b/tests/mocks/liblightdm/MockUsersModel.cpp
+@@ -21,6 +21,7 @@
+ // set our compatibility to Qt4 here too.
+ #define QT_DISABLE_DEPRECATED_BEFORE QT_VERSION_CHECK(4, 0, 0)
+ 
++#include <sys/types.h>
+ #include "MockController.h"
+ #include "MockUsersModel.h"
+ #include <QDir>

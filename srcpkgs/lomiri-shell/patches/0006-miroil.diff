@@ -1,0 +1,97 @@
+
+---
+diff --git a/src/DisplayConfigurationStorage.cpp b/src/DisplayConfigurationStorage.cpp
+index d1e98a5c0..d2c80a3f1 100644
+--- a/src/DisplayConfigurationStorage.cpp
++++ b/src/DisplayConfigurationStorage.cpp
+@@ -23,7 +23,7 @@
+ 
+ namespace {
+ 
+-inline QString stringFromEdid(const miral::Edid& edid)
++inline QString stringFromEdid(const miroil::Edid& edid)
+ {
+     QString str;
+     str += QString::fromStdString(edid.vendor);
+@@ -41,7 +41,7 @@ DisplayConfigurationStorage::DisplayConfigurationStorage()
+ {
+ }
+ 
+-void DisplayConfigurationStorage::save(const miral::DisplayId &displayId, const miral::DisplayConfigurationOptions &options)
++void DisplayConfigurationStorage::save(const miroil::DisplayId &displayId, const miroil::DisplayConfigurationOptions &options)
+ {
+     const QString dbPath = QStandardPaths::writableLocation(QStandardPaths::GenericCacheLocation) + QStringLiteral("/lomiri/");
+     QFile f(dbPath + stringFromEdid(displayId.edid) + ".edid");
+@@ -69,7 +69,7 @@ void DisplayConfigurationStorage::save(const miral::DisplayId &displayId, const
+     }
+ }
+ 
+-bool DisplayConfigurationStorage::load(const miral::DisplayId &displayId, miral::DisplayConfigurationOptions &options) const
++bool DisplayConfigurationStorage::load(const miroil::DisplayId &displayId, miroil::DisplayConfigurationOptions &options) const
+ {
+     const QString dbPath = QStandardPaths::writableLocation(QStandardPaths::GenericCacheLocation) + QStringLiteral("/lomiri/");
+     QFile f(dbPath + stringFromEdid(displayId.edid) + ".edid");
+@@ -88,7 +88,7 @@ bool DisplayConfigurationStorage::load(const miral::DisplayId &displayId, miral:
+                 QString sz(jsonMode["size"].toString());
+                 QStringList geo = sz.split("x", QString::SkipEmptyParts);
+                 if (geo.count() == 2) {
+-                    miral::DisplayConfigurationOptions::DisplayMode mode;
++                    miroil::DisplayConfigurationOptions::DisplayMode mode;
+                     mode.size = mir::geometry::Size(geo[0].toInt(), geo[1].toInt());
+                     mode.refresh_rate = jsonMode["refresh_rate"].toDouble();
+                     options.mode = mode;
+diff --git a/src/DisplayConfigurationStorage.h b/src/DisplayConfigurationStorage.h
+index 1647d3db6..9ae9dd6a1 100644
+--- a/src/DisplayConfigurationStorage.h
++++ b/src/DisplayConfigurationStorage.h
+@@ -17,15 +17,15 @@
+ #ifndef LOMIRI_DISPLAYCONFIGURATIONSTORAGE_H
+ #define LOMIRI_DISPLAYCONFIGURATIONSTORAGE_H
+ 
+-#include <qtmir/miral/display_configuration_storage.h>
++#include <qtmir/miroil/display_configuration_storage.h>
+ 
+-class DisplayConfigurationStorage : public miral::DisplayConfigurationStorage
++class DisplayConfigurationStorage : public miroil::DisplayConfigurationStorage
+ {
+ public:
+     DisplayConfigurationStorage();
+ 
+-    void save(const miral::DisplayId& displayId, const miral::DisplayConfigurationOptions& options) override;
+-    bool load(const miral::DisplayId& displayId, miral::DisplayConfigurationOptions& options) const override;
++    void save(const miroil::DisplayId& displayId, const miroil::DisplayConfigurationOptions& options) override;
++    bool load(const miroil::DisplayId& displayId, miroil::DisplayConfigurationOptions& options) const override;
+ };
+ 
+ #endif // LOMIRI_DISPLAYCONFIGURATIONSTORAGE_H
+diff --git a/tests/mocks/WindowManager/MockScreens.cpp b/tests/mocks/WindowManager/MockScreens.cpp
+index 40f968b96..aa3f061d8 100644
+--- a/tests/mocks/WindowManager/MockScreens.cpp
++++ b/tests/mocks/WindowManager/MockScreens.cpp
+@@ -82,7 +82,7 @@ public:
+         }
+     }
+ 
+-    miral::DisplayId displayId() const override { return m_id; }
++    miroil::DisplayId displayId() const override { return m_id; }
+     bool used() const override { return m_used; }
+     QString name() const override { return m_name; }
+     float scale() const override { return m_scale; }
+@@ -141,7 +141,7 @@ Q_SIGNALS:
+     void outputTypeNameChanged();
+ 
+ public:
+-    miral::DisplayId m_id;
++    miroil::DisplayId m_id;
+     bool m_active{false};
+     bool m_used{true};
+     QString m_name;
+@@ -167,7 +167,7 @@ MockScreens::MockScreens()
+     QPoint lastPoint(0,0);
+     for (int i = 0; i < screenCount; ++i) {
+         auto screen = new MockScreen();
+-        screen->m_id.output_id = miral::OutputId{i};
++        screen->m_id.output_id = miroil::OutputId{i};
+         screen->m_active = i == 0;
+         screen->m_name = QString("Monitor %1").arg(i);
+         screen->m_position = QPoint(lastPoint.x(), lastPoint.y());
