@@ -1,0 +1,30 @@
+# Template file for 'ayatana-indicator-display'
+pkgname=ayatana-indicator-display
+version=22.2.0
+revision=1
+build_style=cmake
+hostmakedepends="pkg-config ubports-cmake-extras intltool"
+makedepends="libayatana-common-devel glib-devel libgudev-devel properties-cpp qt5-devel"
+checkdepends="gtest-devel libqtdbustest-devel libqtdbusmock-devel python3-dbusmock cppcheck"
+short_desc="The display menu indicator for Lomiri"
+maintainer="Jami Kettunen <jami.kettunen@protonmail.com>"
+license="GPL-3.0-only"
+homepage="https://github.com/AyatanaIndicators/ayatana-indicator-display"
+changelog="https://raw.githubusercontent.com/AyatanaIndicators/ayatana-indicator-display/main/ChangeLog"
+distfiles="https://github.com/AyatanaIndicators/ayatana-indicator-display/archive/refs/tags/${version}.tar.gz"
+checksum=1f1a84fd608696e42ef0352f1f26c19200c9360144bcdb6951b17b5581035748
+
+# FIXME: race condition?! haven't been able to reproduce this though now with tests enabled...
+#[ 88%] Generating gschemas.compiled
+#cp: cannot create regular file '/builddir/ayatana-indicator-display-22.2.0/build/tests/unit/gsettings-schemas/glib-2.0/schemas/org.ayatana.display.gschema.xml': File exists
+#make[2]: *** [tests/unit/CMakeFiles/adbd-client-test.dir/build.make:75: tests/unit/gschemas.compiled] Error 1
+#make[1]: *** [CMakeFiles/Makefile2:4987: tests/unit/CMakeFiles/adbd-client-test.dir/all] Error 2
+if [ "$XBPS_CHECK_PKGS" ] && [ -z "$CROSS_BUILD" ]; then
+	configure_args+=" -DENABLE_TESTS=ON"
+fi
+
+# FIXME: build fails with ninja as CMake generator
+# https://github.com/AyatanaIndicators/libayatana-common/issues/60
+# https://github.com/AyatanaIndicators/ayatana-indicator-display/issues/51
+make_cmd="make"
+export CMAKE_GENERATOR="Unix Makefiles"
