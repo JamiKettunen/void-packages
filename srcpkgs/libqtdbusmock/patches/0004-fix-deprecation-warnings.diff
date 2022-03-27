@@ -1,0 +1,23 @@
+diff --git a/src/CMakeLists.txt b/src/CMakeLists.txt
+index a879196..7c0edb7 100644
+--- a/src/CMakeLists.txt
++++ b/src/CMakeLists.txt
+@@ -1,4 +1 @@
+-include(GenerateExportHeader)
+-add_compiler_export_flags()
+-
+-add_subdirectory(libqtdbusmock)
+\ No newline at end of file
++add_subdirectory(libqtdbusmock)
+diff --git a/src/libqtdbusmock/CMakeLists.txt b/src/libqtdbusmock/CMakeLists.txt
+index 618837d..3dac0d0 100644
+--- a/src/libqtdbusmock/CMakeLists.txt
++++ b/src/libqtdbusmock/CMakeLists.txt
+@@ -209,6 +209,7 @@ set_target_properties(
+ 	VERSION ${API_VERSION}.0.0
+ 	SOVERSION ${ABI_VERSION}
+ 	PUBLIC_HEADER "${QTDBUSMOCK_PUBLIC_HEADERS}"
++	CXX_VISIBILITY_PRESET "hidden"
+ )
+ 
+ install(

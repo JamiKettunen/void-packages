@@ -1,0 +1,36 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index c30aaa5..822dab2 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -8,6 +8,9 @@ set(GETTEXT_PACKAGE libqtdbusmock)
+ 
+ set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake" "${CMAKE_MODULE_PATH}")
+ 
++# Options
++option(ENABLE_TESTS "Enable all tests and checks" ON)
++
+ find_package(PkgConfig REQUIRED)
+ 
+ find_package(Qt5Core REQUIRED)
+@@ -61,13 +64,15 @@ add_subdirectory("src")
+ add_subdirectory("data")
+ add_subdirectory("templates")
+ 
+-enable_testing()
+-add_subdirectory(tests)
++if(ENABLE_TESTS)
++	enable_testing()
++	add_subdirectory(tests)
+ 
+-ADD_CUSTOM_TARGET(
+-	check
+-	${CMAKE_CTEST_COMMAND} --force-new-ctest-process --output-on-failure
+-)
++	ADD_CUSTOM_TARGET(
++		check
++		${CMAKE_CTEST_COMMAND} --force-new-ctest-process --output-on-failure
++	)
++endif()
+ 
+ find_package(CoverageReport)
+ enable_coverage_report(
