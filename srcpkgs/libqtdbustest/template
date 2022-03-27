@@ -1,0 +1,40 @@
+# Template file for 'libqtdbustest'
+pkgname=libqtdbustest
+version=0.3r83
+revision=1
+_commit=24e410ea77c9fa08894365c60bf08811a3b60bc0 # tip of xenial branch as of 2022-03-24
+wrksrc="libqtdbustest-${_commit}"
+build_style=cmake
+hostmakedepends="pkg-config qt5-host-tools"
+makedepends="qt5-devel"
+#depends="python3-dbusmock"
+# dbus-test-runner dbus
+checkdepends="gtest-devel python3-dbusmock"
+short_desc="D-Bus testing library for Qt5"
+maintainer="Jami Kettunen <jami.kettunen@protonmail.com>"
+license="LGPL-3.0-only"
+homepage="https://launchpad.net/libqtdbustest"
+distfiles="https://github.com/ubports/libqtdbustest/archive/${_commit}.tar.gz"
+checksum=625bb29eecbe08f6f6c397f30787d7376360c4816ad4b7bf072994fcbe44968e
+
+# FIXME: 4/6 failing tests:
+# TestDBusTestRunner.StartsSessionService
+# TestDBusTestRunner.StartsSystemService
+# TestQProcessDBusService.WaitsForServiceAppeared
+# TestSuicidalProcess.BehavesLikeNormalQProcess
+make_check=no
+
+if [ -z "$XBPS_CHECK_PKGS" ] || [ "$CROSS_BUILD" ]; then
+	configure_args+=" -DENABLE_TESTS=OFF"
+fi
+
+libqtdbustest-devel_package() {
+	# qt5-devel ?
+	depends="${sourcepkg}>=${version}_${revision}"
+	short_desc+=" - development files"
+	pkg_install() {
+		vmove usr/include
+		vmove usr/lib/pkgconfig
+		vmove "usr/lib/*.so"
+	}
+}
