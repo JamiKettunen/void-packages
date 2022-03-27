@@ -1,0 +1,32 @@
+# Template file for 'umockdev'
+pkgname=umockdev
+version=0.17.8
+revision=1
+build_style=meson
+build_helper="gir"
+hostmakedepends="pkg-config vala"
+makedepends="glib-devel eudev-libudev-devel libpcap-devel"
+checkdepends="python3-gobject libgudev eudev which"
+short_desc="Mock hardware devices for unit tests and bug reporting"
+maintainer="Jami Kettunen <jami.kettunen@protonmail.com>"
+license="LGPL-2.1-or-later"
+homepage="https://github.com/martinpitt/umockdev"
+distfiles="https://github.com/martinpitt/umockdev/archive/refs/tags/${version}.tar.gz"
+checksum=27f2da0242b8f6718b1798228371e025a07cf222c7fb687335d1882536c63e37
+
+umockdev-devel_package() {
+	depends="umockdev>=${version}_${revision}"
+	short_desc+=" - development files"
+	pkg_install() {
+		vmove usr/include
+		vmove usr/lib/pkgconfig
+		vmove usr/share/vala
+		vmove usr/share/gir-1.0
+		vmove "usr/lib/*.so"
+	}
+}
+
+# FIXME:
+# - optional gir? (ninja: error: '/usr/aarch64-linux-musl/usr/bin/g-ir-compiler', needed by 'UMockdev-1.0.typelib', missing and no known rule to make it)
+# - optional gtk-doc? -> configure_args+=" -Dgtk_doc=true"
+# - maybe no checkdepends "which" require (find it somehow else than https://github.com/martinpitt/umockdev/blob/master/tests/test-umockdev-record.vala#L817)?
