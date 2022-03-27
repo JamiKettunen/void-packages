@@ -1,0 +1,47 @@
+# Template file for 'lomiri'
+pkgname=lomiri
+version=0.1
+revision=1
+build_style=meta
+short_desc="Lomiri meta-package for Void Linux"
+maintainer="Jami Kettunen <jami.kettunen@protonmail.com>"
+license="Public Domain"
+homepage="https://lomiri.com"
+
+# TODO: these here or lomiri-shell?
+# - lomiri-ui-extras
+# - qt5-plugin-sqlite
+# - qt5-wayland
+depends="
+ lomiri-shell
+ lomiri-ui-extras
+ lomiri-sounds
+ suru-icon-theme
+ ayatana-indicator-session
+ ayatana-indicator-datetime
+ ayatana-indicator-power
+ ayatana-indicator-sound
+ ayatana-indicator-bluetooth
+ ayatana-indicator-display
+ ayatana-indicator-notifications
+ qt5-plugin-sqlite
+ qt5-wayland"
+# https://gitlab.com/ubports/core/repowerd - Power daemon to monitor and control system power state
+# https://gitlab.com/ubports/core/content-hub - Content sharing/picking infrastructure and service
+#   (+ https://gitlab.com/ubports/core/media-hub/-/merge_requests/61)
+# https://gitlab.com/ubports/core/history-service - Service that provides call log and conversation history
+
+_apps_depends="
+ lomiri-system-settings"
+# https://gitlab.com/ubports/apps/camera-app
+
+#lomiri-hybris_package() {
+#	- https://gitlab.com/ubports/core/qtubuntu-media - video+audio on hybris
+#	depends="${_hybris_depends}"
+#	short_desc+=" - libhybris supporting pieces"
+#}
+
+lomiri-apps_package() {
+	depends="${_apps_depends}"
+	short_desc+=" - apps"
+}
