@@ -1,0 +1,45 @@
+# Template file for 'accountsservice-ubuntu'
+pkgname=accountsservice-ubuntu
+version=0.6.55
+revision=1
+wrksrc="accountsservice-${version}"
+build_style=meson
+build_helper="gir"
+configure_args="-Dsystemdsystemunitdir=no
+ $(vopt_bool gir introspection) $(vopt_bool elogind elogind)"
+hostmakedepends="glib-devel pkg-config polkit"
+provides="accountsservice-${version}_${revision}"
+makedepends="polkit-devel $(vopt_if elogind elogind-devel)"
+short_desc="D-Bus interfaces for querying and manipulating user account information"
+maintainer="Jami Kettunen <jami.kettunen@protonmail.com>"
+license="GPL-3.0-or-later"
+homepage="https://www.freedesktop.org/wiki/Software/AccountsService/"
+distfiles="${FREEDESKTOP_SITE}/accountsservice/accountsservice-${version}.tar.xz"
+checksum=ff2b2419a7e06bd9cb335ffe391c7409b49a0f0130b890bd54692a3986699c9b
+make_dirs="
+ /var/lib/AccountsService/users 755 root root
+ /var/lib/AccountsService/icons 755 root root"
+
+# Package build options
+build_options="elogind gir"
+build_options_default="elogind gir"
+
+accountsservice-ubuntu-devel_package() {
+	depends="${sourcepkg}>=${version}_${revision}"
+	provides="accountsservice-devel-${version}_${revision}"
+	short_desc+=" - development files"
+	pkg_install() {
+		vmove usr/include
+		vmove usr/lib/pkgconfig
+		vmove "usr/lib/*.so"
+		if [ "$build_option_gir" ]; then
+			vmove usr/share/gir-1.0
+		fi
+	}
+}
+
+# Ubuntu patches taken directly from focal (http://archive.ubuntu.com/ubuntu/pool/main/a/accountsservice/accountsservice_0.6.55-0ubuntu12~20.04.5.debian.tar.xz):
+# 0001-formats-locale-property.patch
+# 0007-add-lightdm-support.patch
+# 0011-add-background-file-support.patch
+# 0016-add-input-sources-support.patch (modified to apply without 0010-set-language.patch)
