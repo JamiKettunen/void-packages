@@ -1,0 +1,47 @@
+# Template file for 'ayatana-indicator-messages'
+pkgname=ayatana-indicator-messages
+version=22.2.0
+revision=1
+build_style=cmake
+build_helper="gir"
+hostmakedepends="pkg-config vala ubports-cmake-extras intltool gtk-doc"
+makedepends="glib-devel accountsservice-ubuntu-devel gobject-introspection"
+checkdepends="gtest-devel dbus-test-runner-devel dbus python3-dbusmock"
+short_desc="The messages menu indicator for Lomiri"
+maintainer="Jami Kettunen <jami.kettunen@protonmail.com>"
+license="GPL-3.0-only"
+homepage="https://github.com/AyatanaIndicators/ayatana-indicator-messages"
+changelog="https://raw.githubusercontent.com/AyatanaIndicators/ayatana-indicator-messages/main/ChangeLog"
+distfiles="https://github.com/AyatanaIndicators/ayatana-indicator-messages/archive/refs/tags/${version}.tar.gz"
+checksum=165adc80b54501ec95612c288cc54f251b6a40000eb632604489a7720050a217
+
+# FIXME: optional vala bindings & gtk-doc (& gir)?
+build_options="gir vala"
+build_options_default="gir vala"
+
+if [ "$XBPS_CHECK_PKGS" ] && [ -z "$CROSS_BUILD" ]; then
+	configure_args+=" -DENABLE_TESTS=ON"
+fi
+
+pre_build() {
+	# FIXME: ld: messaging-menu-scan.o: undefined reference to symbol 'sprintf@@GLIBC_2.2.5' during messaging-menu.signals generation with gtkdoc-scangobj
+	# ld: /lib64/libc.so.6: error adding symbols: DSO missing from command line
+	LD="${CC}"
+}
+
+# TODO: libmessaging-menu subpackage
+
+ayatana-indicator-messages-devel_package() {
+	depends="${sourcepkg}>=${version}_${revision}"
+	short_desc+=" - development files"
+	pkg_install() {
+		vmove usr/include
+		vmove usr/lib/pkgconfig
+		vmove usr/share/gir-1.0
+		#if [ "${build_option_vala}" ]; then
+		vmove usr/share/vala
+		#fi
+		vmove usr/share/gtk-doc
+		vmove "usr/lib/*.so"
+	}
+}
