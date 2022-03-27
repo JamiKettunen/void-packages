@@ -1,0 +1,18 @@
+# Template file for 'hfd-service'
+pkgname=hfd-service
+version=0.1.0r60
+revision=1
+_commit=23e9c69903eacfd43e7d62ffeedc038203eb3fe5 # tip of main branch as of 2022-03-22
+wrksrc="hfd-service-${_commit}"
+build_style=cmake
+configure_args="-DENABLE_LIBHYBRIS=OFF -DENABLE_LIBGBINDER=OFF"
+hostmakedepends="pkg-config qt5-host-tools qt5-qmake ubports-cmake-extras"
+makedepends="eudev-libudev-devel qt5-declarative-devel qt5-feedback-devel"
+short_desc="D-Bus activated service that manages human feedback devices"
+maintainer="Jami Kettunen <jami.kettunen@protonmail.com>"
+license="GPL-3.0-only"
+homepage="https://gitlab.com/ubports/core/hfd-service"
+distfiles="https://gitlab.com/ubports/core/hfd-service/-/archive/${_commit}.tar.gz"
+checksum=43efd0103f0026b33b6f16a4954ee380385cc936527734618a7d45516cf130cb
+
+# TODO: build options to enable libhybris support!
