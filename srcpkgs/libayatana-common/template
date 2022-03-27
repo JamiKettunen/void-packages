@@ -1,0 +1,45 @@
+# Template file for 'libayatana-common'
+pkgname=libayatana-common
+version=0.9.7
+revision=1
+build_style=cmake
+build_helper="gir"
+configure_args="-DENABLE_LOMIRI_FEATURES=$(vopt_if lomiri ON OFF)"
+hostmakedepends="pkg-config $(vopt_if vala 'vala') intltool ubports-cmake-extras"
+makedepends="glib-devel $(vopt_if lomiri 'lomiri-url-dispatcher-devel')"
+checkdepends="gtest-devel"
+short_desc="Common functions that two or more system indicator components share"
+maintainer="Jami Kettunen <jami.kettunen@protonmail.com>"
+license="GPL-3.0-only"
+homepage="https://github.com/AyatanaIndicators/libayatana-common"
+changelog="https://raw.githubusercontent.com/AyatanaIndicators/libayatana-common/main/ChangeLog"
+distfiles="https://github.com/AyatanaIndicators/libayatana-common/archive/refs/tags/${version}.tar.gz"
+checksum=4a17c7c80ca2c5641df4f4e326b4fe77a5ebbd700bfd1ac2ccefc29eec5118d1
+
+# TODO: optional gir?
+build_options="gir vala lomiri"
+desc_option_lomiri="Build with Lomiri-specific libraries, schemas and media"
+build_options_default="gir vala lomiri"
+
+if [ "$XBPS_CHECK_PKGS" ] && [ -z "$CROSS_BUILD" ]; then
+	configure_args+=" -DENABLE_TESTS=ON"
+fi
+
+# FIXME: build fails with ninja as CMake generator
+# https://github.com/AyatanaIndicators/libayatana-common/issues/60
+make_cmd="make"
+export CMAKE_GENERATOR="Unix Makefiles"
+
+libayatana-common-devel_package() {
+	depends="${sourcepkg}>=${version}_${revision}"
+	short_desc+=" - development files"
+	pkg_install() {
+		vmove usr/include
+		vmove usr/lib/pkgconfig
+		vmove usr/share/gir-1.0
+		if [ "${build_option_vala}" ]; then
+			vmove usr/share/vala
+		fi
+		vmove "usr/lib/*.so"
+	}
+}
