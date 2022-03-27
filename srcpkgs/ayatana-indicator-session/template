@@ -1,0 +1,25 @@
+# Template file for 'ayatana-indicator-session'
+pkgname=ayatana-indicator-session
+version=22.2.0
+revision=1
+build_style=cmake
+hostmakedepends="pkg-config intltool ubports-cmake-extras"
+makedepends="libayatana-common-devel glib-devel"
+checkdepends="gtest-devel dbus"
+short_desc="The session menu indicator for Lomiri"
+maintainer="Jami Kettunen <jami.kettunen@protonmail.com>"
+license="GPL-3.0-only"
+homepage="https://github.com/AyatanaIndicators/ayatana-indicator-session"
+changelog="https://raw.githubusercontent.com/AyatanaIndicators/ayatana-indicator-session/main/ChangeLog"
+distfiles="https://github.com/AyatanaIndicators/ayatana-indicator-session/archive/refs/tags/${version}.tar.gz"
+checksum=01ce877575bef5847914aa80a118c4dceceedc1d4508364a03a1685307b13334
+
+if [ "$XBPS_CHECK_PKGS" ] && [ -z "$CROSS_BUILD" ]; then
+	configure_args+=" -DENABLE_TESTS=ON"
+fi
+
+# FIXME: build fails with ninja as CMake generator
+# https://github.com/AyatanaIndicators/libayatana-common/issues/60
+# https://github.com/AyatanaIndicators/ayatana-indicator-session/issues/74
+make_cmd="make"
+export CMAKE_GENERATOR="Unix Makefiles"
