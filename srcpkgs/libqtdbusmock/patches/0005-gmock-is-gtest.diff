@@ -1,0 +1,12 @@
+diff --git a/tests/CMakeLists.txt b/tests/CMakeLists.txt
+index c2ecb5d..aaa90bd 100644
+--- a/tests/CMakeLists.txt
++++ b/tests/CMakeLists.txt
+@@ -1,6 +1,6 @@
+ 
+ set(CMAKE_AUTOMOC OFF)
+-find_package(GMock REQUIRED)
++find_package(GTest REQUIRED)
+ set(CMAKE_AUTOMOC ON)
+ 
+ include_directories(${CMAKE_CURRENT_SOURCE_DIR})
