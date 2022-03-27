@@ -1,0 +1,27 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 7d3d3c92..a47432b6 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -35,6 +35,7 @@ set(LDM_VERSION_PATCH 0)
+ 
+ # Options
+ option(ENABLE_TESTS "Enable all tests and checks" ON)
++option(ENABLE_WERROR "Treat all build warnings as errors" ON)
+ 
+ file(GLOB_RECURSE I18N_CPP_SRC_FILES
+      RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}
+@@ -56,9 +57,13 @@ pkg_check_modules(DBUS REQUIRED dbus-1)
+ pkg_check_modules(GLOG REQUIRED libglog)
+ pkg_check_modules(LOMIRI_API REQUIRED liblomiri-api)
+ 
+-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pipe -std=c++11 -Werror -O2 -Wall -W -D_REENTRANT -fPIC -pedantic -Wextra")
++set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pipe -std=c++11 -O2 -Wall -W -D_REENTRANT -fPIC -pedantic -Wextra")
+ add_definitions("-DNDEBUG")
+ 
++if(ENABLE_WERROR)
++  add_definitions("-Werror")
++endif()
++
+ if(NOT CMAKE_BUILD_TYPE)
+ 	message(STATUS "Setting build type to 'RelWithDebInfo' as none was specified.")
+ 	set(CMAKE_BUILD_TYPE RelWithDebInfo)

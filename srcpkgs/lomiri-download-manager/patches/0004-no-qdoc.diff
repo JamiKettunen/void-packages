@@ -1,0 +1,11 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 8803a148..7d3d3c92 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -75,5 +75,5 @@ if(ENABLE_TESTS)
+   enable_testing()
+   add_subdirectory(tests)
+ endif()
+-add_subdirectory(docs)
++#add_subdirectory(docs)
+ add_subdirectory(po)
