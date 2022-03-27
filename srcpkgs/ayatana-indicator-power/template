@@ -1,0 +1,32 @@
+# Template file for 'ayatana-indicator-power'
+pkgname=ayatana-indicator-power
+version=22.2.0
+revision=1
+build_style=cmake
+configure_args="-DENABLE_LOMIRI_FEATURES=$(vopt_if lomiri ON OFF)"
+hostmakedepends="pkg-config ubports-cmake-extras intltool"
+makedepends="glib-devel libnotify-devel libayatana-common-devel
+ $(vopt_if lomiri 'lomiri-schemas-devel lomiri-sounds-devel')"
+#depends="$(vopt_if lomiri 'lomiri-sounds')" ?
+checkdepends="gtest-devel dbus-test-runner-devel dbus python3-dbusmock"
+short_desc="The power menu indicator for Lomiri"
+maintainer="Jami Kettunen <jami.kettunen@protonmail.com>"
+license="GPL-3.0-only"
+homepage="https://github.com/AyatanaIndicators/ayatana-indicator-power"
+changelog="https://raw.githubusercontent.com/AyatanaIndicators/ayatana-indicator-power/main/ChangeLog"
+distfiles="https://github.com/AyatanaIndicators/ayatana-indicator-power/archive/refs/tags/${version}.tar.gz"
+checksum=51d6af986078caa1d57d9fa1bdfd7dcb20bb9339361c1d603857d2ad7de27259
+
+build_options="lomiri"
+desc_option_lomiri="Build with Lomiri-specific libraries, schemas and media"
+build_options_default="lomiri"
+
+if [ "$XBPS_CHECK_PKGS" ] && [ -z "$CROSS_BUILD" ]; then
+	configure_args+=" -DENABLE_TESTS=ON"
+fi
+
+# FIXME: build fails with ninja as CMake generator
+# https://github.com/AyatanaIndicators/libayatana-common/issues/60
+# https://github.com/AyatanaIndicators/ayatana-indicator-power/issues/60
+make_cmd="make"
+export CMAKE_GENERATOR="Unix Makefiles"
