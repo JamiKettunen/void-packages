@@ -1,0 +1,30 @@
+# Template file for 'ayatana-indicator-datetime'
+pkgname=ayatana-indicator-datetime
+version=22.9.0
+revision=1
+build_style=cmake
+configure_args="-DENABLE_TESTS=ON $(vopt_bool lomiri ENABLE_LOMIRI_FEATURES)"
+hostmakedepends="pkg-config ubports-cmake-extras intltool dbus-test-runner-devel"
+makedepends="libayatana-common-devel glib-devel libical-devel evolution-data-server-devel
+ gstreamer1-devel libnotify-devel properties-cpp libaccounts-glib-devel ayatana-indicator-messages-devel
+ gtest-devel $(vopt_if lomiri 'lomiri-sounds-devel lomiri-url-dispatcher-devel lomiri-schemas-devel')"
+#depends="$(vopt_if lomiri 'lomiri-sounds')" ?
+checkdepends="dbus python3-dbusmock"
+short_desc="The datetime menu indicator for Lomiri"
+maintainer="Jami Kettunen <jami.kettunen@protonmail.com>"
+license="GPL-3.0-only"
+homepage="https://github.com/AyatanaIndicators/ayatana-indicator-datetime"
+changelog="https://raw.githubusercontent.com/AyatanaIndicators/ayatana-indicator-datetime/main/ChangeLog"
+distfiles="https://github.com/AyatanaIndicators/ayatana-indicator-datetime/archive/refs/tags/${version}.tar.gz"
+checksum=bf654e3bc94aab4d22c921fb3a337efe3f501fc2bb083b06ca4e9abc2b70c32c
+
+build_options="lomiri"
+desc_option_lomiri="Build with Lomiri-specific libraries, schemas and media"
+build_options_default="lomiri"
+
+# FIXME: build fails with ninja as CMake generator
+# https://github.com/AyatanaIndicators/ayatana-indicator-datetime/issues/93
+make_cmd="make"
+export CMAKE_GENERATOR="Unix Makefiles"
+
+# MUSL FIXME: test 8/27 test-formatter (FormatterFixture.TestUpcomingTimes) fails due to locale issue with time formats
