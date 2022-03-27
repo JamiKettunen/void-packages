@@ -1,0 +1,29 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index a4e70c5..4ad19f1 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -7,6 +7,7 @@ set(SOVERSION 1.0.0)
+ 
+ # Options
+ option(ENABLE_TESTS "Enable all tests and checks" ON)
++option(ENABLE_WERROR "Treat all build warnings as errors" ON)
+ 
+ if(PROJECT_BINARY_DIR STREQUAL PROJECT_SOURCE_DIR)
+    message(FATAL_ERROR "In-tree build attempt detected, aborting. Set your build dir outside your source dir, delete CMakeCache.txt from source root and try again.")
+@@ -20,10 +21,14 @@ include (GNUInstallDirs)
+ 
+ add_definitions(-DQT_NO_KEYWORDS)
+ 
+-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -pedantic -Werror -Wextra")
+-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -pedantic -Werror -Wextra")
++set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -pedantic -Wextra")
++set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -pedantic -Wextra")
+ set(CMAKE_CXX_STANDARD 11)
+ 
++if(ENABLE_WERROR)
++    add_definitions("-Werror")
++endif()
++
+ set(CMAKE_AUTOMOC ON)
+ set(CMAKE_INCLUDE_CURRENT_DIR ON)
+ 
