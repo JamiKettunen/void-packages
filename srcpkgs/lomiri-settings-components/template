@@ -1,0 +1,18 @@
+# Template file for 'lomiri-settings-components'
+pkgname=lomiri-settings-components
+version=1.0.0r897
+revision=1
+_commit=41d8ca765a278c3cbe11a9ffb9a3c4232f075a09 # tip of main branch as of 2022-03-27
+wrksrc="lomiri-settings-components-${_commit}"
+build_style=cmake
+configure_args="-DWerror=OFF"
+hostmakedepends="pkg-config qt5-host-tools qt5-qmake ubports-cmake-extras gettext"
+makedepends="qt5-declarative-devel"
+short_desc="Miscellaneous settings-related components for Lomiri"
+maintainer="Jami Kettunen <jami.kettunen@protonmail.com>"
+license="GPL-3.0-only, LGPL-3.0-only"
+homepage="https://gitlab.com/ubports/core/lomiri-settings-components"
+distfiles="https://gitlab.com/ubports/core/lomiri-settings-components/-/archive/${_commit}.tar.gz"
+checksum=94476e37ff19e78a227fef6e089eccb50236ba91cd4b9fb6db37b64b3239ea53
+
+# TODO: optional tests
