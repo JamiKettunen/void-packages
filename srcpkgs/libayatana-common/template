@@ -1,0 +1,34 @@
+# Template file for 'libayatana-common'
+pkgname=libayatana-common
+version=0.9.8
+revision=1
+build_style=cmake
+build_helper="gir"
+configure_args="-DENABLE_TESTS=ON $(vopt_bool lomiri ENABLE_LOMIRI_FEATURES)"
+hostmakedepends="pkg-config $(vopt_if vala 'vala') intltool ubports-cmake-extras"
+makedepends="glib-devel gtest-devel $(vopt_if lomiri 'lomiri-url-dispatcher-devel')"
+short_desc="Common functions that two or more system indicator components share"
+maintainer="Jami Kettunen <jami.kettunen@protonmail.com>"
+license="GPL-3.0-only"
+homepage="https://github.com/AyatanaIndicators/libayatana-common"
+changelog="https://raw.githubusercontent.com/AyatanaIndicators/libayatana-common/main/ChangeLog"
+distfiles="https://github.com/AyatanaIndicators/libayatana-common/archive/refs/tags/${version}.tar.gz"
+checksum=9c45ee054abfbae55e8b8c3fbfd6e3e0c4f4a175bfdba1c1d22c52b038b3e5f5
+
+build_options="vala lomiri"
+desc_option_lomiri="Build with Lomiri-specific libraries, schemas and media"
+build_options_default="vala lomiri"
+
+libayatana-common-devel_package() {
+	depends="${sourcepkg}>=${version}_${revision}"
+	short_desc+=" - development files"
+	pkg_install() {
+		vmove usr/include
+		vmove usr/lib/pkgconfig
+		vmove usr/share/gir-1.0
+		if [ "${build_option_vala}" ]; then
+			vmove usr/share/vala
+		fi
+		vmove "usr/lib/*.so"
+	}
+}
