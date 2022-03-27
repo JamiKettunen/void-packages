@@ -1,0 +1,38 @@
+# Template file for 'lomiri-system-settings'
+pkgname=lomiri-system-settings
+version=1.0r7965
+revision=1
+_commit=0fa60644b11df45a1681ce8d41fc314a4d0bb1e5 # tip of main branch as of 2022-10-18
+wrksrc="lomiri-system-settings-${_commit}"
+build_style=cmake
+hostmakedepends="pkg-config qt5-host-tools qt5-qmake intltool"
+makedepends="qt5-devel qt5-declarative-devel qt5-plugin-mysql qt5-plugin-odbc
+ qt5-plugin-pgsql qt5-plugin-sqlite qt5-plugin-tds glib-devel upower-devel
+ accountsservice-ubuntu-devel libgeonames-devel icu-devel click-devel gsettings-qt-devel
+ gnome-desktop-devel libqtdbusmock-devel libqtdbustest-devel ubports-cmake-extras"
+# TODO: check that tests run even in headless env without GPU!
+checkdepends="python3-dbusmock xvfb-run mesa-dri lomiri-ui-toolkit lomiri-settings-components"
+#depends="suru-icon-theme"
+short_desc="The System Settings application for Lomiri (git ${_commit:0:7})"
+maintainer="Jami Kettunen <jami.kettunen@protonmail.com>"
+license="GPL-3.0-only"
+homepage="https://gitlab.com/ubports/development/core/lomiri-system-settings"
+distfiles="https://gitlab.com/ubports/development/core/lomiri-system-settings/-/archive/${_commit}.tar.gz"
+checksum=663c068956c1b775861131d14975bb0b86cc384960dd5e182b511be73099d08c
+
+lomiri-system-settings-devel_package() {
+	depends="${sourcepkg}>=${version}_${revision}"
+	short_desc+=" - development files"
+	pkg_install() {
+		vmove usr/include
+		vmove usr/lib/pkgconfig
+		vmove usr/share/glib-2.0
+		vmove "usr/lib/*.so"
+	}
+}
+
+# FIXME:
+# - optional xvfb-run qml tests
+# - running xbfb tests without mesa-dri?
+# - depends on ubuntu-specific accountsservice patches: https://gitlab.com/ubports/core/lomiri-system-settings/-/issues/65
+# - libandroid-properties ??? (optional hybris linking?)
