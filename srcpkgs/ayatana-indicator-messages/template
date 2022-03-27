@@ -1,0 +1,52 @@
+# Template file for 'ayatana-indicator-messages'
+pkgname=ayatana-indicator-messages
+version=22.9.0
+revision=1
+build_style=cmake
+build_helper="gir"
+configure_args="-DENABLE_TESTS=ON"
+hostmakedepends="pkg-config vala ubports-cmake-extras intltool gtk-doc"
+makedepends="glib-devel accountsservice-ubuntu-devel gobject-introspection gtest-devel
+ dbus-test-runner-devel"
+checkdepends="dbus python3-dbusmock"
+short_desc="The messages menu indicator for Lomiri"
+maintainer="Jami Kettunen <jami.kettunen@protonmail.com>"
+license="GPL-3.0-only"
+homepage="https://github.com/AyatanaIndicators/ayatana-indicator-messages"
+changelog="https://raw.githubusercontent.com/AyatanaIndicators/ayatana-indicator-messages/main/ChangeLog"
+distfiles="https://github.com/AyatanaIndicators/ayatana-indicator-messages/archive/refs/tags/${version}.tar.gz"
+checksum=3a6207ef755a2f0de8a00221c5443fd77f597f2afea93b4eb848ac56b0420066
+
+# FIXME: cross-build without QEMU
+# FAILED: doc/reference/messaging-menu.actions doc/reference/messaging-menu.args doc/reference/messaging-menu.hierarchy doc/reference/messaging-menu.interfaces doc/reference/messaging-menu.prerequisites doc/reference/messaging-menu.signals /builddir/ayatana-indicator-messages-22.2.0/build/doc/reference/messaging-menu.actions /builddir/ayatana-indicator-messages-22.2.0/build/doc/reference/messaging-menu.args /builddir/ayatana-indicator-messages-22.2.0/build/doc/reference/messaging-menu.hierarchy /builddir/ayatana-indicator-messages-22.2.0/build/doc/reference/messaging-menu.interfaces /builddir/ayatana-indicator-messages-22.2.0/build/doc/reference/messaging-menu.prerequisites /builddir/ayatana-indicator-messages-22.2.0/build/doc/reference/messaging-menu.signals
+# cd /builddir/ayatana-indicator-messages-22.2.0/build/doc/reference && sh scangobj.sh
+# qemu-aarch64-static: Could not open '/lib/ld-linux-aarch64.so.1': No such file or directory
+# 2022-06-05 00:15:55,506:scangobj.py:execute_command:1289:WARNING:Running scanner failed: 255, command: ./messaging-menu-scan
+build_helper+=" qemu"
+
+# FIXME: optional vala bindings & gtk-doc (& gir)?
+build_options="gir vala"
+build_options_default="gir vala"
+
+pre_build() {
+	# FIXME: ld: messaging-menu-scan.o: undefined reference to symbol 'sprintf@@GLIBC_2.2.5' during messaging-menu.signals generation with gtkdoc-scangobj
+	# ld: /lib64/libc.so.6: error adding symbols: DSO missing from command line
+	LD="${CC}"
+}
+
+# TODO: libmessaging-menu subpackage?
+
+ayatana-indicator-messages-devel_package() {
+	depends="${sourcepkg}>=${version}_${revision}"
+	short_desc+=" - development files"
+	pkg_install() {
+		vmove usr/include
+		vmove usr/lib/pkgconfig
+		vmove usr/share/gir-1.0
+		#if [ "${build_option_vala}" ]; then
+		vmove usr/share/vala
+		#fi
+		vmove usr/share/gtk-doc
+		vmove "usr/lib/*.so"
+	}
+}
