@@ -1,0 +1,22 @@
+# Template file for 'suru-icon-theme'
+pkgname=suru-icon-theme
+version=20.05.1r111
+revision=1
+_commit=68e237d6f0697bb04b09182c024691da38eae1b7
+wrksrc="suru-icon-theme-${_commit}"
+#hostmakedepends="icon-naming-utils"
+#makedepends="icon-naming-utils"
+#depends="gtk-update-icon-cache hicolor-icon-theme"
+short_desc="Suru icon theme for Lomiri Operating Environment (git ${_commit:0:7})"
+maintainer="Jami Kettunen <jami.kettunen@protonmail.com>"
+license="CC-BY-SA-3.0"
+homepage="https://gitlab.com/ubports/development/core/suru-icon-theme"
+distfiles="https://gitlab.com/ubports/development/core/suru-icon-theme/-/archive/${_commit}.tar.gz"
+checksum=670a3b4cc4327cf9952daa46263bff44c5a59b6e266ccae04cb5c93602578fb9
+
+do_install() {
+	vmkdir usr/share/icons
+	mv suru ${DESTDIR}/usr/share/icons
+}
+
+# TODO: cmake with install rule? (similar to lomiri-sounds)
