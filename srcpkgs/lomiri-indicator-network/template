@@ -1,0 +1,34 @@
+# Template file for 'lomiri-indicator-network'
+pkgname=lomiri-indicator-network
+version=1.0.0r2199
+revision=1
+_commit=202523ea38e23a9053d38a2a84573d11bc0808d9 # tip of main branch as of 2022-09-25
+wrksrc="lomiri-indicator-network-${_commit}"
+build_style=cmake
+configure_args="-DENABLE_COVERAGE=OFF"
+hostmakedepends="pkg-config qt5-host-tools qt5-qmake ubports-cmake-extras intltool qt5-tools"
+makedepends="gsettings-qt-devel qt5-devel liblomiri-api-devel ofono-devel libsecret-devel
+ libnma-devel lomiri-url-dispatcher-devel qt5-declarative-devel libqofono-devel libqtdbustest-devel
+ libqtdbusmock-devel libgmenuharness-devel gtest-devel"
+checkdepends="python3-dbusmock dbus"
+short_desc="The Network indicator for Lomiri (git ${_commit:0:7})"
+maintainer="Jami Kettunen <jami.kettunen@protonmail.com>"
+license="GPL-3.0-only, LGPL-3.0-only"
+homepage="https://gitlab.com/ubports/development/core/lomiri-indicator-network"
+distfiles="https://gitlab.com/ubports/development/core/lomiri-indicator-network/-/archive/${_commit}.tar.gz"
+checksum=6cf32f604dacc179c7a2dad296d7b9ff56f38a5083e8cee4b8e3864583583a4e
+
+lomiri-indicator-network-devel_package() {
+	depends="${sourcepkg}>=${version}_${revision}"
+	short_desc+=" - development files"
+	pkg_install() {
+		vmove usr/include
+		vmove usr/lib/pkgconfig
+		vmove "usr/lib/*.so"
+	}
+}
+
+# FIXME:
+# - 3 failing tests: TestConnectivityApiSim.{{SingleSim,TwoSims}AtStartup,AddASim}
+# - check for glib before attempting data/CMakeLists.txt:102 add_schema()?
+# - support for ModemManager as well (mainline Linux)?!
