@@ -1,0 +1,31 @@
+# Template file for 'ayatana-indicator-sound'
+pkgname=ayatana-indicator-sound
+version=22.2.0
+revision=1
+build_style=cmake
+build_helper="gir"
+configure_args="-DENABLE_LOMIRI_FEATURES=$(vopt_if lomiri ON OFF)"
+# TODO: I shouldn't need accountsservice-ubuntu-devel on host?!
+hostmakedepends="pkg-config vala ubports-cmake-extras intltool accountsservice-ubuntu-devel"
+makedepends="pulseaudio-devel glib-devel libgee08-devel libxml2-devel
+ libnotify-devel accountsservice-ubuntu-devel libayatana-common-devel
+ $(vopt_if lomiri 'liblomiri-api-devel lomiri-schemas-devel')"
+#depends="$(vopt_if lomiri 'lomiri-sounds')" ?
+checkdepends="gtest-devel dbus-test-runner-devel libgmenuharness-devel libqtdbustest-devel
+ qt5-devel libqtdbusmock-devel dbus python3-dbusmock"
+short_desc="The sound menu indicator for Lomiri"
+maintainer="Jami Kettunen <jami.kettunen@protonmail.com>"
+license="GPL-3.0-only"
+homepage="https://github.com/AyatanaIndicators/ayatana-indicator-sound"
+changelog="https://raw.githubusercontent.com/AyatanaIndicators/ayatana-indicator-sound/main/ChangeLog"
+distfiles="https://github.com/AyatanaIndicators/ayatana-indicator-sound/archive/refs/tags/${version}.tar.gz"
+checksum=fc2d3846694b4b3514d7e29845c4ebf11ff145820d69754e2315c35caa845216
+
+# TODO: optional gir bindings?
+build_options="gir lomiri"
+desc_option_lomiri="Build with Lomiri-specific libraries, schemas and media"
+build_options_default="gir lomiri"
+
+if [ "$XBPS_CHECK_PKGS" ] && [ -z "$CROSS_BUILD" ]; then
+	configure_args+=" -DENABLE_TESTS=ON"
+fi
