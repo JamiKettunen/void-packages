@@ -1,0 +1,33 @@
+# Template file for 'ayatana-indicator-datetime'
+pkgname=ayatana-indicator-datetime
+version=22.2.0
+revision=1
+build_style=cmake
+configure_args="-DENABLE_LOMIRI_FEATURES=$(vopt_if lomiri ON OFF)"
+hostmakedepends="pkg-config ubports-cmake-extras intltool"
+makedepends="libayatana-common-devel glib-devel libical-devel evolution-data-server-devel
+ gstreamer1-devel libnotify-devel properties-cpp libaccounts-glib-devel ayatana-indicator-messages-devel
+ $(vopt_if lomiri 'lomiri-sounds-devel lomiri-url-dispatcher-devel lomiri-schemas-devel')"
+#depends="$(vopt_if lomiri 'lomiri-sounds')" ?
+checkdepends="gtest-devel dbus-test-runner-devel dbus python3-dbusmock"
+short_desc="The datetime menu indicator for Lomiri"
+maintainer="Jami Kettunen <jami.kettunen@protonmail.com>"
+license="GPL-3.0-only"
+homepage="https://github.com/AyatanaIndicators/ayatana-indicator-datetime"
+changelog="https://raw.githubusercontent.com/AyatanaIndicators/ayatana-indicator-datetime/main/ChangeLog"
+distfiles="https://github.com/AyatanaIndicators/ayatana-indicator-datetime/archive/refs/tags/${version}.tar.gz"
+checksum=159f33dbd4908119a588f19dfddb315c14fc575cbbc1f4ed9ead0b5523f4c093
+
+build_options="lomiri"
+desc_option_lomiri="Build with Lomiri-specific libraries, schemas and media"
+build_options_default="lomiri"
+
+if [ "$XBPS_CHECK_PKGS" ] && [ -z "$CROSS_BUILD" ]; then
+	configure_args+=" -DENABLE_TESTS=ON"
+fi
+
+# FIXME: build fails with ninja as CMake generator
+# https://github.com/AyatanaIndicators/libayatana-common/issues/60
+# https://github.com/AyatanaIndicators/ayatana-indicator-datetime/issues/93
+make_cmd="make"
+export CMAKE_GENERATOR="Unix Makefiles"
