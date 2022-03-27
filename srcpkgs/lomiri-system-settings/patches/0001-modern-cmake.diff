@@ -1,0 +1,11 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index ed27424..7bf9aa1 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -1,5 +1,5 @@
+ project(lomiri-system-settings C CXX)
+-cmake_minimum_required(VERSION 2.8.10)
++cmake_minimum_required(VERSION 3.5)
+ 
+ if(${PROJECT_BINARY_DIR} STREQUAL ${PROJECT_SOURCE_DIR})
+    message(FATAL_ERROR "In-tree build attempt detected, aborting. Set your build dir outside your source dir, delete CMakeCache.txt from source root and try again.")
