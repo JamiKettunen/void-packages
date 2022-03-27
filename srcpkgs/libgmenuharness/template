@@ -1,0 +1,31 @@
+# Template file for 'libgmenuharness'
+pkgname=libgmenuharness
+version=0.1.4r81
+revision=1
+_commit=e39664917c09c3d8580a041182d6fce41de29863 # tip of main branch as of 2022-03-25
+wrksrc="gmenuharness-${_commit}"
+build_style=cmake
+configure_args="-DWerror=OFF"
+hostmakedepends="pkg-config"
+makedepends="glib-devel liblomiri-api-devel"
+checkdepends="gtest-devel qt5-devel libqtdbustest-devel dbus"
+short_desc="A library to test GMenuModel structures"
+maintainer="Jami Kettunen <jami.kettunen@protonmail.com>"
+license="LGPL-3.0-only"
+homepage="https://launchpad.net/gmenuharness"
+distfiles="https://gitlab.com/ubports/core/gmenuharness/-/archive/${_commit}.tar.gz"
+checksum=eb6ec608bfc16ea28295e42645002df34b1d9426f832397f3596d551f688df96
+
+if [ -z "$XBPS_CHECK_PKGS" ] || [ "$CROSS_BUILD" ]; then
+	configure_args+=" -Denable_tests=OFF"
+fi
+
+libgmenuharness-devel_package() {
+	depends="${sourcepkg}>=${version}_${revision}"
+	short_desc+=" - development files"
+	pkg_install() {
+		vmove usr/include
+		vmove usr/lib/pkgconfig
+		vmove "usr/lib/*.so"
+	}
+}

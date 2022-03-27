@@ -1,0 +1,10 @@
+diff --git a/tests/CMakeLists.txt b/tests/CMakeLists.txt
+index 1fcdacd..5866c17 100644
+--- a/tests/CMakeLists.txt
++++ b/tests/CMakeLists.txt
+@@ -1,4 +1,4 @@
+-find_package(GMock REQUIRED)
++find_package(GTest REQUIRED)
+ find_package(Qt5Core REQUIRED)
+ find_package(Qt5DBus REQUIRED)
+ 
