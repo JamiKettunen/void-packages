@@ -1,0 +1,23 @@
+# Template file for 'lomiri-notifications'
+pkgname=lomiri-notifications
+version=1.3.0r487
+revision=1
+_commit=291951cba47ec0584d8da76bf15f70e49f04a7ee # tip of main branch as of 2022-09-25
+wrksrc="lomiri-notifications-${_commit}"
+build_style=cmake
+# Mir on X: Notification DBus name already taken. -> -Dprivate_dbus=ON
+configure_args="-DENABLE_WERROR=OFF"
+hostmakedepends="pkg-config qt5-host-tools qt5-qmake liblomiri-api-devel"
+makedepends="qt5-declarative-devel liblomiri-api-devel libqtdbustest-devel"
+checkdepends="dbus"
+short_desc="Free Desktop Notification server for Lomiri (git ${_commit:0:7})"
+maintainer="Jami Kettunen <jami.kettunen@protonmail.com>"
+license="GPL-3.0-only"
+homepage="https://gitlab.com/ubports/development/core/lomiri-notifications"
+distfiles="https://gitlab.com/ubports/development/core/lomiri-notifications/-/archive/${_commit}.tar.gz"
+checksum=74d1370d520ff996cb1366cac90f43f7db12ffee5bde8350dfdb61a63eb961db
+
+# TODO:
+# - stop using qt5_use_modules()
+# - look for ModelInterface.h from target liblomiri-api-devel (CMAKE_TOOLCHAIN_FILE unused)
+# - optional tests & -Werror!
