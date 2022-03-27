@@ -1,0 +1,20 @@
+# Template file for 'lomiri-ui-extras'
+pkgname=lomiri-ui-extras
+version=0.5r651
+revision=1
+_commit=8ad53d43bb038a239a14a9f7090060bc1b2b0c1e # tip of main branch as of 2022-03-27
+wrksrc="lomiri-ui-extras-${_commit}"
+build_style=cmake
+# TODO: look for gettext
+hostmakedepends="pkg-config qt5-host-tools qt5-qmake ubports-cmake-extras gettext"
+makedepends="qt5-declarative-devel exiv2-devel"
+short_desc="Lomiri QML components not in lomiri-ui-toolkit"
+maintainer="Jami Kettunen <jami.kettunen@protonmail.com>"
+license="GPL-3.0-only"
+homepage="https://gitlab.com/ubports/core/lomiri-ui-extras"
+distfiles="https://gitlab.com/ubports/core/lomiri-ui-extras/-/archive/${_commit}.tar.gz"
+checksum=2fb9cd14dad7e13bee1cec574e424e223b5f2b3f68636f66e7f317a859c03a85
+
+if [ -z "$XBPS_CHECK_PKGS" ] && [ "$CROSS_BUILD" ]; then
+	configure_args+=" -DENABLE_TESTS=OFF"
+fi
