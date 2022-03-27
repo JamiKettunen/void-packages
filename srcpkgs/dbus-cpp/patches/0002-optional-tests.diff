@@ -1,0 +1,24 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index c396696..f9159fa 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -24,6 +24,9 @@ set(DBUS_CPP_VERSION_PATCH 3)
+ 
+ message(STATUS "${CMAKE_PROJECT_NAME} ${DBUS_CPP_VERSION_MAJOR}.${DBUS_CPP_VERSION_MINOR}.${DBUS_CPP_VERSION_PATCH}")
+ 
++# Options
++option(ENABLE_TESTS "Enable all tests and checks" ON)
++
+ find_package(Boost COMPONENTS filesystem program_options system REQUIRED)
+ find_package(LibXml2 REQUIRED)
+ find_package(PkgConfig REQUIRED)
+@@ -79,6 +82,8 @@ add_subdirectory(doc)
+ add_subdirectory(examples)
+ add_subdirectory(include)
+ add_subdirectory(src)
+-add_subdirectory(tests)
++if (ENABLE_TESTS)
++  add_subdirectory(tests)
++endif()
+ 
+ enable_coverage_report(benchmark)

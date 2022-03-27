@@ -1,0 +1,152 @@
+diff --git a/tests/CMakeLists.txt b/tests/CMakeLists.txt
+index d86e73e..126d8ab 100644
+--- a/tests/CMakeLists.txt
++++ b/tests/CMakeLists.txt
+@@ -15,7 +15,7 @@
+ # Authored by: Thomas Voss <thomas.voss@canonical.com>
+ 
+ # Build with system gmock and embedded gtest
+-find_package(GMock)
++find_package(GTest REQUIRED)
+ 
+ find_package(Threads)
+ 
+diff --git a/tests/CMakeLists.txt b/tests/CMakeLists.txt
+index d86e73e..7384958 100644
+--- a/tests/CMakeLists.txt
++++ b/tests/CMakeLists.txt
+@@ -121,7 +121,7 @@ target_link_libraries(
+   ${Boost_LIBRARIES}
+   ${DBUS_LIBRARIES}
+   ${GMOCK_LIBRARIES}
+-  ${GTEST_BOTH_LIBRARIES}
++  GTest::gmock_main
+   ${PROCESS_CPP_LIBRARIES}
+ )
+ 
+@@ -135,7 +135,7 @@ target_link_libraries(
+   ${Boost_LIBRARIES}
+   ${DBUS_LIBRARIES}
+   ${GMOCK_LIBRARIES}
+-  ${GTEST_BOTH_LIBRARIES}
++  GTest::gmock_main
+   ${PROCESS_CPP_LIBRARIES}
+ )
+ 
+@@ -148,7 +148,7 @@ target_link_libraries(
+   ${Boost_LIBRARIES}
+   ${DBUS_LIBRARIES}
+   ${GMOCK_LIBRARIES}
+-  ${GTEST_BOTH_LIBRARIES}
++  GTest::gmock_main
+   ${PROCESS_CPP_LIBRARIES}
+ )
+ 
+@@ -162,7 +162,7 @@ target_link_libraries(
+   ${Boost_LIBRARIES}
+   ${DBUS_LIBRARIES}
+   ${GMOCK_LIBRARIES}
+-  ${GTEST_BOTH_LIBRARIES}
++  GTest::gmock_main
+   )
+ 
+ target_link_libraries(
+@@ -175,7 +175,7 @@ target_link_libraries(
+   ${Boost_LIBRARIES}
+   ${DBUS_LIBRARIES}
+   ${GMOCK_LIBRARIES}
+-  ${GTEST_BOTH_LIBRARIES}
++  GTest::gmock_main
+   )
+ 
+ target_link_libraries(
+@@ -188,7 +188,7 @@ target_link_libraries(
+   ${Boost_LIBRARIES}
+   ${DBUS_LIBRARIES}
+   ${GMOCK_LIBRARIES}
+-  ${GTEST_BOTH_LIBRARIES}
++  GTest::gmock_main
+   )
+ 
+ target_link_libraries(
+@@ -203,7 +203,7 @@ target_link_libraries(
+   ${LIBXML2_LIBRARIES}
+   ${GMOCK_LIBRARY}
+   ${GMOCK_LIBRARIES}
+-  ${GTEST_BOTH_LIBRARIES}
++  GTest::gmock_main
+   )
+ 
+ target_link_libraries(
+@@ -216,7 +216,7 @@ target_link_libraries(
+   ${Boost_LIBRARIES}
+   ${DBUS_LIBRARIES}
+   ${GMOCK_LIBRARIES}
+-  ${GTEST_BOTH_LIBRARIES}
++  GTest::gmock_main
+   )
+ 
+ target_link_libraries(
+@@ -229,7 +229,7 @@ target_link_libraries(
+   ${Boost_LIBRARIES}
+   ${DBUS_LIBRARIES}
+   ${GMOCK_LIBRARIES}
+-  ${GTEST_BOTH_LIBRARIES}
++  GTest::gmock_main
+   )
+ 
+ target_link_libraries(
+@@ -242,7 +242,7 @@ target_link_libraries(
+   ${Boost_LIBRARIES}
+   ${DBUS_LIBRARIES}
+   ${GMOCK_LIBRARIES}
+-  ${GTEST_BOTH_LIBRARIES}
++  GTest::gmock_main
+   )
+ 
+ target_link_libraries(
+@@ -255,7 +255,7 @@ target_link_libraries(
+   ${Boost_LIBRARIES}
+   ${DBUS_LIBRARIES}
+   ${GMOCK_LIBRARIES}
+-  ${GTEST_BOTH_LIBRARIES}
++  GTest::gmock_main
+   )
+ 
+ target_link_libraries(
+@@ -268,7 +268,7 @@ target_link_libraries(
+   ${Boost_LIBRARIES}
+   ${DBUS_LIBRARIES}
+   ${GMOCK_LIBRARIES}
+-  ${GTEST_BOTH_LIBRARIES}
++  GTest::gmock_main
+   )
+ 
+ target_link_libraries(
+@@ -281,7 +281,7 @@ target_link_libraries(
+   ${Boost_LIBRARIES}
+   ${DBUS_LIBRARIES}
+   ${GMOCK_LIBRARIES}
+-  ${GTEST_BOTH_LIBRARIES}
++  GTest::gmock_main
+   )
+ 
+ target_link_libraries(
+@@ -293,7 +293,7 @@ target_link_libraries(
+   ${Boost_LIBRARIES}
+   ${DBUS_LIBRARIES}
+   ${GMOCK_LIBRARIES}
+-  ${GTEST_BOTH_LIBRARIES}
++  GTest::gmock_main
+   )
+ 
+ target_link_libraries(
+@@ -305,7 +305,7 @@ target_link_libraries(
+   ${Boost_LIBRARIES}
+   ${DBUS_LIBRARIES}
+   ${GMOCK_LIBRARIES}
+-  ${GTEST_BOTH_LIBRARIES}
++  GTest::gmock_main
+   )
+ 
+ add_test(async_execution_load_test ${CMAKE_CURRENT_BINARY_DIR}/async_execution_load_test)
