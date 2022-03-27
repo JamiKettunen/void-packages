@@ -1,0 +1,1 @@
+site="${distfiles%/-*}/commits/main.atom"

@@ -1,0 +1,23 @@
+Fixes:
+
+In file included from ../src/biometry/util/dynamic_library.cpp:20:
+../src/biometry/util/dynamic_library.h:99:31: error: 'shared_ptr' in namespace 'std' does not name a template type
+   99 |     DynamicLibrary(const std::shared_ptr<Api>& api, const boost::filesystem::path& path);
+      |                               ^~~~~~~~~~
+../src/biometry/util/dynamic_library.h:27:1: note: 'std::shared_ptr' is defined in header '<memory>'; did you forget to '#include <memory>'?
+   26 | #include <boost/filesystem.hpp>
+  +++ |+#include <memory>
+   27 | 
+---
+diff --git a/src/biometry/util/dynamic_library.h b/src/biometry/util/dynamic_library.h
+index 2c6dae8..7ec9415 100644
+--- a/src/biometry/util/dynamic_library.h
++++ b/src/biometry/util/dynamic_library.h
+@@ -24,6 +24,7 @@
+ #include <biometry/visibility.h>
+ 
+ #include <boost/filesystem.hpp>
++#include <memory>
+ 
+ #include <string>
+ 
