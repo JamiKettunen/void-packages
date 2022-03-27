@@ -1,0 +1,35 @@
+# Template file for 'libqofono'
+pkgname=libqofono
+version=0.114
+revision=1
+build_style=qmake
+# CONFIG+=no-module-prefix? (drops "MeeGo." prefix)
+hostmakedepends="qt5-qmake qt5-host-tools"
+makedepends="qt5-declarative-devel"
+short_desc="A library for accessing the ofono daemon + a Qt declarative plugin"
+maintainer="Jami Kettunen <jami.kettunen@protonmail.com>"
+license="LGPL-2.1-only"
+homepage="https://github.com/sailfishos/libqofono"
+distfiles="https://github.com/sailfishos/libqofono/archive/refs/tags/${version}.tar.gz"
+checksum=7827a10d18604f6f8c24bae6832b7e9e75180e8f7e69c5569514a6b079550de8
+
+libqofono-devel_package() {
+	depends="${sourcepkg}>=${version}_${revision}"
+	short_desc+=" - development files"
+	pkg_install() {
+		vmove usr/include
+		vmove usr/lib/pkgconfig
+		vmove usr/share/qt5/mkspecs
+		vmove "usr/lib/*.so"
+		vmove "usr/lib/*.prl"
+	}
+}
+
+libqofono-tests_package() {
+	#depends="${sourcepkg}>=${version}_${revision}"
+	short_desc+=" - testing binaries"
+	pkg_install() {
+		vmove opt/tests/libqofono-qt5
+		vmove opt/examples/libqofono-qt5
+	}
+}
