@@ -1,0 +1,17 @@
+# Template file for 'ayatana-indicator-display'
+pkgname=ayatana-indicator-display
+version=22.9.1
+revision=1
+build_style=cmake
+configure_args="-DENABLE_TESTS=ON"
+hostmakedepends="pkg-config ubports-cmake-extras intltool"
+makedepends="libayatana-common-devel glib-devel libgudev-devel properties-cpp
+ qt5-devel gtest-devel libqtdbustest-devel libqtdbusmock-devel"
+checkdepends="python3-dbusmock cppcheck"
+short_desc="The display menu indicator for Lomiri"
+maintainer="Jami Kettunen <jami.kettunen@protonmail.com>"
+license="GPL-3.0-only"
+homepage="https://github.com/AyatanaIndicators/ayatana-indicator-display"
+changelog="https://raw.githubusercontent.com/AyatanaIndicators/ayatana-indicator-display/main/ChangeLog"
+distfiles="https://github.com/AyatanaIndicators/ayatana-indicator-display/archive/refs/tags/${version}.tar.gz"
+checksum=97d46cb5d4ce514f736f865fb756634960f9d7ddfcf961e5c23077f73dad5ced
