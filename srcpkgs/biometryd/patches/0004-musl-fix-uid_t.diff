@@ -1,0 +1,38 @@
+Fixes the following under musl libc:
+
+../src/biometry/qml/Biometryd/user.cpp:26:1: error: 'uid_t' does not name a type; did you mean 'pid_t'?
+   26 | uid_t biometry::qml::User::uid() const
+      | ^~~~~
+      | pid_t
+../src/biometry/qml/Biometryd/user.cpp:31:6: error: variable or field 'setUid' declared void
+   31 | void biometry::qml::User::setUid(uid_t id)
+      |      ^~~~~~~~
+../src/biometry/qml/Biometryd/user.cpp:31:34: error: 'uid_t' was not declared in this scope; did you mean 'pid_t'?
+   31 | void biometry::qml::User::setUid(uid_t id)
+      |                                  ^~~~~
+      |                                  pid_t
+---
+diff --git a/include/biometry/user.h b/include/biometry/user.h
+index e55c48a..fffde30 100644
+--- a/include/biometry/user.h
++++ b/include/biometry/user.h
+@@ -24,6 +24,7 @@
+ 
+ #include <iosfwd>
+ 
++#include <unistd.h>
+ #include <sys/types.h>
+ 
+ namespace biometry
+diff --git a/src/biometry/qml/Biometryd/user.h b/src/biometry/qml/Biometryd/user.h
+index 02d29f7..8bdfae7 100644
+--- a/src/biometry/qml/Biometryd/user.h
++++ b/src/biometry/qml/Biometryd/user.h
+@@ -22,6 +22,7 @@
+ 
+ #include <biometry/visibility.h>
+ 
++#include <unistd.h>
+ #include <QObject>
+ 
+ namespace biometry

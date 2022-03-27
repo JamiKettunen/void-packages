@@ -1,0 +1,32 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 54854da..a513fbf 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -6,6 +6,9 @@ set(BIOMETRYD_VERSION_MAJOR 1)
+ set(BIOMETRYD_VERSION_MINOR 0)
+ set(BIOMETRYD_VERSION_PATCH 1)
+ 
++# Options
++option(ENABLE_TESTS "Enable all tests and checks" ON)
++
+ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Werror -Wall -pedantic -Wextra -fPIC -fvisibility=hidden -pthread")
+ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -Werror -Wall -fno-strict-aliasing -fvisibility=hidden -fvisibility-inlines-hidden -pedantic -Wextra -fPIC -pthread")
+ set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,--no-undefined")
+@@ -20,8 +23,6 @@ set(
+     BIOMETRYD_CUSTOM_PLUGIN_DIRECTORY "/custom/vendor/biometryd/plugins"
+     CACHE STRING "Custom plugin installation directory")
+ 
+-enable_testing()
+-
+ find_package(PkgConfig)
+ find_package(Boost COMPONENTS filesystem program_options system REQUIRED)
+ 
+@@ -50,4 +51,7 @@ add_subdirectory(data)
+ add_subdirectory(doc)  
+ add_subdirectory(include)
+ add_subdirectory(src)
+-add_subdirectory(tests)
++if(ENABLE_TESTS)
++    add_subdirectory(tests)
++    enable_testing()
++endif()

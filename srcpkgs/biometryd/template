@@ -1,0 +1,39 @@
+# Template file for 'biometryd'
+pkgname=biometryd
+version=1.0.1r156
+revision=1
+# TODO: ubports/xenial_-_android9 branch (for optional hybris support)?
+_commit=39b529a005b58febacf3919125869b016f4e6064 # tip of main branch as of 2022-10-04
+wrksrc="biometryd-${_commit}"
+build_style=cmake
+configure_args="-DENABLE_WERROR=OFF"
+hostmakedepends="pkg-config qt5-host-tools qt5-qmake"
+makedepends="boost-devel dbus-cpp-devel dbus-devel libapparmor-devel
+ libprocess-cpp-devel sqlite-devel qt5-declarative-devel properties-cpp"
+checkdepends="gtest-devel"
+short_desc="Lomiri fingerprint daemon"
+maintainer="Jami Kettunen <jami.kettunen@protonmail.com>"
+license="GPL-3.0-or-later, LGPL-3.0-or-later"
+homepage="https://launchpad.net/biometryd"
+distfiles="https://gitlab.com/ubports/development/core/biometryd/-/archive/${_commit}.tar.gz"
+checksum=d8797b19f95cf3c9d8910fc3112912e3d458dfe8be81eea101dae26bdc2e6ead
+
+# FIXME: No tests were found despite https://gitlab.com/ubports/development/core/biometryd/-/tree/main/tests existing?!
+
+post_install() {
+	# FIXME: optional systemd, installs to ${DESTDIR}/lib which must not exist!
+	rm -r ${DESTDIR}/etc/init ${DESTDIR}/lib
+}
+
+biometryd-devel_package() {
+	depends="${sourcepkg}>=${version}_${revision}"
+	short_desc+=" - development files"
+	pkg_install() {
+		vmove usr/include
+		vmove usr/lib/pkgconfig
+		vmove "usr/lib/*.so"
+	}
+}
+
+# TODO:
+# - check for properties-cpp pc (core/signal.h)

@@ -1,0 +1,56 @@
+From 637978d235c4127971789dfb637132e2c3c992d5 Mon Sep 17 00:00:00 2001
+From: Mike Gabriel <mike.gabriel@das-netzwerkteam.de>
+Date: Mon, 3 Oct 2022 23:49:03 +0200
+Subject: [PATCH] CMake: Add ENABLE_WERROR boolean build option.
+
+Link: https://gitlab.com/ubports/development/core/biometryd/-/merge_requests/18 @ 637978d2
+---
+ CMakeLists.txt                            | 10 ++++++++--
+ src/biometry/qml/Biometryd/CMakeLists.txt |  8 ++++++--
+ 2 files changed, 14 insertions(+), 4 deletions(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 54854da..63f5cd2 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -6,10 +6,16 @@ set(BIOMETRYD_VERSION_MAJOR 1)
+ set(BIOMETRYD_VERSION_MINOR 0)
+ set(BIOMETRYD_VERSION_PATCH 1)
+ 
+-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Werror -Wall -pedantic -Wextra -fPIC -fvisibility=hidden -pthread")
+-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -Werror -Wall -fno-strict-aliasing -fvisibility=hidden -fvisibility-inlines-hidden -pedantic -Wextra -fPIC -pthread")
++option(ENABLE_WERROR "Treat all build warnings as errors" ON)
++
++set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -pedantic -Wextra -fPIC -fvisibility=hidden -pthread")
++set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -Wall -fno-strict-aliasing -fvisibility=hidden -fvisibility-inlines-hidden -pedantic -Wextra -fPIC -pthread")
+ set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,--no-undefined")
+ 
++if(ENABLE_WERROR)
++    add_compile_options("-Werror")
++endif()
++
+ include(GNUInstallDirs)
+ 
+ set(
+diff --git a/src/biometry/qml/Biometryd/CMakeLists.txt b/src/biometry/qml/Biometryd/CMakeLists.txt
+index 31afdf3..735b0d2 100644
+--- a/src/biometry/qml/Biometryd/CMakeLists.txt
++++ b/src/biometry/qml/Biometryd/CMakeLists.txt
+@@ -1,7 +1,11 @@
+-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Werror -Wall -pedantic -Wextra -fPIC -fvisibility=hidden -pthread")
+-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -Werror -Wall -fno-strict-aliasing -pedantic -Wextra -fPIC -pthread")
++set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -pedantic -Wextra -fPIC -fvisibility=hidden -pthread")
++set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -Wall -fno-strict-aliasing -pedantic -Wextra -fPIC -pthread")
+ set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,--no-undefined")
+ 
++if(ENABLE_WERROR)
++    add_compile_options("-Werror")
++endif()
++
+ find_package(Qt5Core 5.4 REQUIRED)
+ find_package(Qt5Qml 5.4 REQUIRED)
+ find_package(Qt5Quick 5.4 REQUIRED)
+-- 
+GitLab
+
+
