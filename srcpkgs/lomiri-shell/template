@@ -20,8 +20,8 @@ makedepends="qt5-devel qt5-declarative-devel qt5-plugin-mysql qt5-plugin-odbc
 checkdepends="libqtdbustest-devel libqtdbusmock-devel dbus-test-runner dbus python3-dbusmock
  gdb xvfb-run glm boost-devel"
 # NOTE: for more dependencies see the lomiri meta-package
-depends="gsettings-qt lomiri-schemas lomiri-notifications biometryd qt5-graphicaleffects
- lomiri-settings-components lomiri-thumbnailer hfd-service void-artwork"
+depends="gsettings-qt lomiri-schemas lomiri-notifications biometryd lomiri-settings-components
+ lomiri-thumbnailer hfd-service qt5-graphicaleffects qt5-multimedia"
 short_desc="A convergent shell by UBports"
 maintainer="Jami Kettunen <jami.kettunen@protonmail.com>"
 license="GPL-3.0-only, LGPL-2.1-only"
