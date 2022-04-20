@@ -209,7 +209,11 @@ update_check() {
     tr _ . |
     {
         if [ -n "$git" ]; then
-            head -1
+            if [ -n "$git_index" ]; then
+                head -n$git_index | tail -n1
+            else
+                head -n1
+            fi
         else
             sort -Vu
         fi

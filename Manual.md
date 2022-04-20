@@ -849,6 +849,9 @@ automatically set if either `_commit` or `_githash` are set; when set
 `version` automatically gets the value of `${_commit}${_githash}` and
 `pattern` defaults to `<id>\K.*commit\/\K.*(?=<\/id>)`. `site` is
 guessed for GitHub and GitLab with `_branch` defaulting to `main`.
+`git_index` can be set to track the Nth commit from top instead of the
+latest one, note that this only applies to the top 20 (GitHub) or top
+40 (GitLab) commits from the history.
 
 - `single_directory` can be set to disable
 detecting directory containing one version of sources in url,
