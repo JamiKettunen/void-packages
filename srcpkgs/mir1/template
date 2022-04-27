@@ -2,7 +2,7 @@
 # Template file for 'mir1'
 pkgname=mir1
 version=1.8.2r38397
-revision=1
+revision=2
 _commit=0543fd7647e52b23a8020851cc4cf235f5ade08b # tip of 1.x/miroil branch as of 2022-03-27
 wrksrc="mir-${_commit}"
 build_style=cmake
