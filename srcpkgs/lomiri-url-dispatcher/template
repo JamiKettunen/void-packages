@@ -1,7 +1,7 @@
 # Template file for 'lomiri-url-dispatcher'
 pkgname=lomiri-url-dispatcher
 version=0.1.1r760
-revision=1
+revision=3
 _commit=8e3b764984410b98d74439fb13becfc1d6e65d33 # tip of main branch as of 2022-03-26
 wrksrc="lomiri-url-dispatcher-${_commit}"
 build_style=cmake
