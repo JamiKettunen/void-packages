@@ -1,7 +1,7 @@
 # Template file for 'lomiri-app-launch'
 pkgname=lomiri-app-launch
 version=0.1.1r3079
-revision=1
+revision=2
 _commit=e54300bd6f5513a24f21da7d77ed6ef3f132d258 # tip of main branch as of 2022-03-26
 wrksrc="lomiri-app-launch-${_commit}"
 wrksrc_build="cmake"
