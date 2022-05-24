@@ -6,7 +6,7 @@ revision=1
 _commit=e64a781891ad061c96ad42af28af072cf645d541 # tip of personal/mariogrip/alt-split branch as of 2022-03-20
 wrksrc="geonames-${_commit}"
 build_style=cmake
-configure_args="-DWANT_DOC=$(vopt_if doc ON OFF) -DWANT_DEMO=$(vopt_if demo ON OFF)"
+configure_args="$(vopt_bool doc WANT_DOC) $(vopt_bool demo WANT_DEMO)"
 hostmakedepends="pkg-config $(vopt_if doc gtk-doc) gettext"
 makedepends="glib-devel $(vopt_if demo gtk+3-devel)"
 short_desc="Library to parse and query the geonames database dump (personal/mariogrip/alt-split branch)"
