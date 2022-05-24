@@ -6,7 +6,7 @@ revision=2
 _commit=0543fd7647e52b23a8020851cc4cf235f5ade08b # tip of 1.x/miroil branch as of 2022-03-27
 wrksrc="mir-${_commit}"
 build_style=cmake
-configure_args="-DMIR_LINK_TIME_OPTIMIZATION=$(vopt_if lto ON OFF) -DMIR_FATAL_COMPILE_WARNINGS=OFF"
+configure_args="$(vopt_bool lto MIR_LINK_TIME_OPTIMIZATION) -DMIR_FATAL_COMPILE_WARNINGS=OFF"
 hostmakedepends="pkg-config python3-Pillow protobuf glib-devel lttng-ust libdrm-devel
  libglvnd-devel capnproto"
 makedepends="boost-devel libglvnd-devel glm glog-devel gflags-devel lttng-ust-devel
