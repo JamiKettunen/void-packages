@@ -4,7 +4,7 @@ version=0.9.1
 revision=1
 wrksrc="qmenumodel-${version}"
 build_style=cmake
-configure_args="-DGENERATE_DOC=$(vopt_if doc ON OFF)"
+configure_args="$(vopt_bool doc GENERATE_DOC)"
 hostmakedepends="pkg-config qt5-host-tools qt5-qmake $(vopt_if doc qt5-tools)"
 makedepends="qt5-devel qt5-declarative-devel"
 checkdepends="dbus-test-runner dbus python3-dbus python3-gobject"
