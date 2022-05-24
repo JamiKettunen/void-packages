@@ -3,7 +3,7 @@ pkgname=ayatana-indicator-datetime
 version=22.2.0
 revision=1
 build_style=cmake
-configure_args="-DENABLE_LOMIRI_FEATURES=$(vopt_if lomiri ON OFF)"
+configure_args="$(vopt_bool lomiri ENABLE_LOMIRI_FEATURES)"
 hostmakedepends="pkg-config ubports-cmake-extras intltool"
 makedepends="libayatana-common-devel glib-devel libical-devel evolution-data-server-devel
  gstreamer1-devel libnotify-devel properties-cpp libaccounts-glib-devel ayatana-indicator-messages-devel
