@@ -4,7 +4,7 @@ version=22.2.0
 revision=1
 build_style=cmake
 build_helper="gir"
-configure_args="-DENABLE_LOMIRI_FEATURES=$(vopt_if lomiri ON OFF)"
+configure_args="$(vopt_bool lomiri ENABLE_LOMIRI_FEATURES)"
 # TODO: I shouldn't need accountsservice-ubuntu-devel on host?!
 hostmakedepends="pkg-config vala ubports-cmake-extras intltool accountsservice-ubuntu-devel"
 makedepends="pulseaudio-devel glib-devel libgee08-devel libxml2-devel
