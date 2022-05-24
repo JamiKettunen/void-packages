@@ -73,3 +73,4 @@ lomiri-shell-devel_package() {
 # TODO:
 # - drop packaged /usr/var/lib/lomiri/version if nothing reads it? (data/CMakeLists.txt:27)
 # - look for pam-devel pc (security/pam_appl.h) in CMakeLists.txt
+# - use "void-artwork" in some form, e.g. app launcher button icon and colors(?)
