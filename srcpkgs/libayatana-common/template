@@ -4,7 +4,7 @@ version=0.9.7
 revision=1
 build_style=cmake
 build_helper="gir"
-configure_args="-DENABLE_LOMIRI_FEATURES=$(vopt_if lomiri ON OFF)"
+configure_args="$(vopt_bool lomiri ENABLE_LOMIRI_FEATURES)"
 hostmakedepends="pkg-config $(vopt_if vala 'vala') intltool ubports-cmake-extras"
 makedepends="glib-devel $(vopt_if lomiri 'lomiri-url-dispatcher-devel')"
 checkdepends="gtest-devel"
