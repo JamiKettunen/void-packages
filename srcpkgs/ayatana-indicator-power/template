@@ -3,7 +3,7 @@ pkgname=ayatana-indicator-power
 version=22.2.0
 revision=1
 build_style=cmake
-configure_args="-DENABLE_LOMIRI_FEATURES=$(vopt_if lomiri ON OFF)"
+configure_args="$(vopt_bool lomiri ENABLE_LOMIRI_FEATURES)"
 hostmakedepends="pkg-config ubports-cmake-extras intltool"
 makedepends="glib-devel libnotify-devel libayatana-common-devel
  $(vopt_if lomiri 'lomiri-schemas-devel lomiri-sounds-devel')"
