@@ -1,6 +1,6 @@
 # Template file for 'libqofono'
 pkgname=libqofono
-version=0.110
+version=0.113
 revision=1
 build_style=qmake
 hostmakedepends="qt5-qmake qt5-host-tools"
@@ -10,7 +10,7 @@ maintainer="Jami Kettunen <jami.kettunen@protonmail.com>"
 license="LGPL-2.1-only"
 homepage="https://github.com/sailfishos/libqofono"
 distfiles="https://github.com/sailfishos/libqofono/archive/refs/tags/${version}.tar.gz"
-checksum=e22f7262805d306ac43d39c9c1f511c7aeb64d29769640f6db0bc01eac00eafc
+checksum=58c33f87b6a4174a67736336c93d037d3c5765a920e0ce14c0804f3b397e985f
 
 libqofono-devel_package() {
 	depends="${sourcepkg}>=${version}_${revision}"
