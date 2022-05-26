@@ -1,6 +1,6 @@
 # Template file for 'umockdev'
 pkgname=umockdev
-version=0.17.8
+version=0.17.12
 revision=1
 build_style=meson
 build_helper="gir"
@@ -12,7 +12,7 @@ maintainer="Jami Kettunen <jami.kettunen@protonmail.com>"
 license="LGPL-2.1-or-later"
 homepage="https://github.com/martinpitt/umockdev"
 distfiles="https://github.com/martinpitt/umockdev/archive/refs/tags/${version}.tar.gz"
-checksum=27f2da0242b8f6718b1798228371e025a07cf222c7fb687335d1882536c63e37
+checksum=ac59aa274cb0eb910051d9da413c89cfaf5455705eea30e83a9ae50e4660b238
 
 umockdev-devel_package() {
 	depends="umockdev>=${version}_${revision}"
@@ -28,5 +28,5 @@ umockdev-devel_package() {
 
 # FIXME:
 # - optional gir? (ninja: error: '/usr/aarch64-linux-musl/usr/bin/g-ir-compiler', needed by 'UMockdev-1.0.typelib', missing and no known rule to make it)
-# - optional gtk-doc? -> configure_args+=" -Dgtk_doc=true"
+# - optional gtk-doc vopt? useful even? -> configure_args+=" -Dgtk_doc=true"
 # - maybe no checkdepends "which" require (find it somehow else than https://github.com/martinpitt/umockdev/blob/master/tests/test-umockdev-record.vala#L817)?
