@@ -4176,6 +4176,7 @@ libmirplatform.so.18 mir1-1.8.2r38397_1
 libmircommon.so.7 mir1-1.8.2r38397_1
 libmircore.so.1 mir1-1.8.2r38397_1
 libmiral.so.3 mir1-1.8.2r38397_1
+libmiroil.so.1 mir1-1.8.2r38397_1
 libprocess-cpp.so.3 libprocess-cpp-3.0.2r157_1
 libclick-0.4.so.0 libclick-0.5.0r1104_1
 liblomiri-app-launch.so.0 lomiri-app-launch-0.1.1r3079_1
