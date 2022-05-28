@@ -1,32 +1,42 @@
+From 05ddb08ca22691c33c09d6733aaf33ddf1289134 Mon Sep 17 00:00:00 2001
+From: Jami Kettunen <jami.kettunen@protonmail.com>
+Date: Sat, 26 Mar 2022 13:12:10 +0200
+Subject: [PATCH 4/8] Make systemd an optional dependency
+
+Since 0ec0703 ("Jobs backend: Partially undo 114418b3, use jobs-systemd
+backend again for now. ") systemd has been a required dependency due to
+jobs::manager::SystemD being forced.
+
+Allow switching to jobs::manager::POSIX with a -DUSE_SYSTEMD=NO.
+---
+ CMakeLists.txt                      | 1 +
+ liblomiri-app-launch/CMakeLists.txt | 3 +++
+ liblomiri-app-launch/jobs-base.cpp  | 7 +++++--
+ 3 files changed, 9 insertions(+), 2 deletions(-)
+
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index a2212ca..732f381 100644
+index a2408a4..7141e5c 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
 @@ -13,6 +13,7 @@ set(ABI_VERSION 0)
  ##########################
  
- option (enable_tests "Build tests" ON)
-+option (USE_SYSTEMD "Use systemd jobs manager instead of POSIX" 1)
+ option (ENABLE_TESTS "Build tests" ON)
++option (USE_SYSTEMD "Use systemd jobs manager instead of POSIX" ON)
  
  set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake" "${CMAKE_MODULE_PATH}")
  
-@@ -131,6 +132,7 @@ list(APPEND filter-list "${CMAKE_SOURCE_DIR}/tests/*")
- if (NOT ${CMAKE_BINARY_DIR} STREQUAL ${CMAKE_SOURCE_DIR})
-   list(APPEND filter-list "${CMAKE_BINARY_DIR}/*")
- endif()
-+# FIXME: no systemd job if not enabled
- ENABLE_COVERAGE_REPORT(
-   TARGETS
- 	lomiri-launcher
 diff --git a/liblomiri-app-launch/CMakeLists.txt b/liblomiri-app-launch/CMakeLists.txt
-index dd07d00..a05de65 100644
+index dd07d00..12cdecf 100644
 --- a/liblomiri-app-launch/CMakeLists.txt
 +++ b/liblomiri-app-launch/CMakeLists.txt
-@@ -21,6 +21,7 @@ add_definitions ( -DG_LOG_DOMAIN="lomiri-app-launch" )
+@@ -21,6 +21,9 @@ add_definitions ( -DG_LOG_DOMAIN="lomiri-app-launch" )
  add_definitions ( -DLOMIRI_APP_LAUNCH_ARCH="${LOMIRI_APP_LAUNCH_ARCH}" )
  add_definitions ( -DHELPER_EXEC_TOOL_DIR="${pkglibexecdir}" )
  add_definitions ( -DHELPER_HELPER_TOOL="${pkglibexecdir}/systemd-helper-helper" )
-+add_definitions ( -DUSE_SYSTEMD=${USE_SYSTEMD} )
++if (${USE_SYSTEMD})
++	add_definitions ( -DUSE_SYSTEMD=1 )
++endif()
  
  set(LAUNCHER_HEADERS
  lomiri-app-launch.h
@@ -50,3 +60,6 @@ index 46f3e3e..467b8cd 100644
  }
  
  const std::list<std::string>& Base::getAllApplicationJobs() const
+-- 
+2.36.1
+

@@ -1,17 +1,30 @@
+From 3792104964d794c22973e236bb1c926c7399d1a0 Mon Sep 17 00:00:00 2001
+From: Jami Kettunen <jami.kettunen@protonmail.com>
+Date: Tue, 29 Mar 2022 02:24:23 +0300
+Subject: [PATCH 5/8] Make dbustest-1 an optional dependency
+
+It's not used at all if tests aren't enabled.
+---
+ CMakeLists.txt | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
+
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index 732f381..2192c7b 100644
+index 7141e5c..ba8bbc1 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
-@@ -83,8 +83,10 @@ include_directories(${CLICK_INCLUDE_DIRS})
+@@ -81,8 +81,10 @@ include_directories(${CLICK_INCLUDE_DIRS})
  pkg_check_modules(DBUS REQUIRED dbus-1)
  include_directories(${DBUS_INCLUDE_DIRS})
  
 -pkg_check_modules(DBUSTEST REQUIRED dbustest-1>=14.04.0)
 -include_directories(${DBUSTEST_INCLUDE_DIRS})
-+if(enable_tests)
++if(${ENABLE_TESTS})
 +  pkg_check_modules(DBUSTEST REQUIRED dbustest-1>=14.04.0)
 +  include_directories(${DBUSTEST_INCLUDE_DIRS})
 +endif()
  
  pkg_check_modules(LTTNG REQUIRED lttng-ust)
  include_directories(${LTTNG_INCLUDE_DIRS})
+-- 
+2.36.1
+
