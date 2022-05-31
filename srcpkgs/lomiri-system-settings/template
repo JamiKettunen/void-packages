@@ -1,8 +1,8 @@
 # Template file for 'lomiri-system-settings'
 pkgname=lomiri-system-settings
-version=1.0r7929
+version=1.0r7931
 revision=1
-_commit=f01eb2410aa8ffe4ec677b4aab4e283510efd60b # tip of main branch as of 2022-03-26
+_commit=7f225d6b971fad629b35942645098acf00ba21d6 # tip of main branch as of 2022-05-31
 wrksrc="lomiri-system-settings-${_commit}"
 build_style=cmake
 hostmakedepends="pkg-config qt5-host-tools qt5-qmake intltool"
@@ -19,7 +19,7 @@ maintainer="Jami Kettunen <jami.kettunen@protonmail.com>"
 license="GPL-3.0-only"
 homepage="https://gitlab.com/ubports/core/lomiri-system-settings"
 distfiles="https://gitlab.com/ubports/core/lomiri-system-settings/-/archive/${_commit}.tar.gz"
-checksum=4385a147197c7e38f8c083e5eb7c96889c80e62887547af99636e21f590952dc
+checksum=8f990184f7df0d319b77028ca5f9570012d8f11ebfc43737970fbb3f17c98f0b
 
 if [ -z "$XBPS_CHECK_PKGS" ] || [ "$CROSS_BUILD" ]; then
 	configure_args+=" -DENABLE_TESTS=OFF"
