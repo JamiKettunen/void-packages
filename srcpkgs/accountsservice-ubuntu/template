@@ -1,7 +1,7 @@
 # Template file for 'accountsservice-ubuntu'
 pkgname=accountsservice-ubuntu
 version=0.6.55
-revision=1
+revision=2
 wrksrc="accountsservice-${version}"
 build_style=meson
 build_helper="gir"
@@ -19,7 +19,8 @@ make_dirs="
  /var/lib/AccountsService/users 755 root root
  /var/lib/AccountsService/icons 755 root root"
 
-conflicts="accountsservice"
+replaces="accountsservice<=${version}_${revision}"
+provides="accountsservice-${version}_${revision}"
 
 # Package build options
 build_options="elogind gir"
