@@ -1,6 +1,6 @@
 # Template file for 'libgeonames'
 pkgname=libgeonames
-version=0.2.0r97
+version=0.3.0r97
 revision=1
 # TODO: track main branch after merge of ubports/core/geonames!1
 _commit=334522ebf59b84e65f59aa3bccdb9f00efeee7ae # tip of personal/mariogrip/alt-split branch as of 2022-05-25
