@@ -24,7 +24,7 @@ checksum=d6fe4889b326ab5b646cb3d3167dadc4dd2d1696bb1c0f9c9ca8e87fb202a106
 
 build_options="lto"
 desc_option_lto="Build with link-time optimization (LTO)"
-build_options_default="" # lto
+#build_options_default="lto"
 
 if [ "$XBPS_TARGET_LIBC" = "glibc" ]; then
 	makedepends+=" systemtap-devel"
@@ -32,11 +32,11 @@ fi
 
 if [ -z "$XBPS_CHECK_PKGS" ] || [ "$CROSS_BUILD" ]; then
 	configure_args+=" -DMIR_ENABLE_TESTS=OFF"
+else
+	# FIXME: these tests get stuck without any output for 10 minutes
+	# -> try e.g. "mir_acceptance_tests --logging on" (what about mir_unit_tests.bin?!)
+	configure_args+=" -DMIR_BUILD_ACCEPTANCE_TESTS=OFF -DMIR_BUILD_UNIT_TESTS=OFF"
 fi
-
-# FIXME: these tests get stuck without any output for 10 minutes
-# -> try e.g. "mir_acceptance_tests --logging on"
-configure_args+=" -DMIR_BUILD_ACCEPTANCE_TESTS=OFF -DMIR_BUILD_UNIT_TESTS=OFF"
 
 # FIXME: /usr/aarch64-linux-musl/usr/bin/capnpc-c++: no such plugin (executable should be '/usr/aarch64-linux-musl/usr/bin/capnpc-c++')
 # https://github.com/capnproto/capnproto/blob/master/c%2B%2B/cmake/CapnProtoMacros.cmake
@@ -73,7 +73,25 @@ mir1-devel_package() {
 	}
 }
 
+# FIXME: -DMIR_BUILD_UNIT_TESTS=ON
+#[ FAILED ] MesaGraphicsPlatform.probe_returns_best_when_master
+#[ FAILED ] MesaGraphicsPlatform.probe_returns_supported_on_llvmpipe
+#[ FAILED ] MesaGraphicsPlatform.probe_returns_supported_when_old_egl_mesa_gbm_platform_supported
+#[ FAILED ] MesaGraphicsPlatform.probe_returns_supported_when_cannot_determine_kms_support
+#[ FAILED ] MesaGraphicsPlatform.probe_returns_supported_when_unexpected_error_returned
+#[ FAILED ] MesaGraphicsPlatform.probe_returns_supported_when_cannot_determine_busid
+#The following tests FAILED:
+#	13 - mir_unit_tests (Failed) - hung, killed mir_unit_tests.bin
+#	14 - mir_umock_unit_tests (Failed)
+#	16 - mir_unit_tests_mesa-kms (Failed)
+#	17 - mir_unit_tests_mesa-x11 (Failed)
+
 # MUSL FIXME?
 # CMake Warning at src/common/sharedlibrary/CMakeLists.txt:38 (message):
 #  dlvsym() not supported by libc.  Mir may attempt to load ABI-incompatible
 #  platform modules
+
+# - following tests fail:
+#	 8 - miral-test (Failed)
+#	 9 - miral-test-internal (Failed)
+#	10 - mir_integration_tests (Failed)
