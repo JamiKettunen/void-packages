@@ -1,12 +1,12 @@
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index ad924ffbb..cab82f2cb 100644
+index ad924ffbb..d4e5accec 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
 @@ -138,6 +138,8 @@ if (Werror)
      set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror")
  endif()
  
-+option(USE_SYSTEMD "Build against libsystemd" 1)
++option(USE_SYSTEMD "Build against libsystemd" ON)
 +
  # gtk and lomiri-core (actually sigc++) do not like Qt defining macros named
  # "signals" and "slots"
@@ -24,10 +24,10 @@ index 06abd21f9..d838cd3b4 100644
 +    add_subdirectory(systemd-user)
 +endif()
 diff --git a/src/CMakeLists.txt b/src/CMakeLists.txt
-index ac03204b6..c3558fbd7 100644
+index ac03204b6..2f4e085ea 100644
 --- a/src/CMakeLists.txt
 +++ b/src/CMakeLists.txt
-@@ -43,14 +43,18 @@ if (ENABLE_TOUCH_EMULATION)
+@@ -43,14 +43,20 @@ if (ENABLE_TOUCH_EMULATION)
      set(SOURCE_FILES ${SOURCE_FILES} MouseTouchAdaptor.cpp)
  endif()
  
@@ -45,13 +45,15 @@ index ac03204b6..c3558fbd7 100644
  
  add_executable(${SHELL_APP} ${SOURCE_FILES})
  
-+target_compile_definitions(${SHELL_APP} PRIVATE USE_SYSTEMD=${USE_SYSTEMD})
++if(USE_SYSTEMD)
++    target_compile_definitions(${SHELL_APP} PRIVATE USE_SYSTEMD=1)
++endif()
 +
  target_link_libraries(${SHELL_APP}
      Qt5::DBus Qt5::Gui Qt5::Qml Qt5::Quick Qt5::Test
      ${GSETTINGS_QT_LDFLAGS}
 diff --git a/src/main.cpp b/src/main.cpp
-index 8497c57cf..1badc68de 100644
+index 8497c57cf..a566d0c62 100644
 --- a/src/main.cpp
 +++ b/src/main.cpp
 @@ -25,7 +25,9 @@

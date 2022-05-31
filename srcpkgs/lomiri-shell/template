@@ -1,8 +1,8 @@
 # Template file for 'lomiri-shell'
 pkgname=lomiri-shell
-version=0.1r18743
+version=0.1r18748
 revision=1
-_commit=0c22fb13e749fcf190abdffa71e6acf715dfd733 # tip of main branch as of 2022-03-27
+_commit=bc9e941cb388adb4c7e26c1070ca9cf0d5a9c433 # tip of main branch as of 2022-05-31
 wrksrc="lomiri-${_commit}"
 build_style=cmake
 configure_args="-DUSE_SYSTEMD=0 -DUSE_DEBIAN_CHANGELOG_VERSION=OFF
@@ -27,10 +27,11 @@ maintainer="Jami Kettunen <jami.kettunen@protonmail.com>"
 license="GPL-3.0-only, LGPL-2.1-only"
 homepage="https://lomiri.com"
 distfiles="https://gitlab.com/ubports/core/lomiri/-/archive/${_commit}.tar.gz"
-checksum=538400c2a1e07c1ca722784f48d374994e90e7cc95ba98d3f30320d3738f8ed0
+checksum=8d73c7976adde5a5022028aa106c21d0c03cef3d87767a59a9dffe329ee0325e
 
 build_options="usermetrics"
 desc_option_usermetrics="Enable support for collection of anonymous metrics about users"
+#build_options_default="usermetrics"
 
 if [ -z "$XBPS_CHECK_PKGS" ] || [ "$CROSS_BUILD" ]; then
 	configure_args+=" -DNO_TESTS=ON"

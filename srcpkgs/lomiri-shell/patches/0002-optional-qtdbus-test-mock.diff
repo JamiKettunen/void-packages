@@ -1,3 +1,5 @@
+Partially implements https://gitlab.com/ubports/core/lomiri/-/merge_requests/3 @ db2c5ab9
+---
 diff --git a/CMakeLists.txt b/CMakeLists.txt
 index d9b1a62eb..b66b5df21 100644
 --- a/CMakeLists.txt
