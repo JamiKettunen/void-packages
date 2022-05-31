@@ -1,5 +1,26 @@
+From 2b3f1872e43aeccd924690ecd875f42f86cdce5a Mon Sep 17 00:00:00 2001
+From: Jami Kettunen <jami.kettunen@protonmail.com>
+Date: Fri, 27 May 2022 19:30:25 +0300
+Subject: [PATCH 1/4] CMake: Bump mininum version requirement to 3.5
+
+Silences spam such as the following during CMake configure:
+
+  CMake Deprecation Warning at CMakeLists.txt:2 (cmake_minimum_required):
+    Compatibility with CMake < 2.8.12 will be removed from a future version of
+    CMake.
+
+    Update the VERSION argument <min> value or use a ...<max> suffix to tell
+    CMake that the project does not need compatibility with older versions.
+
+Even xenial has cmake 3.5.1: https://launchpad.net/ubuntu/xenial/+source/cmake
+---
+ CMakeLists.txt                 | 2 +-
+ cmake/UseConstantBuilder.cmake | 2 +-
+ cmake/UseGlibGeneration.cmake  | 2 +-
+ 3 files changed, 3 insertions(+), 3 deletions(-)
+
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index b4d11f3..e0fe6d2 100644
+index 70310a2..2010101 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
 @@ -1,5 +1,5 @@
@@ -10,7 +31,7 @@ index b4d11f3..e0fe6d2 100644
  string(TOLOWER "${CMAKE_BUILD_TYPE}" cmake_build_type_lower) # Build types should always be lowercase but sometimes they are not.
  
 diff --git a/cmake/UseConstantBuilder.cmake b/cmake/UseConstantBuilder.cmake
-index 06c8d05..1dd9209 100644
+index 06c8d05..040432b 100644
 --- a/cmake/UseConstantBuilder.cmake
 +++ b/cmake/UseConstantBuilder.cmake
 @@ -1,4 +1,4 @@
@@ -20,7 +41,7 @@ index 06c8d05..1dd9209 100644
    cmake_policy(SET CMP0011 NEW)
  endif(POLICY CMP0011)
 diff --git a/cmake/UseGlibGeneration.cmake b/cmake/UseGlibGeneration.cmake
-index 67e34b9..bdd3156 100644
+index 67e34b9..e937b1c 100644
 --- a/cmake/UseGlibGeneration.cmake
 +++ b/cmake/UseGlibGeneration.cmake
 @@ -1,4 +1,4 @@
@@ -29,3 +50,6 @@ index 67e34b9..bdd3156 100644
  if(POLICY CMP0011)
    cmake_policy(SET CMP0011 NEW)
  endif(POLICY CMP0011)
+-- 
+2.36.1
+

@@ -1,0 +1,34 @@
+For some reason the types are now returned as uppercase (but not bigint??)
+
+[ RUN      ] UrlDBTest.CreateTest
+../tests/url-db-test.cc:70: Failure
+Expected equality of these values:
+  "text"
+  type
+    Which is: "TEXT"
+---
+diff --git a/tests/url-db-test.cc b/tests/url-db-test.cc
+index 472f0c0..af50987 100644
+--- a/tests/url-db-test.cc
++++ b/tests/url-db-test.cc
+@@ -67,16 +67,16 @@ static void verify_tables(const gchar *cachedir) {
+ 	const char * type = nullptr;
+ 
+ 	EXPECT_EQ(SQLITE_OK, sqlite3_table_column_metadata(db, nullptr, "configfiles", "name", &type, nullptr, nullptr, nullptr, nullptr));
+-	EXPECT_STREQ("text", type);
++	EXPECT_STREQ("TEXT", type);
+ 	EXPECT_EQ(SQLITE_OK, sqlite3_table_column_metadata(db, nullptr, "configfiles", "timestamp", &type, nullptr, nullptr, nullptr, nullptr));
+ 	EXPECT_STREQ("bigint", type);
+ 
+ 	EXPECT_EQ(SQLITE_OK, sqlite3_table_column_metadata(db, nullptr, "urls", "sourcefile", &type, nullptr, nullptr, nullptr, nullptr));
+-	EXPECT_STREQ("integer", type);
++	EXPECT_STREQ("INTEGER", type);
+ 	EXPECT_EQ(SQLITE_OK, sqlite3_table_column_metadata(db, nullptr, "urls", "protocol", &type, nullptr, nullptr, nullptr, nullptr));
+-	EXPECT_STREQ("text", type);
++	EXPECT_STREQ("TEXT", type);
+ 	EXPECT_EQ(SQLITE_OK, sqlite3_table_column_metadata(db, nullptr, "urls", "domainsuffix", &type, nullptr, nullptr, nullptr, nullptr));
+-	EXPECT_STREQ("text", type);
++	EXPECT_STREQ("TEXT", type);
+ 
+ 	sqlite3_close(db);
+ }
