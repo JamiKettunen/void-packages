@@ -1,8 +1,8 @@
 # Template file for 'lomiri-app-launch'
 pkgname=lomiri-app-launch
-version=0.1.1r3084
+version=0.1.2r3086
 revision=1
-_commit=9e56780e4329d1d8a2fe3fee254eb56911ac4edf # tip of main branch as of 2022-05-27
+_commit=a2c78e65a577ea785c32f5de84dce20d0f24cba6 # tip of main branch as of 2022-05-31
 wrksrc="lomiri-app-launch-${_commit}"
 wrksrc_build="cmake"
 build_style=cmake
@@ -23,7 +23,7 @@ maintainer="Jami Kettunen <jami.kettunen@protonmail.com>"
 license="GPL-3.0-only"
 homepage="https://gitlab.com/ubports/core/lomiri-app-launch"
 distfiles="https://gitlab.com/ubports/core/lomiri-app-launch/-/archive/${_commit}.tar.gz"
-checksum=d0648a2d4777e2185245e191508b66a35c5c0d68d96ef1da98c18b6afc537aae
+checksum=1c8dc04a5d24e7fd2e3836cb2d5b79b75fc1e007424e499efb6c58356b343c1e
 
 # FIXME: click apps support should be optional!
 build_options="click"
@@ -31,7 +31,8 @@ desc_option_click="Build with support for Ubuntu Touch click applications"
 build_options_default="click"
 
 # TESTS FIXME: liblal-cpp-test (StartingResponses) is very racy!
-# -> now also liblal-test (???) with USE_SYSTEMD=NO!!!
+# -> now also liblal-test with USE_SYSTEMD=NO!!!
+# https://gitlab.com/ubports/core/lomiri-app-launch/-/merge_requests/20
 if [ -z "$XBPS_CHECK_PKGS" ] || [ "$CROSS_BUILD" ]; then
 	configure_args+=" -DENABLE_TESTS=OFF"
 fi
