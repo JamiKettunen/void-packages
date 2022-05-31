@@ -1,8 +1,8 @@
 # Template file for 'qtmir'
 pkgname=qtmir
-version=0.7.0r2707
+version=0.7.0r2708
 revision=1
-_commit=531ecf70ac8787cd10ee5cb81926a9581d5e5b3c # tip of main branch as of 2022-03-22
+_commit=1e28b1d7cb55242e614a3e69168789fb55e186c3 # tip of main branch as of 2022-05-31
 wrksrc="qtmir-${_commit}"
 build_style=cmake
 # -DQGL_DEBUG=true
@@ -16,14 +16,13 @@ makedepends="qt5-devel qt5-declarative-devel qt5-sensors-devel
  gsettings-qt-devel glm boost-devel"
 # https://gitlab.com/ubports/core/qtmir/-/merge_requests/33 - GTEST_DISALLOW_ASSIGN_
 # valgrind-devel
-# FIXME: mirtest not found
 checkdepends="gtest-devel libqtdbusmock-devel libqtdbustest-devel python3-dbusmock"
 short_desc="QPA plugin to make Qt a Mir server"
 maintainer="Jami Kettunen <jami.kettunen@protonmail.com>"
 license="GPL-3.0-only, LGPL-3.0-only"
 homepage="https://gitlab.com/ubports/core/qtmir"
 distfiles="https://gitlab.com/ubports/core/qtmir/-/archive/${_commit}.tar.gz"
-checksum=df8446f0b85236826e82e39f9f51a4452effc2127898cc5d2b866511a0fb217e
+checksum=9a82f9825c94bd1789fc1b8ea78c0a92641e18f0201142c1cb2298ac1df8d28a
 
 # don't add "${prefix}/${XBPS_CROSS_TRIPLET}" to gsettings-qt.pc libdir & includedir when cross-building
 # -> same happens on all 3 of the qt5-* extra modules I've packaged?!
