@@ -1,8 +1,8 @@
 # Template file for 'lomiri-shell'
 pkgname=lomiri-shell
-version=0.1r18748
+version=0.1r18750
 revision=1
-_commit=bc9e941cb388adb4c7e26c1070ca9cf0d5a9c433 # tip of main branch as of 2022-05-31
+_commit=11f29d3ab1615e36ffb5d2e1efb2f394cc5a3500 # tip of main branch as of 2022-06-01
 wrksrc="lomiri-${_commit}"
 build_style=cmake
 configure_args="-DUSE_SYSTEMD=0 -DUSE_DEBIAN_CHANGELOG_VERSION=OFF
@@ -27,7 +27,7 @@ maintainer="Jami Kettunen <jami.kettunen@protonmail.com>"
 license="GPL-3.0-only, LGPL-2.1-only"
 homepage="https://lomiri.com"
 distfiles="https://gitlab.com/ubports/core/lomiri/-/archive/${_commit}.tar.gz"
-checksum=8d73c7976adde5a5022028aa106c21d0c03cef3d87767a59a9dffe329ee0325e
+checksum=051fcb805109914fe9d47c5fd7f991046c35a7c29121e9ea971a0249b85781c6
 
 build_options="usermetrics"
 desc_option_usermetrics="Enable support for collection of anonymous metrics about users"
