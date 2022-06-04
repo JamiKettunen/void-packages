@@ -1,9 +1,9 @@
 # TODO: rename whole package to liblomiri-ui-toolkit?
 # Template file for 'lomiri-ui-toolkit'
 pkgname=lomiri-ui-toolkit
-version=1.3.3000r18176
+version=1.3.3000r18178
 revision=1
-_commit=7a596d16132cae5972fa4a4b1eac2ea7bbfda52c # tip of main as of 2022-03-19
+_commit=4f38f3ec70541aa130cc3804631e6f0b93407c26 # tip of main as of 2022-06-04
 wrksrc="lomiri-ui-toolkit-${_commit}"
 build_style=qmake
 # TODO: qt5-graphicaleffects in host or target chroot? can qmltypes even be made for cross?
@@ -13,12 +13,12 @@ makedepends="qt5-devel qt5-declarative-devel qt5-svg-devel qt5-systems-devel
  qt5-pim-devel qt5-feedback-devel qt5-graphicaleffects lttng-ust-devel
  libXi-devel"
 #checkdepends="xvfb-run ..."
-short_desc="The Ubuntu UI toolkit used in Ubuntu Touch"
+short_desc="The Lomiri UI toolkit used in Ubuntu Touch (git ${_commit:0:7})"
 maintainer="Jami Kettunen <jami.kettunen@protonmail.com>"
 license="LGPL-3.0-only, CC-BY-SA-3.0"
 homepage="https://lomiri.com"
 distfiles="https://gitlab.com/ubports/core/lomiri-ui-toolkit/-/archive/${_commit}.tar.gz"
-checksum=90ac89766dd98fbbedf5f0a52a344202dd98c3dae52f1be5007616827e8cd233
+checksum=6955101044634698ef00ab531494ef6fb2a2588c5ec8a0543636b1631a074fd7
 
 # FIXME: optional (html) docs -> qmake_args+=" CONFIG+=no_docs" (didn't appear to work though)
 #build_options="doc"
