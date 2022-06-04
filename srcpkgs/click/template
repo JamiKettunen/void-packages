@@ -1,8 +1,8 @@
 # Template file for 'click'
 pkgname=click
-version=0.5.0r1104
+version=0.5.0r1106
 revision=1
-_commit=00660eb4715398d403b0164fbe9304698e676f09 # tip of main branch as of 2022-03-26
+_commit=dca9bd432e1bd04166fc8b97f7ad402aa6eafb69 # tip of main branch as of 2022-06-04
 wrksrc="click-${_commit}"
 build_style=gnu-configure
 # --disable-packagekit
@@ -10,12 +10,12 @@ configure_args="--disable-systemd"
 hostmakedepends="autoconf automake libtool pkg-config vala python3-setuptools"
 makedepends="glib-devel gobject-introspection json-glib-devel libgee08-devel"
 depends="python3"
-short_desc="Manage Ubuntu Touch click packages"
+short_desc="Manage Ubuntu Touch click packages (git ${_commit:0:7})"
 maintainer="Jami Kettunen <jami.kettunen@protonmail.com>"
 license="GPL-3.0-only"
 homepage="https://gitlab.com/ubports/core/click"
 distfiles="https://gitlab.com/ubports/core/click/-/archive/${_commit}.tar.gz"
-checksum=5fb8ec89d993b4c4022807980d410fd9a43faed863ff6834417c70b48a4745af
+checksum=787a8ed0ba6a9d9b7a21fa77509c02db72cd8f2db78ddc552513df14f0579f17
 
 # FIXME: needs dpkg
 make_check=no
