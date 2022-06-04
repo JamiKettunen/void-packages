@@ -1,8 +1,8 @@
 # Template file for 'lomiri-url-dispatcher'
 pkgname=lomiri-url-dispatcher
-version=0.1.1r768
+version=0.1.1r770
 revision=1
-_commit=0da1bf83f9abe26e4bf039f61871618fed379c08 # tip of main branch as of 2022-05-31
+_commit=c71438aceec3f89ac19b1a21d18b4b1dd73f8f8a # tip of main branch as of 2022-06-04
 wrksrc="lomiri-url-dispatcher-${_commit}"
 build_style=cmake
 configure_args="-DUSE_SYSTEMD=OFF -DENABLE_COVERAGE=OFF"
@@ -11,12 +11,12 @@ makedepends="glib-devel lomiri-app-launch-devel mir1-devel protobuf-devel
  libxkbcommon-devel json-glib-devel sqlite-devel
  libapparmor-devel gettext-devel"
 checkdepends="gtest-devel dbus-test-runner-devel dbus python3-dbusmock"
-short_desc="Lomiri service for requesting URLs to be opened"
+short_desc="Lomiri service for requesting URLs to be opened (git ${_commit:0:7})"
 maintainer="Jami Kettunen <jami.kettunen@protonmail.com>"
 license="LGPL-3.0-only, GPL-3.0-only"
 homepage="https://gitlab.com/ubports/core/lomiri-url-dispatcher"
 distfiles="https://gitlab.com/ubports/core/lomiri-url-dispatcher/-/archive/${_commit}.tar.gz"
-checksum=0732a1b73041b25d388cbf68513cba25685fcff9edee8450ffdca1d052373f32
+checksum=25414de261659a9456a763b524651eeb3d5942d4d3457f8394499c89466f9d43
 
 if [ -z "$XBPS_CHECK_PKGS" ] || [ "$CROSS_BUILD" ]; then
 	configure_args+=" -DENABLE_TESTS=OFF"
