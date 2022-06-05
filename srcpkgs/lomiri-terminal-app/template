@@ -1,0 +1,37 @@
+# Template file for 'lomiri-terminal-app'
+pkgname=lomiri-terminal-app
+version=1.0.3
+revision=1
+wrksrc="terminal-app-v${version}"
+build_style=cmake
+configure_args="-DCLICK_MODE=OFF -DINSTALL_TESTS=OFF"
+hostmakedepends="pkg-config qt5-qmake qt5-host-tools intltool python3"
+makedepends="qt5-declarative-devel pam-devel"
+short_desc="A simple terminal app for Lomiri"
+maintainer="Jami Kettunen <jami.kettunen@protonmail.com>"
+license="GPL-2.0-or-later"
+homepage="https://gitlab.com/ubports/apps/terminal-app"
+distfiles="https://gitlab.com/ubports/apps/terminal-app/-/archive/v${version}/terminal-app-v${version}.tar.gz"
+checksum=715902dc4a6087fed010f7590b05096c2247fab7f6fc585f528099f123c1fcd4
+
+# FIXME: run tests?
+#if [ "$XBPS_CHECK_PKGS" ] && [ -z "$CROSS_BUILD" ]; then
+#	makedepends+=" gtest-devel"
+#	configure_args+=" -DENABLE_TESTS=ON"
+#fi
+
+# PATCHES TODO:
+# - modern cmake
+# - stop using qt5_use_modules(), deprecation warning spam
+# - look for python3 (tests/autopilot/CMakeLists.txt:5 (install))
+# - look for INTLTOOL instead of gettext (REQUIRED)
+# - look for PAM (security/pam_appl.h)
+# - replace vendored QMLTermWidget with upstream one (qmltermwidget package)?!
+# - optional testing
+
+# TODO:
+# - fix compile warnings (Wdeprecated-declarations is 42/94)
+
+#post_install() {
+#	mv ${DESTDIR}/usr/bin/terminal ${DESTDIR}/usr/bin/lomiri-terminal
+#}
