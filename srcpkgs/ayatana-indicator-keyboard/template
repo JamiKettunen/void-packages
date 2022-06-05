@@ -1,0 +1,28 @@
+# Template file for 'ayatana-indicator-keyboard'
+pkgname=ayatana-indicator-keyboard
+version=22.2.2
+revision=1
+build_style=cmake
+hostmakedepends="pkg-config intltool ubports-cmake-extras"
+makedepends="glib-devel libayatana-common-devel accountsservice-devel
+ libxkbcommon-devel libxkbcommon-devel libX11-devel libxklavier-devel"
+short_desc="The keyboard menu indicator for Lomiri"
+maintainer="Jami Kettunen <jami.kettunen@protonmail.com>"
+license="GPL-3.0-only"
+homepage="https://github.com/AyatanaIndicators/ayatana-indicator-keyboard"
+changelog="https://raw.githubusercontent.com/AyatanaIndicators/ayatana-indicator-keyboard/main/ChangeLog"
+distfiles="https://github.com/AyatanaIndicators/ayatana-indicator-keyboard/archive/refs/tags/${version}.tar.gz"
+checksum=e644c1b42a15475434d05d7c1fdef94b342fd40cf8179294407e65a1d8d8d94a
+
+# TODO: contains no unit tests for now
+if [ "$XBPS_CHECK_PKGS" ] && [ -z "$CROSS_BUILD" ]; then
+	configure_args+=" -DENABLE_TESTS=ON"
+fi
+
+ayatana-indicator-keyboard-devel_package() {
+	depends="${sourcepkg}>=${version}_${revision}"
+	short_desc+=" - development files"
+	pkg_install() {
+		vmove "usr/lib/*.so"
+	}
+}
