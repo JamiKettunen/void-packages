@@ -31,3 +31,5 @@ fi
 # https://github.com/AyatanaIndicators/ayatana-indicator-datetime/issues/93
 make_cmd="make"
 export CMAKE_GENERATOR="Unix Makefiles"
+
+# MUSL FIXME: test 8/27 test-formatter (FormatterFixture.TestUpcomingTimes) fails due to locale issue with time formats
