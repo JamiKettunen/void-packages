@@ -15,6 +15,13 @@ changelog="https://raw.githubusercontent.com/AyatanaIndicators/ayatana-indicator
 distfiles="https://github.com/AyatanaIndicators/ayatana-indicator-messages/archive/refs/tags/${version}.tar.gz"
 checksum=165adc80b54501ec95612c288cc54f251b6a40000eb632604489a7720050a217
 
+# FIXME: cross-build without QEMU
+# FAILED: doc/reference/messaging-menu.actions doc/reference/messaging-menu.args doc/reference/messaging-menu.hierarchy doc/reference/messaging-menu.interfaces doc/reference/messaging-menu.prerequisites doc/reference/messaging-menu.signals /builddir/ayatana-indicator-messages-22.2.0/build/doc/reference/messaging-menu.actions /builddir/ayatana-indicator-messages-22.2.0/build/doc/reference/messaging-menu.args /builddir/ayatana-indicator-messages-22.2.0/build/doc/reference/messaging-menu.hierarchy /builddir/ayatana-indicator-messages-22.2.0/build/doc/reference/messaging-menu.interfaces /builddir/ayatana-indicator-messages-22.2.0/build/doc/reference/messaging-menu.prerequisites /builddir/ayatana-indicator-messages-22.2.0/build/doc/reference/messaging-menu.signals
+# cd /builddir/ayatana-indicator-messages-22.2.0/build/doc/reference && sh scangobj.sh
+# qemu-aarch64-static: Could not open '/lib/ld-linux-aarch64.so.1': No such file or directory
+# 2022-06-05 00:15:55,506:scangobj.py:execute_command:1289:WARNING:Running scanner failed: 255, command: ./messaging-menu-scan
+build_helper+=" qemu"
+
 # FIXME: optional vala bindings & gtk-doc (& gir)?
 build_options="gir vala"
 build_options_default="gir vala"
