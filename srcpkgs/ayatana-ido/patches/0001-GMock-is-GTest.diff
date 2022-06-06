@@ -1,0 +1,21 @@
+diff --git a/tests/CMakeLists.txt b/tests/CMakeLists.txt
+index 74a258f..49b2df4 100644
+--- a/tests/CMakeLists.txt
++++ b/tests/CMakeLists.txt
+@@ -1,4 +1,4 @@
+-find_package(GMock)
++find_package(GTest REQUIRED)
+ 
+ # gtest-menuitems
+ 
+@@ -14,9 +14,7 @@ target_link_libraries("gtest-menuitems"
+ 
+     ${PROJECT_DEPS_LIBRARIES}
+ 
+-    ${GTEST_LIBRARIES}
+-    ${GTEST_BOTH_LIBRARIES}
+-    ${GMOCK_LIBRARIES}
++    GTest::gmock_main
+ )
+ add_test("gtest-menuitems" "gtest-menuitems")
+ add_dependencies("gtest-menuitems" ayatana-ido3-0.4)

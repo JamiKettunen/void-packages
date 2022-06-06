@@ -1,0 +1,37 @@
+# Template file for 'ayatana-ido'
+pkgname=ayatana-ido
+version=0.9.2
+revision=1
+build_style=cmake
+build_helper="gir"
+make_check_pre="xvfb-run"
+hostmakedepends="pkg-config vala python3"
+makedepends="glib-devel gtk+3-devel"
+checkdepends="xvfb-run"
+short_desc="Custom GTK menu widgets for Ayatana indicators"
+maintainer="Jami Kettunen <jami.kettunen@protonmail.com>"
+license="GPL-3.0-only, LGPL-2.1-or-later"
+homepage="https://github.com/AyatanaIndicators/ayatana-ido"
+changelog="https://raw.githubusercontent.com/AyatanaIndicators/ayatana-ido/main/ChangeLog"
+distfiles="https://github.com/AyatanaIndicators/ayatana-ido/archive/refs/tags/${version}.tar.gz"
+checksum=b166e7a160458e4a71f6086d2e4e97e18cf1ac584231a4b9f1f338914203884c
+
+if [ "$XBPS_CHECK_PKGS" ] && [ -z "$CROSS_BUILD" ]; then
+	makedepends+=" gtest-devel"
+	configure_args+=" -DENABLE_TESTS=ON"
+fi
+
+ayatana-ido-devel_package() {
+	depends="${sourcepkg}>=${version}_${revision}"
+	short_desc+=" - development files"
+	pkg_install() {
+		vmove usr/include
+		vmove usr/lib/pkgconfig
+		vmove "usr/lib/*.so"
+		vmove usr/share/gir-1.0
+		vmove usr/share/vala
+	}
+}
+
+# FIXME:
+# - optional gir
