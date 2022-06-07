@@ -1,0 +1,29 @@
+# Template file for 'libayatana-indicator'
+pkgname=libayatana-indicator
+version=0.9.1
+revision=1
+build_style=cmake
+hostmakedepends="pkg-config python3"
+makedepends="glib-devel gtk+3-devel ayatana-ido-devel"
+checkdepends="dbus-test-runner dbus xvfb-run hicolor-icon-theme"
+short_desc="Ayatana Indicators Shared Library"
+maintainer="Jami Kettunen <jami.kettunen@protonmail.com>"
+license="GPL-3.0-only"
+homepage="https://github.com/AyatanaIndicators/libayatana-indicator"
+changelog="https://raw.githubusercontent.com/AyatanaIndicators/libayatana-indicator/main/ChangeLog"
+distfiles="https://github.com/AyatanaIndicators/libayatana-indicator/archive/refs/tags/${version}.tar.gz"
+checksum=15a8844265067652c06242736ece682622d73cedcccdf1c171ce27fba70ba689
+
+if [ "$XBPS_CHECK_PKGS" ] && [ -z "$CROSS_BUILD" ]; then
+	configure_args+=" -DENABLE_TESTS=ON"
+fi
+
+libayatana-indicator-devel_package() {
+	depends="${sourcepkg}>=${version}_${revision}"
+	short_desc+=" - development files"
+	pkg_install() {
+		vmove usr/include
+		vmove usr/lib/pkgconfig
+		vmove "usr/lib/*.so"
+	}
+}
