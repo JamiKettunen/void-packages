@@ -9,7 +9,7 @@ configure_args="-Dsystemdsystemunitdir=no
  $(vopt_bool gir introspection) $(vopt_bool elogind elogind)"
 hostmakedepends="glib-devel pkg-config polkit gettext"
 makedepends="polkit-devel $(vopt_if elogind elogind-devel)"
-short_desc="D-Bus interfaces for querying and manipulating user account information"
+short_desc="D-Bus interfaces for querying and manipulating user account information (with patches for Lomiri)"
 maintainer="Jami Kettunen <jami.kettunen@protonmail.com>"
 license="GPL-3.0-or-later"
 homepage="https://www.freedesktop.org/wiki/Software/AccountsService/"
@@ -19,15 +19,16 @@ make_dirs="
  /var/lib/AccountsService/users 755 root root
  /var/lib/AccountsService/icons 755 root root"
 
-replaces="accountsservice<=${version}_${revision}"
-provides="accountsservice-${version}_${revision}"
-
 # Package build options
 build_options="elogind gir"
 build_options_default="elogind gir"
 
+replaces="accountsservice<=${version}_${revision}"
+provides="accountsservice-${version}_${revision}"
+
 accountsservice-ubuntu-devel_package() {
 	depends="${sourcepkg}>=${version}_${revision}"
+	replaces="accountsservice-devel<=${version}_${revision}"
 	provides="accountsservice-devel-${version}_${revision}"
 	short_desc+=" - development files"
 	pkg_install() {
