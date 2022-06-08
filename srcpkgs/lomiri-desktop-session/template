@@ -1,0 +1,17 @@
+# Template file for 'lomiri-desktop-session'
+pkgname=lomiri-desktop-session
+version=0r22
+revision=1
+_commit=21c4642f1bb85f19b774bf2319ab192c87128217
+wrksrc="lomiri-desktop-session-${_commit}"
+build_style=cmake
+configure_args="-DENABLE_TOUCH_SESSION=OFF"
+hostmakedepends="pkg-config"
+makedepends="lomiri-shell inotify-tools"
+depends="${makedepends}"
+short_desc="Lomiri Desktop Session Scripts (git ${_commit:0:7})"
+maintainer="Jami Kettunen <jami.kettunen@protonmail.com>"
+license="LGPL-3.0-only"
+homepage="https://gitlab.com/ubports/development/core/lomiri-desktop-session"
+distfiles="https://gitlab.com/ubports/development/core/lomiri-desktop-session/-/archive/${_commit}.tar.gz"
+checksum=06b540a822e69850122a3cb49a9592f1b1272a6237528ea24995aea351d1996a
