@@ -1,0 +1,20 @@
+https://wiki.postmarketos.org/wiki/Lomiri
+https://gitlab.com/ubports/core/lomiri-desktop-session/-/merge_requests/1
+---
+diff --git a/lomiri-session b/lomiri-session
+index ba69c1d..d69e5cd 100755
+--- a/lomiri-session
++++ b/lomiri-session
+@@ -18,6 +18,9 @@ export MIR_SERVER_FILE=/run/user/$(id -u)/mir_socket
+ rm -f "$MIR_SERVER_FILE"
+ rm -f "${MIR_SERVER_FILE}_trusted"
+ 
++# Required for input (cursor movement) to work on postmarketOS and Void Linux
++export MIR_SERVER_ENABLE_MIRCLIENT=1
++
+ #if [ "$XDG_SESSION_DESKTOP" = "ubuntu-touch" ]; then
+ # On Ubuntu Touch, we currently use a trick where we auto-login the
+ # user without a LightDM greeter at all.  In this case, we want to
+-- 
+2.36.1
+

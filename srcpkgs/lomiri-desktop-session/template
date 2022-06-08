@@ -1,0 +1,31 @@
+# Template file for 'lomiri-desktop-session'
+pkgname=lomiri-desktop-session
+version=0r17
+revision=1
+_commit=97f5579ea807c24fa2e14a3d4ef0dd8e319c418f
+wrksrc="lomiri-desktop-session-${_commit}"
+depends="inotify-tools lomiri-shell"
+short_desc="Lomiri Desktop Session Scripts (git ${_commit:0:7})"
+maintainer="Jami Kettunen <jami.kettunen@protonmail.com>"
+license="LGPL-3.0-only"
+homepage="https://gitlab.com/ubports/core/lomiri-desktop-session"
+distfiles="https://gitlab.com/ubports/core/lomiri-desktop-session/-/archive/${_commit}.tar.gz"
+checksum=8be4d352b103e12c7aef26c106b2a46be1003646ebb6afce2c05f7b4a55d36ee
+
+do_install() {
+	vbin lomiri-session
+}
+
+# TODO:
+# - install rest of files?
+#   - vbin desktop/dm-lomiri-session
+#   - vinstall desktop/lomiri.desktop 644 usr/share/wayland-sessions/ (also to usr/share/lightdm/sessions?)
+# - lomiri-mobile-session subpackage (also dep on lightdm?)
+#   - cp touch/usc-wrapper /usr/share/lomiri-session/
+#   - vbin touch/lomiri-touch-session
+#   - cp touch/lomiri-touch.desktop /usr/share/lightdm/sessions
+#   - cp touch/52-lomiri-touch.conf /usr/share/lightdm/lightdm.conf.d
+# - lightdm-lomiri-greeter subpackage?
+# - "build system" (https://gitlab.com/ubports/core/lomiri-desktop-session/-/issues/2)
+#   - look for inotifywait (inotify-tools) & liblomiri-private.so (lomiri-shell-devel)
+# - https://gitlab.manjaro.org/manjaro-arm/packages/community/lomiri-dev/lomiri-desktop-session
