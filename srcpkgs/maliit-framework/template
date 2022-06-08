@@ -1,0 +1,29 @@
+# Template file for 'maliit-framework'
+pkgname=maliit-framework
+version=2.3.0
+revision=1
+wrksrc="framework-${version}"
+build_style=cmake
+# docs -> doxygen
+configure_args="-Denable-dbus-activation=ON -Denable-examples=ON -Denable-docs=OFF"
+hostmakedepends="pkg-config qt5-host-tools qt5-qmake qt5-wayland wayland-devel glib-devel"
+makedepends="qt5-declarative-devel qt5-wayland-devel wayland-devel gtk+3-devel
+ eudev-libudev-devel glib-devel"
+short_desc="Core libraries and server of Maliit input method framework"
+maintainer="Jami Kettunen <jami.kettunen@protonmail.com>"
+license="LGPL-2.1-only"
+homepage="https://github.com/maliit/framework"
+distfiles="https://github.com/maliit/framework/archive/refs/tags/${version}.tar.gz"
+checksum=bfc23919ac8b960243f85e8228ad7dfc28d557b52182a0b5a2a216a5c6a8057c
+
+maliit-framework-devel_package() {
+	depends="${sourcepkg}>=${version}_${revision}"
+	short_desc+=" - development files"
+	pkg_install() {
+		vmove usr/lib/pkgconfig
+		vmove usr/lib/qt5/mkspecs
+		vmove usr/lib/cmake
+		vmove usr/include
+		vmove "usr/lib/*.so"
+	}
+}
