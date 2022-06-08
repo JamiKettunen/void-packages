@@ -5,9 +5,9 @@ revision=1
 _commit=a14bd0bb1373cde86e09e3619fb9dc70f34c71f2 # tip of master branch (last updated 2018-09-03)
 wrksrc="qtfeedback-${_commit}"
 build_style=qmake
-hostmakedepends="qt5-qmake qt5-host-tools perl git"
+hostmakedepends="qt5-qmake qt5-host-tools perl"
 makedepends="qt5-declarative-devel"
-short_desc="Cross-platform application and UI framework (QT5) - Feedback component"
+short_desc="Cross-platform application and UI framework (QT5) - Feedback component (git ${_commit:0:7})"
 maintainer="Jami Kettunen <jami.kettunen@protonmail.com>"
 license="GPL-3.0-or-later, LGPL-3.0-or-later"
 homepage="https://code.qt.io/cgit/qt/qtfeedback.git/"
@@ -15,12 +15,9 @@ distfiles="https://github.com/qt/qtfeedback/archive/${_commit}.tar.gz"
 checksum=9d63759185e8faecd92f8d90e5a198010393e3d7fa3cb1e68f06b963d2bf95f9
 
 # FIXME: .qmake.conf: "MODULE_VERSION = 0.0.0" -> "5.15.0"?
-# FIXME: SOVERSION to 5?
 
-# FIXME: why does not doing this result in src being missed from include dirs?!
-# FIXME: enable this as a part of srcpkgs/qt5 build (not included in tarball though?!)
-pre_build() {
-	git init
+post_extract() {
+	mkdir .git
 }
 
 _cleanup_wrksrc_leak() {
