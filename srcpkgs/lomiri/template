@@ -16,6 +16,7 @@ depends="
  lomiri-shell
  lomiri-ui-extras
  lomiri-sounds
+ lomiri-desktop-session
  suru-icon-theme
  ttf-ubuntu-font-family
  accountsservice-ubuntu
@@ -26,6 +27,7 @@ depends="
  ayatana-indicator-bluetooth
  ayatana-indicator-display
  ayatana-indicator-notifications
+ ayatana-indicator-keyboard
  qt5-plugin-sqlite
  qt5-wayland"
 # https://gitlab.com/ubports/core/repowerd - Power daemon to monitor and control system power state
@@ -34,7 +36,8 @@ depends="
 # https://gitlab.com/ubports/core/history-service - Service that provides call log and conversation history
 
 _apps_depends="
- lomiri-system-settings"
+ lomiri-system-settings
+ lomiri-terminal-app"
 # https://gitlab.com/ubports/apps/camera-app
 
 #lomiri-hybris_package() {
