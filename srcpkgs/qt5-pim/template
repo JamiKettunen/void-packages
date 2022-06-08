@@ -5,7 +5,7 @@ revision=1
 _commit=f9a8f0fc914c040d48bbd0ef52d7a68eea175a98 # last known-working Qt5 commit
 wrksrc="qtpim-${_commit}"
 build_style=qmake
-hostmakedepends="qt5-qmake qt5-host-tools perl git"
+hostmakedepends="qt5-qmake qt5-host-tools perl"
 makedepends="qt5-declarative-devel"
 short_desc="Cross-platform application and UI framework (QT5) - PIM component"
 maintainer="Jami Kettunen <jami.kettunen@protonmail.com>"
@@ -15,12 +15,9 @@ distfiles="https://github.com/qt/qtpim/archive/${_commit}.tar.gz"
 checksum=7d06c9a4534eb1cbcaaac4c17defdf648c03fe01044c6b2ccbf6c00553b407d2
 
 # FIXME: .qmake.conf: "MODULE_VERSION = 0.0.0" -> "5.15.0"?
-# FIXME: SOVERSION to 5?
 
-# FIXME: why does not doing this result in src being missed from include dirs?!
-# FIXME: enable this as a part of srcpkgs/qt5 build (not included in tarball though?!)
-pre_build() {
-	git init
+post_extract() {
+	mkdir .git
 }
 
 _cleanup_wrksrc_leak() {
