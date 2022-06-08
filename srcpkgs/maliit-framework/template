@@ -1,0 +1,35 @@
+# Template file for 'maliit-framework'
+pkgname=maliit-framework
+version=2.2.1
+revision=1
+wrksrc="framework-${version}"
+build_style=cmake
+# docs -> doxygen
+# TODO: enable-wayland-gtk option will be dropped soon: https://github.com/maliit/framework/commit/6b446b4
+configure_args="-Denable-dbus-activation=ON -Denable-examples=ON -Denable-wayland-gtk=ON
+ -Denable-docs=OFF"
+hostmakedepends="pkg-config qt5-host-tools qt5-qmake qt5-wayland wayland-devel glib-devel"
+makedepends="qt5-declarative-devel qt5-wayland-devel wayland-devel gtk+3-devel
+ eudev-libudev-devel glib-devel"
+short_desc="Core libraries and server of Maliit input method framework"
+maintainer="Jami Kettunen <jami.kettunen@protonmail.com>"
+license="LGPL-2.1-only"
+homepage="https://github.com/maliit/framework"
+distfiles="https://github.com/maliit/framework/archive/refs/tags/${version}.tar.gz"
+checksum=e5d1367f046066facabba9766d8cbeb94b13c5024b0a5056ebbaa6a16f075b23
+
+if [ -z "$XBPS_CHECK_PKGS" ] || [ "$CROSS_BUILD" ]; then
+	configure_args+=" -Denable-tests=OFF"
+fi
+
+maliit-framework-devel_package() {
+	depends="${sourcepkg}>=${version}_${revision}"
+	short_desc+=" - development files"
+	pkg_install() {
+		vmove usr/lib/pkgconfig
+		vmove usr/lib/qt5/mkspecs
+		vmove usr/lib/cmake
+		vmove usr/include
+		vmove "usr/lib/*.so"
+	}
+}
