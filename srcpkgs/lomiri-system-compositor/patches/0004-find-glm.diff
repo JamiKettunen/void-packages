@@ -1,0 +1,12 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 484b34c..fadbf8d 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -43,6 +43,7 @@ pkg_check_modules(GLIB REQUIRED glib-2.0)
+ pkg_check_modules(MIRCLIENT REQUIRED mirclient)
+ pkg_check_modules(MIRSERVER REQUIRED mirserver)
+ pkg_check_modules(DBUS REQUIRED dbus-1)
++pkg_check_modules(GLM REQUIRED glm)
+ 
+ find_package(Boost 1.48.0 COMPONENTS system REQUIRED)
+ find_package(GLESv2 REQUIRED)

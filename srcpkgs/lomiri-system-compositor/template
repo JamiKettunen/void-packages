@@ -1,0 +1,34 @@
+# Template file for 'lomiri-system-compositor'
+pkgname=lomiri-system-compositor
+version=1.0.0r1203
+revision=1
+_commit=218e419b38f7f1017dc1d37679ae658b01d1fef3 # tip of main branch as of 2022-06-04
+wrksrc="lomiri-system-compositor-${_commit}"
+build_style=cmake
+hostmakedepends="pkg-config python3-Pillow"
+makedepends="gdk-pixbuf-devel libglib-devel mir1-devel dbus-devel boost-devel
+ libglvnd-devel glm"
+checkdepends="gtest-devel dbus procps-ng"
+short_desc="Mir System Compositor (git ${_commit:0:7})"
+maintainer="Jami Kettunen <jami.kettunen@protonmail.com>"
+license="GPL-3.0-only"
+homepage="https://gitlab.com/ubports/core/lomiri-system-compositor"
+distfiles="https://gitlab.com/ubports/core/lomiri-system-compositor/-/archive/${_commit}.tar.gz"
+checksum=3f2009a99eb97c54146201c880ce3ef7ec672f3f4b8c9896e7033438ef06181c
+
+if [ -z "$XBPS_CHECK_PKGS" ] || [ "$CROSS_BUILD" ]; then
+	configure_args+=" -DMIR_ENABLE_TESTS=OFF"
+fi
+
+post_install() {
+	# FIXME: => ERROR: lomiri-system-compositor-1.0.0r1203_1: /usr/sbin must not exist.
+	# -> start using CMAKE_INSTALL_SBINDIR + -DCMAKE_INSTALL_SBINDIR=bin
+	mv ${DESTDIR}/usr/sbin/* ${DESTDIR}/usr/bin
+
+	# FIXME: don't install/distribute test binaries already ran during build-time
+	rm -f ${DESTDIR}/usr/bin/lsc_*test*
+}
+
+# PATCHES TODO:
+# - fix compile warnings (mostly -Wdeprecated-declarations)
+# - libhybris support via libandroid-properties!
