@@ -1,0 +1,23 @@
+# Template file for 'maliit-inputcontext-gtk'
+pkgname=maliit-inputcontext-gtk
+version=0.99.1r418
+revision=1
+_commit=72d75769b6763391ae30e51ef2178fb294fdb2b7
+wrksrc="inputcontext-gtk-${_commit}"
+build_style=cmake
+configure_args="-DENABLE_X11=ON"
+hostmakedepends="pkg-config qt5-host-tools qt5-qmake"
+makedepends="qt5-devel maliit-framework-devel gtk+-devel gtk+3-devel"
+short_desc="GTK+ input context plugin for Maliit [git ${_commit:0:7}]"
+maintainer="Jami Kettunen <jami.kettunen@protonmail.com>"
+license="LGPL-2.1-or-later"
+homepage="https://github.com/maliit/inputcontext-gtk"
+distfiles="https://github.com/maliit/inputcontext-gtk/archive/${_commit}.tar.gz"
+checksum=60306af0acbef4ace2304e8ca79bfaeab485c21b536ed01d0039729749bd186f
+
+# TODO:
+# 1. fix deprecation build warnings
+# 2. add GTK4 plugin (im-maliit4, gtk4-devel)
+# 3. unify SOURCE_FILES assignment (it's the same stuff twice)
+# 4. error if no plugins built (choose at least one?!)
+# 5. add some unit tests?
