@@ -1,0 +1,33 @@
+From 341677cd4e52dff0803f11bb82f5fd1a6eef1b9b Mon Sep 17 00:00:00 2001
+From: Jami Kettunen <jami.kettunen@protonmail.com>
+Date: Wed, 21 Sep 2022 15:26:55 +0300
+Subject: [PATCH] CMake: Only run package-abis test if toplevel debian dir
+ exists
+
+Attempting to run this on non-Debian systems building from the release
+tarballs breaks running tests due to non-existent debian dir.
+
+Fixes #2596.
+
+Link: https://github.com/MirServer/mir/pull/2649
+---
+ CMakeLists.txt | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 5d985dbe62..1f8a4484a6 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -348,8 +348,10 @@ if (MIR_ENABLE_TESTS)
+     COMMAND /bin/sh -c "! grep -rl --exclude-dir=protocol --exclude=org_kde* 'GNU Lesser' ${PROJECT_SOURCE_DIR}/src/server ${PROJECT_SOURCE_DIR}/include/server ${PROJECT_SOURCE_DIR}/src/include/server ${PROJECT_SOURCE_DIR}/tests ${PROJECT_SOURCE_DIR}/examples"
+   )
+ 
+-  mir_add_test(NAME package-abis
+-    COMMAND /bin/sh -c "cd ${PROJECT_SOURCE_DIR} && tools/update_package_abis.sh --check --verbose")
++  if (IS_DIRECTORY "${PROJECT_SOURCE_DIR}/debian")
++    mir_add_test(NAME package-abis
++      COMMAND /bin/sh -c "cd ${PROJECT_SOURCE_DIR} && tools/update_package_abis.sh --check --verbose")
++  endif ()
+ endif ()
+ 
+ enable_coverage_report(mirserver)

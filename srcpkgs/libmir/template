@@ -1,0 +1,88 @@
+# Template file for 'libmir'
+pkgname=libmir
+version=2.9.0
+revision=1
+wrksrc="mir-${version}"
+build_style=cmake
+# avoid "/usr/include/libxml++-2.6/libxml++/parsers/saxparser.h:224:8: error: 'template<class> class std::auto_ptr' is deprecated [-Werror=deprecated-declarations]"
+configure_args="-DMIR_FATAL_COMPILE_WARNINGS=OFF
+ -DMIR_BAD_BUFFER_TEST_ENVIRONMENT_BROKEN=ON
+ $(vopt_bool lto MIR_LINK_TIME_OPTIMIZATION)"
+hostmakedepends="pkg-config python3-Pillow libdrm-devel lttng-ust glib-devel"
+# FIXME: libXrender-devel should be a depends of libXcursor-devel!
+makedepends="boost-devel libglvnd-devel glm glog-devel gflags-devel
+ lttng-ust-devel eudev-libudev-devel glib-devel wayland-devel libXcursor-devel
+ libXrender-devel libdrm-devel libgbm-devel libepoxy-devel nettle-devel
+ libxkbcommon-devel libinput-devel libxml++-devel yaml-cpp-devel gmpxx-devel
+ freetype-devel libevdev-devel MesaLib-devel gtest-devel libumockdev-devel wlcs-devel"
+checkdepends="elogind python3-dbusmock git"
+# FIXME: double-check if elogind service or elogind being installed in general was required once again...
+depends="elogind"
+short_desc="Wayland compositor library for building shells"
+maintainer="Jami Kettunen <jami.kettunen@protonmail.com>"
+license="GPL-2.0-or-later, LGPL-2.0-or-later"
+homepage="https://github.com/MirServer/mir"
+distfiles="https://github.com/MirServer/mir/archive/refs/tags/v${version}.tar.gz"
+checksum=b81857372e82cc434f1fadd2d061eb38e3975033acc0e0ddc620c7543286bb5e
+
+build_options="lto"
+desc_option_lto="Build with link-time optimization (LTO)"
+#build_options_default="lto"
+
+if [ "$XBPS_TARGET_LIBC" = "glibc" ]; then
+	makedepends+=" libatomic-devel systemtap-devel"
+else # needed on musl for -latomic (-lexecinfo)
+	makedepends+=" libexecinfo-devel"
+fi
+
+# FIXME: sh: line 1: /builddir/mir-60579b0b67f35d7c2532b905f6c93ffdfca8f934/build/bin/mir_wayland_generator: No such file or directory
+build_helper="qemu"
+
+post_patch() {
+	# FIXME: this needs a proper solution upstream to support musl libc properly...
+	if [ "$XBPS_TARGET_LIBC" != "glibc" ]; then
+		vsed 's/    atomic/    execinfo/' -i src/server/CMakeLists.txt
+	fi
+}
+
+post_install() {
+	# FIXME: don't install build-time tools, tests etc. ?
+	rm -f ${DESTDIR}/usr/bin/mir{_wayland_generator,_performance_tests,_platform_graphics_test_harness,-smoke-test-runner} \
+		${DESTDIR}/usr/lib/mir/{miral_wlcs_integration.so,server-platform/{graphics,input}-stub.so}
+}
+
+libmir-demo_package() {
+	depends="${sourcepkg}>=${version}_${revision} weston xterm"
+	short_desc+=" - demo programs"
+	pkg_install() {
+		vmove usr/bin/mir-shell
+		vmove usr/bin/fake-mir-kiosk
+		vmove "usr/bin/mir_demo_*"
+		vmove "usr/bin/miral-*"
+		#vmove "usr/bin/*" ?
+		vmove usr/share
+	}
+}
+
+libmir-devel_package() {
+	depends="${sourcepkg}>=${version}_${revision}" # (libxkbcommon-devel)
+	short_desc+=" - development files"
+	pkg_install() {
+		vmove usr/include
+		vmove usr/lib/pkgconfig
+		vmove "usr/lib/*.so"
+		vmove "usr/lib/*.a"
+	}
+}
+
+# CMAKE FIXME?
+# - look for target gmpxx.h (gmpxx-devel)
+# - look for host gdbus-codegen binary (glib-devel)
+# - look for host lttng-gen-tp binary (lttng-ust)
+# - look for host/target libdrm/drm_fourcc.h (libdrm-devel)
+# - look for target EGL/eglmesaext.h (MesaLib-devel)
+
+# MUSL FIXME?
+# CMake Warning at src/common/sharedlibrary/CMakeLists.txt:38 (message):
+#  dlvsym() not supported by libc.  Mir may attempt to load ABI-incompatible
+#  platform modules

@@ -1,0 +1,90 @@
+From eacae2c6214bf189f310e4e51f7d884fb7f344b1 Mon Sep 17 00:00:00 2001
+From: Alan Griffiths <alan@octopull.co.uk>
+Date: Tue, 30 Aug 2022 15:30:17 +0100
+Subject: [PATCH] Update expected code
+
+Link: https://github.com/MirServer/mir/pull/2601
+---
+ .../wayland-generator/expected.h              | 19 ++++++++++++++-----
+ 1 file changed, 14 insertions(+), 5 deletions(-)
+
+diff --git a/tests/acceptance-tests/wayland-generator/expected.h b/tests/acceptance-tests/wayland-generator/expected.h
+index 09484fa372..11fe6cc57c 100644
+--- a/tests/acceptance-tests/wayland-generator/expected.h
++++ b/tests/acceptance-tests/wayland-generator/expected.h
+@@ -611,7 +611,7 @@ class Seat : public Resource
+ 
+     static Seat* from(struct wl_resource*);
+ 
+-    Seat(struct wl_resource* resource, Version<6>);
++    Seat(struct wl_resource* resource, Version<8>);
+     virtual ~Seat();
+ 
+     void send_capabilities_event(uint32_t capabilities) const;
+@@ -629,6 +629,11 @@ class Seat : public Resource
+         static uint32_t const touch = 4;
+     };
+ 
++    struct Error
++    {
++        static uint32_t const missing_capability = 0;
++    };
++
+     struct Opcode
+     {
+         static uint32_t const capabilities = 0;
+@@ -642,7 +647,7 @@ class Seat : public Resource
+     class Global : public wayland::Global
+     {
+     public:
+-        Global(wl_display* display, Version<6>);
++        Global(wl_display* display, Version<8>);
+ 
+         auto interface_name() const -> char const* override;
+ 
+@@ -664,7 +669,7 @@ class Pointer : public Resource
+ 
+     static Pointer* from(struct wl_resource*);
+ 
+-    Pointer(struct wl_resource* resource, Version<6>);
++    Pointer(struct wl_resource* resource, Version<8>);
+     virtual ~Pointer();
+ 
+     void send_enter_event(uint32_t serial, struct wl_resource* surface, double surface_x, double surface_y) const;
+@@ -684,6 +689,9 @@ class Pointer : public Resource
+     bool version_supports_axis_discrete();
+     void send_axis_discrete_event_if_supported(uint32_t axis, int32_t discrete) const;
+     void send_axis_discrete_event(uint32_t axis, int32_t discrete) const;
++    bool version_supports_axis_value120();
++    void send_axis_value120_event_if_supported(uint32_t axis, int32_t value120) const;
++    void send_axis_value120_event(uint32_t axis, int32_t value120) const;
+ 
+     struct wl_client* const client;
+     struct wl_resource* const resource;
+@@ -724,6 +732,7 @@ class Pointer : public Resource
+         static uint32_t const axis_source = 6;
+         static uint32_t const axis_stop = 7;
+         static uint32_t const axis_discrete = 8;
++        static uint32_t const axis_value120 = 9;
+     };
+ 
+     struct Thunks;
+@@ -741,7 +750,7 @@ class Keyboard : public Resource
+ 
+     static Keyboard* from(struct wl_resource*);
+ 
+-    Keyboard(struct wl_resource* resource, Version<6>);
++    Keyboard(struct wl_resource* resource, Version<8>);
+     virtual ~Keyboard();
+ 
+     void send_keymap_event(uint32_t format, mir::Fd fd, uint32_t size) const;
+@@ -792,7 +801,7 @@ class Touch : public Resource
+ 
+     static Touch* from(struct wl_resource*);
+ 
+-    Touch(struct wl_resource* resource, Version<6>);
++    Touch(struct wl_resource* resource, Version<8>);
+     virtual ~Touch();
+ 
+     void send_down_event(uint32_t serial, uint32_t time, struct wl_resource* surface, int32_t id, double x, double y) const;
+
