@@ -4183,3 +4183,7 @@ libsyncthingmodel.so.1.2.2 syncthingtray-1.2.2_1
 libsyncthingconnector.so.1.2.2 syncthingtray-1.2.2_1
 libglibutil.so.1 libglibutil-1.0.64_1
 libgbinder.so.1 libgbinder-1.1.20_1
+libmiral.so.5 libmir-2.9.0_1
+libmirserver.so.58 libmir-2.9.0_1
+libmircommon.so.9 libmir-2.9.0_1
+libmircore.so.2 libmir-2.9.0_1

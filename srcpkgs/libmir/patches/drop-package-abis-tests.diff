@@ -1,0 +1,18 @@
+This is broken on all non-Debian systems currently
+https://github.com/MirServer/mir/issues/2596
+---
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 14bfdca842..99661ed5df 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -346,8 +346,8 @@ if (MIR_ENABLE_TESTS)
+     COMMAND /bin/sh -c "! grep -rl --exclude-dir=protocol --exclude=org_kde* 'GNU Lesser' ${PROJECT_SOURCE_DIR}/src/server ${PROJECT_SOURCE_DIR}/include/server ${PROJECT_SOURCE_DIR}/src/include/server ${PROJECT_SOURCE_DIR}/tests ${PROJECT_SOURCE_DIR}/examples"
+   )
+ 
+-  mir_add_test(NAME package-abis
+-    COMMAND /bin/sh -c "cd ${PROJECT_SOURCE_DIR} && tools/update_package_abis.sh --check --verbose")
++  #mir_add_test(NAME package-abis
++  #  COMMAND /bin/sh -c "cd ${PROJECT_SOURCE_DIR} && tools/update_package_abis.sh --check --verbose")
+ endif ()
+ 
+ enable_coverage_report(mirserver)
