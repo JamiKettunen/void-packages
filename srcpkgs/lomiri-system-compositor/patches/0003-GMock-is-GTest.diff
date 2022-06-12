@@ -1,0 +1,50 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 484b34c..c1d41d5 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -56,7 +56,7 @@ enable_testing()
+ option(MIR_ENABLE_TESTS "Build tests" ON)
+ 
+ if (MIR_ENABLE_TESTS)
+-  find_package(GMock REQUIRED)
++  find_package(GTest REQUIRED)
+   include_directories(${MIRCLIENT_INCLUDE_DIRS} )
+   include_directories(${GMOCK_INCLUDE_DIR} ${GTEST_INCLUDE_DIR})
+   add_subdirectory(tests/)
+diff --git a/tests/integration-tests/CMakeLists.txt b/tests/integration-tests/CMakeLists.txt
+index eb54ce3..91f185d 100644
+--- a/tests/integration-tests/CMakeLists.txt
++++ b/tests/integration-tests/CMakeLists.txt
+@@ -48,13 +48,12 @@ target_link_libraries(
+    lsc_integration_tests
+ 
+    lsc
+-   ${GTEST_BOTH_LIBRARIES}
+-   ${GMOCK_LIBRARIES}
++   GTest::gmock_main
+ )
+ 
+ add_test(lsc_integration_tests ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/lsc_integration_tests)
+ 
+-add_dependencies(lsc_integration_tests GMock)
++#add_dependencies(lsc_integration_tests GMock)
+ add_dependencies(lsc_integration_tests lsc_test_helper_wait_for_signal)
+ 
+ install(TARGETS lsc_integration_tests lsc_test_helper_wait_for_signal
+diff --git a/tests/unit-tests/CMakeLists.txt b/tests/unit-tests/CMakeLists.txt
+index 5307f8a..5023121 100644
+--- a/tests/unit-tests/CMakeLists.txt
++++ b/tests/unit-tests/CMakeLists.txt
+@@ -34,10 +34,9 @@ target_link_libraries(
+    lsc_unit_tests
+ 
+    lsc
+-   ${GTEST_BOTH_LIBRARIES}
+-   ${GMOCK_LIBRARIES}
++   GTest::gmock_main
+ )
+ 
+ add_test(lsc_unit_tests ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/lsc_unit_tests)
+ 
+-add_dependencies(lsc_unit_tests GMock)
++#add_dependencies(lsc_unit_tests GTest)

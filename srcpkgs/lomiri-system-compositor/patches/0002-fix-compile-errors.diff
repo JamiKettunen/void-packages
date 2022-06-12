@@ -1,0 +1,25 @@
+diff --git a/spinner/eglapp.cpp b/spinner/eglapp.cpp
+index 7b7971c..3923d8c 100644
+--- a/spinner/eglapp.cpp
++++ b/spinner/eglapp.cpp
+@@ -18,7 +18,7 @@
+ 
+ #include "miregl.h"
+ 
+-
++#include <stdexcept>
+ 
+ float mir_eglapp_background_opacity = 1.0f;
+ 
+diff --git a/spinner/miregl.cpp b/spinner/miregl.cpp
+index e61f5ac..b7b2504 100644
+--- a/spinner/miregl.cpp
++++ b/spinner/miregl.cpp
+@@ -17,6 +17,7 @@
+ #include "miregl.h"
+ 
+ #include <cstring>
++#include <stdexcept>
+ 
+ #include <GLES2/gl2.h>
+ 
