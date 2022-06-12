@@ -1,0 +1,59 @@
+From ac15e40bec0ff5e16bdd28c2939bd9378ae5ec85 Mon Sep 17 00:00:00 2001
+From: Jami Kettunen <jami.kettunen@protonmail.com>
+Date: Fri, 10 Jun 2022 20:41:39 +0300
+Subject: [PATCH] Fix builds without Pinyin
+
+This is supposed to be an optional dependency but it was appending Glib2
+stuff to both Pinyin_LIBRARIES and Pinyin_INCLUDE_DIRS which in turn
+caused find_package(Pinyin) to set a non-falsy Pinyin_FOUND value and
+running the top-level if(Pinyin_FOUND) branch unconditionally:
+
+  Package libpinyin was not found in the pkg-config search path.
+  Perhaps you should add the directory containing `libpinyin.pc'
+  to the PKG_CONFIG_PATH environment variable
+  No package 'libpinyin' found
+  -- Found GLib2: /usr/aarch64-linux-musl/usr/lib64/libglib-2.0.so;/usr/aarch64-linux-musl/usr/lib64/libglib-2.0.so
+  -- Found Pinyin: Pinyin_LIBRARIES-NOTFOUND;/usr/aarch64-linux-musl/usr/lib64/libglib-2.0.so;/usr/aarch64-linux-musl/usr/lib64/libglib-2.0.so
+  ...
+  -- Configuring done
+  CMake Error: The following variables are used in this project, but they are set to NOTFOUND.
+  Please set them or make sure they are set and tested correctly in the CMake files:
+  /builddir/keyboard-2.2.1.1/Pinyin_INCLUDE_DIRS
+     used as include directory in directory /builddir/keyboard-2.2.1.1
+  Pinyin_LIBRARIES (ADVANCED)
+      linked by target "zh-hansplugin" in directory /builddir/keyboard-2.2.1.1
+
+Link: https://github.com/maliit/keyboard/pull/132
+---
+ cmake/FindPinyin.cmake | 14 ++++++++------
+ 1 file changed, 8 insertions(+), 6 deletions(-)
+
+diff --git a/cmake/FindPinyin.cmake b/cmake/FindPinyin.cmake
+index 0b3f09b3..3478fc50 100644
+--- a/cmake/FindPinyin.cmake
++++ b/cmake/FindPinyin.cmake
+@@ -9,13 +9,15 @@ pkg_check_modules(PC_Pinyin QUIET libpinyin)
+ find_library(Pinyin_LIBRARIES NAMES pinyin ${PC_Pinyin_LIBRARIES} HINTS ${PC_Pinyin_LIBRARY_DIRS})
+ find_path(Pinyin_INCLUDE_DIRS pinyin.h HINTS ${PC_Pinyin_INCLUDE_DIRS})
+ 
+-execute_process(COMMAND ${PKG_CONFIG_EXECUTABLE} --variable pkgdatadir libpinyin
+-        OUTPUT_VARIABLE PC_Pinyin_DATA_DIR OUTPUT_STRIP_TRAILING_WHITESPACE)
+-find_path(Pinyin_DATA_DIR bigram.db HINTS ${PC_Pinyin_DATA_DIR}/data)
++if(Pinyin_FOUND)
++        execute_process(COMMAND ${PKG_CONFIG_EXECUTABLE} --variable pkgdatadir libpinyin
++                OUTPUT_VARIABLE PC_Pinyin_DATA_DIR OUTPUT_STRIP_TRAILING_WHITESPACE)
++        find_path(Pinyin_DATA_DIR bigram.db HINTS ${PC_Pinyin_DATA_DIR}/data)
+ 
+-find_package(GLib2)
+-list(APPEND Pinyin_LIBRARIES ${GLib2_LIBRARIES})
+-list(APPEND Pinyin_INCLUDE_DIRS ${GLib2_INCLUDE_DIRS})
++        find_package(GLib2)
++        list(APPEND Pinyin_LIBRARIES ${GLib2_LIBRARIES})
++        list(APPEND Pinyin_INCLUDE_DIRS ${GLib2_INCLUDE_DIRS})
++endif()
+ 
+ include(FindPackageHandleStandardArgs)
+ find_package_handle_standard_args(Pinyin DEFAULT_MSG Pinyin_LIBRARIES Pinyin_INCLUDE_DIRS)
+-- 
+2.36.1
+

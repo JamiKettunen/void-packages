@@ -1,0 +1,28 @@
+# Template file for 'maliit-keyboard'
+pkgname=maliit-keyboard
+version=2.2.1.1
+revision=1
+_commit=4c07f7a2f35f277860208f1f50b9a48acdbd5835
+wrksrc="keyboard-${version}"
+build_style=cmake
+# TODO: package https://presage.sourceforge.io? project appears completely abandoned since late 2018 :/
+configure_args="-Denable-presage=OFF"
+hostmakedepends="pkg-config qt5-host-tools qt5-qmake gettext"
+makedepends="maliit-framework-devel glib-devel qt5-declarative-devel
+ qt5-feedback-devel qt5-multimedia-devel hunspell-devel libchewing-devel"
+short_desc="A free software virtual keyboard for Wayland and X11"
+maintainer="Jami Kettunen <jami.kettunen@protonmail.com>"
+license="LGPL-3.0-only, LGPL-3.0-or-later, BSD-3-Clause, CC-BY-3.0"
+homepage="https://github.com/maliit/keyboard"
+distfiles="https://github.com/maliit/keyboard/archive/refs/tags/${version}.tar.gz"
+checksum=32f2fd97fc025c686fbe6fbe9af2b7b751aa9453f3deee668d65a5626e2d4da9
+
+if [ -z ${CROSS_BUILD} ]; then
+	# FIXME: these cannot be cross-built but aren't mandatory
+	makedepends+=" anthy-unicode-devel anthy-devel libpinyin-devel"
+fi
+
+# FIXME: unit tests don't build due to https://github.com/maliit/keyboard/issues/7
+#if [ "$XBPS_CHECK_PKGS" ] && [ -z "$CROSS_BUILD" ]; then
+#	configure_args+=" -Denable-tests=ON"
+#fi
