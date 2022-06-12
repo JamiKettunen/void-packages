@@ -1,0 +1,347 @@
+From 22afcb479b8c5d61e9ebbc50aecc2c71b4c89230 Mon Sep 17 00:00:00 2001
+From: Marius Gripsgard <marius@ubports.com>
+Date: Wed, 20 Apr 2022 03:15:02 +0200
+Subject: [PATCH] TMP: Move to miroil for prompt, and remove need for mirclient
+
+Link: https://gitlab.com/ubports/development/core/lomiri-app-launch/-/commit/22afcb479b8c5d61e9ebbc50aecc2c71b4c89230 (ubports/focal_-_miroil-2.0 branch)
+---
+ CMakeLists.txt                               |   2 +-
+ debian/control                               |   4 +-
+ liblomiri-app-launch/helper.cpp              |   7 +-
+ liblomiri-app-launch/helper.h                |   2 +-
+ liblomiri-app-launch/lomiri-app-launch.h     |   3 +-
+ liblomiri-app-launch/lomiri-app-launch.pc.in |   2 +-
+ tests/mir-mock.cpp                           |   3 -
+ tests/mir-mock.h                             |  20 +++
+ tests/mir_connection.h                       | 174 +++++++++++++++++++
+ 9 files changed, 206 insertions(+), 11 deletions(-)
+ create mode 100644 tests/mir_connection.h
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 4064afb..f6863fc 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -88,7 +88,7 @@ include_directories(${DBUSTEST_INCLUDE_DIRS})
+ pkg_check_modules(LTTNG REQUIRED lttng-ust)
+ include_directories(${LTTNG_INCLUDE_DIRS})
+ 
+-pkg_check_modules(MIR REQUIRED mirclient)
++pkg_check_modules(MIR REQUIRED miroil)
+ include_directories(${MIR_INCLUDE_DIRS})
+ 
+ pkg_check_modules(LIBERTINE libertine)
+diff --git a/debian/control b/debian/control
+index e63b96a..771ed31 100644
+--- a/debian/control
++++ b/debian/control
+@@ -18,7 +18,8 @@ Build-Depends: abi-compliance-checker,
+                libgtest-dev,
+                libjson-glib-dev (>= 1.1.2),
+                liblttng-ust-dev,
+-               libmirclient-dev (>= 0.5),
++               libmiroil-dev,
++               libmircommon-dev,
+                libproperties-cpp-dev,
+                liblomiri-api-dev (>= 0.1.0),
+                libzeitgeist-2.0-dev,
+@@ -81,7 +82,6 @@ Depends: ${misc:Depends},
+          ${shlibs:Depends},
+          gir1.2-lomiriapplaunch-0 (= ${binary:Version}),
+          libglib2.0-dev,
+-         libmirclient-dev (>= 0.5),
+          libproperties-cpp-dev,
+          liblomiri-app-launch0 (= ${binary:Version}),
+ Pre-Depends: ${misc:Pre-Depends},
+diff --git a/liblomiri-app-launch/helper.cpp b/liblomiri-app-launch/helper.cpp
+index 65aeff3..c8591db 100644
+--- a/liblomiri-app-launch/helper.cpp
++++ b/liblomiri-app-launch/helper.cpp
+@@ -31,6 +31,8 @@
+ 
+ #include "lomiri-app-launch.h"
+ 
++#include <miroil/mir_prompt_session.h>
++
+ extern "C" {
+ #include "proxy-socket-demangler.h"
+ #include <gio/gunixfdlist.h>
+@@ -249,8 +251,9 @@ public:
+ 
+         /* Get the Mir FD */
+         std::promise<int> promise;
+-        mir_prompt_session_new_fds_for_prompt_providers(
+-            session, 1,
++        miroil::MirPromptSession sessionClass(session);
++        sessionClass.new_fds_for_prompt_providers(
++            1,
+             [](MirPromptSession* session, size_t count, int const* fdin, void* user_data) {
+                 auto promise = static_cast<std::promise<int>*>(user_data);
+ 
+diff --git a/liblomiri-app-launch/helper.h b/liblomiri-app-launch/helper.h
+index 48cb330..2af8e08 100644
+--- a/liblomiri-app-launch/helper.h
++++ b/liblomiri-app-launch/helper.h
+@@ -20,7 +20,7 @@
+ #include <memory>
+ #include <vector>
+ 
+-#include <mir_toolkit/mir_prompt_session.h>
++#include <miroil/mir_prompt_session.h>
+ 
+ #include "appid.h"
+ #include "type-tagger.h"
+diff --git a/liblomiri-app-launch/lomiri-app-launch.h b/liblomiri-app-launch/lomiri-app-launch.h
+index 1235d74..78c2c61 100644
+--- a/liblomiri-app-launch/lomiri-app-launch.h
++++ b/liblomiri-app-launch/lomiri-app-launch.h
+@@ -18,7 +18,8 @@
+  */
+ 
+ #include <glib.h>
+-#include <mir_toolkit/mir_prompt_session.h>
++
++typedef struct MirPromptSession MirPromptSession;
+ 
+ #ifndef __LOMIRI_APP_LAUNCH_H__
+ #define __LOMIRI_APP_LAUNCH_H__ 1
+diff --git a/liblomiri-app-launch/lomiri-app-launch.pc.in b/liblomiri-app-launch/lomiri-app-launch.pc.in
+index bf008d1..39351bb 100644
+--- a/liblomiri-app-launch/lomiri-app-launch.pc.in
++++ b/liblomiri-app-launch/lomiri-app-launch.pc.in
+@@ -2,7 +2,7 @@ libdir=@libdir@
+ includedir=@includedir@
+ 
+ Cflags: -I${includedir}/liblomiri-app-launch-@apiversion@
+-Requires: glib-2.0 mirclient
++Requires: glib-2.0 miroil
+ Libs: -L${libdir} -llomiri-app-launch
+ 
+ Name: liblomiri-app-launch
+diff --git a/tests/mir-mock.cpp b/tests/mir-mock.cpp
+index 88aa5c1..e794d2c 100644
+--- a/tests/mir-mock.cpp
++++ b/tests/mir-mock.cpp
+@@ -4,9 +4,6 @@
+ #include <iostream>
+ #include <thread>
+ 
+-#include <mir_toolkit/mir_connection.h>
+-#include <mir_toolkit/mir_prompt_session.h>
+-
+ static const char * valid_trust_session = "In the circle of trust";
+ static bool valid_trust_connection = true;
+ static pid_t last_trust_pid = 0;
+diff --git a/tests/mir-mock.h b/tests/mir-mock.h
+index fcac315..4a0f3c6 100644
+--- a/tests/mir-mock.h
++++ b/tests/mir-mock.h
+@@ -5,6 +5,26 @@
+ #include <string>
+ #include <utility>
+ 
++#include "mir_connection.h"
++
++typedef struct MirWaitHandle MirWaitHandle;
++typedef struct MirPromptSessionState MirPromptSessionState;
++typedef void (*MirPromptSessionStateChangeCallback)(
++    MirPromptSession* prompt_provider, MirPromptSessionState state,
++    void* context);
++
++MirWaitHandle* mir_prompt_session_new_fds_for_prompt_providers(
++    MirPromptSession *prompt_session,
++    unsigned int no_of_fds,
++    MirClientFdCallback callback,
++    void * context);
++
++MirPromptSession *mir_connection_create_prompt_session_sync(
++    MirConnection* connection,
++    pid_t application_pid,
++    MirPromptSessionStateChangeCallback state_change_callback,
++    void *context);
++
+ void mir_mock_connect_return_valid (bool valid);
+ std::pair<std::string, std::string> mir_mock_connect_last_connect (void);
+ void mir_mock_set_trusted_fd (int fd);
+diff --git a/tests/mir_connection.h b/tests/mir_connection.h
+new file mode 100644
+index 0000000..8bfcd18
+--- /dev/null
++++ b/tests/mir_connection.h
+@@ -0,0 +1,174 @@
++/*
++ * Copyright © 2012-2014 Canonical Ltd.
++ *
++ * This program is free software: you can redistribute it and/or modify it
++ * under the terms of the GNU Lesser General Public License version 2 or 3,
++ * as published by the Free Software Foundation.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU Lesser General Public License for more details.
++ *
++ * You should have received a copy of the GNU Lesser General Public License
++ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
++ *
++ */
++
++#ifndef MIR_TOOLKIT_MIR_CONNECTION_H_
++#define MIR_TOOLKIT_MIR_CONNECTION_H_
++
++#include <stdbool.h>
++
++#ifdef __cplusplus
++/**
++ * \addtogroup mir_toolkit
++ * @{
++ */
++extern "C" {
++#endif
++
++typedef void* MirEGLNativeWindowType;
++typedef void* MirEGLNativeDisplayType;
++typedef struct MirConnection MirConnection;
++typedef struct MirSurface MirWindow;
++typedef struct MirSurfaceSpec MirWindowSpec;
++typedef struct MirScreencast MirScreencast;
++typedef struct MirScreencastSpec MirScreencastSpec;
++typedef struct MirPromptSession MirPromptSession;
++typedef struct MirBufferStream MirBufferStream;
++typedef struct MirPersistentId MirWindowId;
++typedef struct MirBlob MirBlob;
++typedef struct MirDisplayConfig MirDisplayConfig;
++typedef struct MirError MirError;
++typedef struct MirPresentationChain MirPresentationChain;
++typedef struct MirBuffer MirBuffer;
++typedef struct MirRenderSurface MirRenderSurface;
++
++typedef void (*MirClientFdCallback)(
++    MirPromptSession *prompt_session, size_t count, int const* fds, void* context);
++
++/**
++ * Perform a mir_connect() but also wait for and return the result.
++ *   \param [in] server    File path of the server socket to connect to, or
++ *                         NULL to choose the default server
++ *   \param [in] app_name  A name referring to the application
++ *   \return               The resulting MirConnection
++ */
++MirConnection *mir_connect_sync(char const *server, char const *app_name);
++
++/**
++ * Test for a valid connection
++ * \param [in] connection  The connection
++ * \return                 True if the supplied connection is valid, or
++ *                         false otherwise.
++ */
++bool mir_connection_is_valid(MirConnection *connection);
++
++/**
++ * Retrieve a text description of the last error. The returned string is owned
++ * by the library and remains valid until the connection has been released.
++ *   \param [in] connection  The connection
++ *   \return                 A text description of any error resulting in an
++ *                           invalid connection, or the empty string "" if the
++ *                           connection is valid.
++ */
++char const *mir_connection_get_error_message(MirConnection *connection);
++
++/**
++ * Release a connection to the Mir server
++ *   \param [in] connection  The connection
++ */
++void mir_connection_release(MirConnection *connection);
++
++/**
++ * Query the display
++ *
++ * \pre mir_connection_is_valid(connection) == true
++ * \warning return value must be destroyed via mir_display_config_release()
++ *
++ * \param [in]  connection        The connection
++ * \return                        structure that describes the display configuration
++ */
++MirDisplayConfig* mir_connection_create_display_configuration(MirConnection* connection);
++
++
++/**
++ * Remove the display configuration for the connection
++ *
++ * If a session display config is applied to the connection it is removed, and
++ * the base display config is used. If there was no previous call to
++ * mir_connection_apply_session_display_config this will do nothing.
++ *
++ *   \param [in] connection             The connection
++ */
++void mir_connection_remove_session_display_config(MirConnection* connection);
++
++
++/**
++ * Confirm a base configuration change initiated by mir_connection_preview_base_display_configuration()
++ *
++ * The base display configuration is the configuration the server applies when
++ * there is no active per-connection configuration.
++ *
++ * If this request succeeds a second configuration change event is sent to the
++ * client, identical to the one sent after
++ * mir_connection_preview_base_display_configuration(). Clients should
++ * register a callback with mir_connection_set_display_config_change_callback()
++ * in order to determine when this call succeeds.
++ *
++ * The MirDisplayConfig must be the same as the one passed to
++ * mir_connection_preview_base_display_configuration().
++ *
++ * \param [in] connection       The connection
++ * \param [in] configuration    The MirDisplayConfig to confirm as base
++ *                                  configuration.
++ */
++void mir_connection_confirm_base_display_configuration(
++    MirConnection* connection,
++    MirDisplayConfig const* configuration);
++
++/**
++ * Cancel a pending base display configuration preview.
++ *
++ * If this request succeeds a configuration change event is sent to the client,
++ * with the now-current base display configuration.
++ *
++ * This call will fail if there is no display configuration preview current.
++ * A client can detect this by registering a callback with
++ * mir_connection_set_error_callback() and checking for
++ * mir_display_configuration_error_no_preview_in_progress.
++ *
++ * \param [in] connection   The connection
++ */
++void mir_connection_cancel_base_display_configuration_preview(
++    MirConnection* connection);
++
++/**
++ * Returns client API version
++ *
++ * Result of the function should be compared to result of MIR_VERSION_NUMBER
++ *
++ * \return  The client API version
++ */
++unsigned mir_get_client_api_version();
++
++/**
++ * Enumerates the supported extensions
++ *
++ * \param [in]  connection  The connection
++ * \param [out] context     User data passed to the enumerator function
++ * \param [in]  enumerator  The function to be called for each extension
++ *
++ */
++void mir_connection_enumerate_extensions(
++    MirConnection* connection,
++    void* context,
++    void (*enumerator)(void* context, char const* extension, int version));
++
++#ifdef __cplusplus
++}
++/**@}*/
++#endif
++
++#endif /* MIR_TOOLKIT_MIR_CONNECTION_H_ */
+-- 
+2.36.1
+

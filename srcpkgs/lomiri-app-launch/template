@@ -1,7 +1,7 @@
 # Template file for 'lomiri-app-launch'
 pkgname=lomiri-app-launch
 version=0.1.2r3086
-revision=1
+revision=2
 _commit=a2c78e65a577ea785c32f5de84dce20d0f24cba6 # tip of main branch as of 2022-05-31
 wrksrc="lomiri-app-launch-${_commit}"
 wrksrc_build="cmake"
@@ -13,7 +13,7 @@ configure_args="-DUSE_SYSTEMD=NO -DENABLE_COVERAGE=NO
  -DLOMIRI_APP_LAUNCH_ARCH=${XBPS_CROSS_TRIPLET:-$XBPS_TRIPLET}"
 hostmakedepends="pkg-config glib-devel lttng-ust ubports-cmake-extras"
 makedepends="glib-devel python-gobject-devel json-glib-devel zeitgeist-devel
- $(vopt_if click 'click-devel') lttng-ust-devel mir1-devel protobuf-devel
+ $(vopt_if click 'click-devel') lttng-ust-devel libmir-devel protobuf-devel
  libxkbcommon-devel libcurl-devel liblomiri-api-devel properties-cpp
  gobject-introspection"
 checkdepends="dbus-test-runner-devel gtest-devel dbus libqtdbusmock-devel
