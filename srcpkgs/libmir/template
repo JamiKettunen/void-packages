@@ -1,0 +1,95 @@
+# Template file for 'libmir'
+pkgname=libmir
+version=2.8.0
+revision=1
+wrksrc="mir-${version}"
+build_style=cmake
+# FIXME: /usr/aarch64-linux-musl/usr/include/libxml++-2.6/libxml++/parsers/saxparser.h:224:8: error: 'template<class> class std::auto_ptr' is deprecated [-Werror=deprecated-declarations]
+configure_args="-DMIR_FATAL_COMPILE_WARNINGS=OFF
+ $(vopt_bool lto MIR_LINK_TIME_OPTIMIZATION)
+ -DMIR_BAD_BUFFER_TEST_ENVIRONMENT_BROKEN=ON"
+hostmakedepends="pkg-config python3-Pillow libdrm-devel lttng-ust glib-devel"
+# FIXME: libXrender-devel should be a depends of libXcursor-devel!
+makedepends="boost-devel libglvnd-devel glm glog-devel gflags-devel
+ lttng-ust-devel eudev-libudev-devel glib-devel wayland-devel libXcursor-devel
+ libXrender-devel libdrm-devel libgbm-devel libepoxy-devel nettle-devel
+ libxkbcommon-devel libinput-devel libxml++-devel yaml-cpp-devel gmpxx-devel"
+checkdepends="gtest-devel umockdev-devel wlcs-devel elogind python3-dbusmock git"
+depends="elogind"
+conflicts="mir1"
+short_desc="Canonical's Wayland compositor library"
+maintainer="Jami Kettunen <jami.kettunen@protonmail.com>"
+license="GPL-2.0-or-later, LGPL-2.0-or-later"
+homepage="https://github.com/MirServer/mir"
+distfiles="https://github.com/MirServer/mir/archive/refs/tags/v${version}.tar.gz"
+checksum=edcc3c3b473b3ad95ab4956d775bf697b015236a8335dd70b9ef0e4791f98613
+
+build_options="lto"
+desc_option_lto="Build with link-time optimization (LTO)"
+#build_options_default="lto"
+
+if [ "$XBPS_TARGET_LIBC" = "glibc" ]; then
+	makedepends+=" libatomic-devel systemtap-devel"
+else # needed on musl for -latomic (-lexecinfo)
+	makedepends+=" libexecinfo-devel"
+fi
+
+if [ -z "$XBPS_CHECK_PKGS" ] || [ "$CROSS_BUILD" ]; then
+	configure_args+=" -DMIR_ENABLE_TESTS=OFF"
+elif [ "$XBPS_CHECK_PKGS" != "full" ]; then
+	configure_args+=" -DMIR_RUN_UNIT_TESTS=OFF" # saves ~85 seconds
+fi
+
+# FIXME: sh: line 1: /builddir/mir-60579b0b67f35d7c2532b905f6c93ffdfca8f934/build/bin/mir_wayland_generator: No such file or directory
+build_helper="qemu"
+
+post_patch() {
+	if [ "$XBPS_TARGET_LIBC" != "glibc" ]; then
+		vsed 's/    atomic/    execinfo/' -i src/server/CMakeLists.txt
+	fi
+}
+
+post_install() {
+	# FIXME: don't install build-time tools, tests etc.
+	rm -f ${DESTDIR}/usr/bin/mir{_wayland_generator,_performance_tests,_platform_graphics_test_harness,-smoke-test-runner} \
+		${DESTDIR}/usr/lib/mir/{miral_wlcs_integration.so,server-platform/{graphics,input}-stub.so}
+}
+
+libmir-demo_package() {
+	depends="${sourcepkg}>=${version}_${revision} weston xterm"
+	short_desc+=" - demo programs"
+	pkg_install() {
+		vmove usr/bin/mir-shell
+		vmove usr/bin/fake-mir-kiosk
+		vmove "usr/bin/mir_demo_*"
+		vmove "usr/bin/miral-*"
+		#vmove "usr/bin/*"
+		vmove usr/share
+	}
+}
+
+# TODO: usr/include/mirtest not packaged if not also building tests (i.e. native builds)
+# -> shouldn't be problem since tests cannot be done anyway on cross builds
+libmir-devel_package() {
+	depends="${sourcepkg}>=${version}_${revision}" # (libxkbcommon-devel)
+	short_desc+=" - development files"
+	pkg_install() {
+		vmove usr/include
+		vmove usr/lib/pkgconfig
+		vmove "usr/lib/*.so"
+		if [ "$XBPS_CHECK_PKGS" ] && [ -z "$CROSS_BUILD" ]; then
+			vmove "usr/lib/*.a" # libmir-test-assist.a
+		fi
+	}
+}
+
+# CMAKE FIXME:
+# - look for target gmpxx.h (gmpxx-devel)
+# - look for host gdbus-codegen (glib-devel)
+# - look for host lttng-gen-tp (lttng-ust)
+# - look for host/target /usr/include/libdrm/drm_fourcc.h (libdrm-devel)
+
+# MUSL FIXME?
+# CMake Warning at src/common/sharedlibrary/CMakeLists.txt:38 (message):
+#  dlvsym() not supported by libc.  Mir may attempt to load ABI-incompatible
+#  platform modules

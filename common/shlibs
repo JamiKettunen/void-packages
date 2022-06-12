@@ -4174,9 +4174,7 @@ libmirserver.so.53 mir1-1.8.2r38397_1
 libmirclient.so.9 mir1-1.8.2r38397_1
 libmirplatform.so.18 mir1-1.8.2r38397_1
 libmircommon.so.7 mir1-1.8.2r38397_1
-libmircore.so.1 mir1-1.8.2r38397_1
 libmiral.so.3 mir1-1.8.2r38397_1
-libmiroil.so.1 mir1-1.8.2r38397_1
 libprocess-cpp.so.3 libprocess-cpp-3.0.2r157_1
 libclick-0.4.so.0 libclick-0.5.0r1104_1
 liblomiri-app-launch.so.0 lomiri-app-launch-0.1.1r3079_1
@@ -4202,3 +4200,10 @@ libmessaging-menu.so.0 ayatana-indicator-messages-22.2.0_1
 libayatana-ido3-0.4.so.0 ayatana-ido-0.9.2_1
 libmaliit-plugins.so.2 maliit-framework-2.2.1_1
 libmaliit-glib.so.2 maliit-framework-2.2.1_1
+libmiral.so.4 libmir-2.8.0_1
+libmirserver.so.58 libmir-2.8.0_1
+libmircommon.so.9 libmir-2.8.0_1
+# FIXME: the following sonames conflict making coexistence of Mir 1.x and Mir 2.x
+#        on the same tree impossible.
+libmircore.so.1 libmir-2.8.0_1
+libmiroil.so.1 libmir-2.8.0_1
