@@ -72,6 +72,8 @@ jobs:
           xbps-install -Syu || xbps-install -yu xbps
           # Upgrade again (in case there was a xbps update)
           xbps-install -yu
+          xbps-remove -Fy chroot-curl
+          xbps-install -y curl
 
       - uses: actions/checkout@v1
         with:
@@ -84,6 +86,7 @@ jobs:
          common/travis/fetch_upstream.sh &&
          common/travis/fetch-xtools.sh
       - run: common/travis/changed_templates.sh
+      - run: common/travis/test-update-check.sh
 
       - name: Build and check packages
         run: |
