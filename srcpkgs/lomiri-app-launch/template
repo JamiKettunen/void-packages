@@ -1,13 +1,13 @@
 # Template file for 'lomiri-app-launch'
 pkgname=lomiri-app-launch
-version=0.1.2r3086
+version=0.1.2r3097
 revision=1
-_commit=a2c78e65a577ea785c32f5de84dce20d0f24cba6 # tip of main branch as of 2022-05-31
+_commit=994889dc768fb263b7fc576597557afa871167f1 # tip of main branch as of 2022-09-22
 wrksrc="lomiri-app-launch-${_commit}"
-wrksrc_build="cmake"
 build_style=cmake
+build_helpers="gir"
 # TODO:
-# - s/-unknown// in triple?
+# - sed "s/-unknown//" in triple?
 # - $(vopt_bool click USE_CLICK) | Bring back support for click packages: https://gitlab.com/ubports/core/lomiri-app-launch/-/commit/e8a31d46
 configure_args="-DUSE_SYSTEMD=NO -DENABLE_COVERAGE=NO
  -DLOMIRI_APP_LAUNCH_ARCH=${XBPS_CROSS_TRIPLET:-$XBPS_TRIPLET}"
@@ -15,30 +15,25 @@ hostmakedepends="pkg-config glib-devel lttng-ust ubports-cmake-extras"
 makedepends="glib-devel python-gobject-devel json-glib-devel zeitgeist-devel
  $(vopt_if click 'click-devel') lttng-ust-devel mir1-devel protobuf-devel
  libxkbcommon-devel libcurl-devel liblomiri-api-devel properties-cpp
- gobject-introspection"
-checkdepends="dbus-test-runner-devel gtest-devel dbus libqtdbusmock-devel
- python3-dbusmock"
+ gobject-introspection dbus-test-runner-devel gtest-devel"
+checkdepends="dbus libqtdbusmock-devel python3-dbusmock"
 short_desc="Daemon for launching applications under Lomiri"
 maintainer="Jami Kettunen <jami.kettunen@protonmail.com>"
 license="GPL-3.0-only"
-homepage="https://gitlab.com/ubports/core/lomiri-app-launch"
-distfiles="https://gitlab.com/ubports/core/lomiri-app-launch/-/archive/${_commit}.tar.gz"
-checksum=1c8dc04a5d24e7fd2e3836cb2d5b79b75fc1e007424e499efb6c58356b343c1e
+homepage="https://gitlab.com/ubports/development/core/lomiri-app-launch"
+distfiles="https://gitlab.com/ubports/development/core/lomiri-app-launch/-/archive/${_commit}.tar.gz"
+checksum=2a1642f271bbf5deb9b3b2693a9b3229556471d6552cefa4f77aa1beff7f9907
 
 # FIXME: click apps support should be optional!
 build_options="click"
 desc_option_click="Build with support for Ubuntu Touch click applications"
 build_options_default="click"
 
-# TESTS FIXME: liblal-cpp-test (StartingResponses) is very racy!
-# -> now also liblal-test with USE_SYSTEMD=NO!!!
-# https://gitlab.com/ubports/core/lomiri-app-launch/-/merge_requests/20
-if [ -z "$XBPS_CHECK_PKGS" ] || [ "$CROSS_BUILD" ]; then
-	configure_args+=" -DENABLE_TESTS=OFF"
-fi
+# FIXME: passing tests requires systemd jobs backend https://gitlab.com/ubports/development/core/lomiri-app-launch/-/issues/8
+make_check=no
 
 # FIXME: /usr/aarch64-linux-musl//usr/bin/g-ir-scanner: line 10: /usr/bin/g-ir-scanner.wrapped: No such file or directory
-build_helpers="gir qemu"
+build_helpers+=" qemu"
 if [ "$CROSS_BUILD" ]; then
 	hostmakedepends+=" gobject-introspection prelink-cross qemu-user-static"
 fi
