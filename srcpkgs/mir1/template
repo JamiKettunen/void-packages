@@ -14,8 +14,8 @@ makedepends="boost-devel libglvnd-devel glm glog-devel gflags-devel lttng-ust-de
  eudev-libudev-devel glib-devel wayland-devel libXcursor-devel libXrender-devel
  libdrm-devel libgbm-devel libepoxy-devel nettle-devel libxkbcommon-devel
  libinput-devel libxml++-devel yaml-cpp-devel gmpxx-devel libatomic-devel
- protobuf-devel capnproto-devel freetype-devel libevdev-devel MesaLib-devel"
-checkdepends="gtest-devel wlcs-devel libumockdev-devel"
+ protobuf-devel capnproto-devel freetype-devel libevdev-devel MesaLib-devel
+ wlcs-devel gtest-devel libumockdev-devel"
 depends="elogind"
 short_desc="Canonical's Wayland compositor (legacy version 1 with MirOil [git ${_commit:0:7}])"
 maintainer="Jami Kettunen <jami.kettunen@protonmail.com>"
@@ -32,13 +32,9 @@ if [ "$XBPS_TARGET_LIBC" = "glibc" ]; then
 	makedepends+=" systemtap-devel"
 fi
 
-if [ -z "$XBPS_CHECK_PKGS" ] || [ "$CROSS_BUILD" ]; then
-	configure_args+=" -DMIR_ENABLE_TESTS=OFF"
-else
-	# FIXME: these tests get stuck without any output for 10 minutes
-	# -> try e.g. "mir_acceptance_tests --logging on" (what about mir_unit_tests.bin?!)
-	configure_args+=" -DMIR_BUILD_ACCEPTANCE_TESTS=OFF -DMIR_BUILD_UNIT_TESTS=OFF"
-fi
+# FIXME: these tests get stuck without any output for 10 minutes
+# -> try e.g. "mir_acceptance_tests --logging on" (what about mir_unit_tests.bin?!)
+configure_args+=" -DMIR_BUILD_ACCEPTANCE_TESTS=OFF -DMIR_BUILD_UNIT_TESTS=OFF"
 
 # FIXME: /usr/aarch64-linux-musl/usr/bin/capnpc-c++: no such plugin (executable should be '/usr/aarch64-linux-musl/usr/bin/capnpc-c++')
 # https://github.com/capnproto/capnproto/blob/master/c%2B%2B/cmake/CapnProtoMacros.cmake
@@ -73,8 +69,6 @@ mir1-demo_package() {
 	}
 }
 
-# TODO: usr/include/mirtest not packaged if not also building tests (i.e. native builds)
-# -> shouldn't be problem since tests cannot be done anyway on cross builds
 mir1-devel_package() {
 	depends="${sourcepkg}>=${version}_${revision} protobuf-devel libxkbcommon-devel"
 	short_desc+=" - development files"
@@ -82,9 +76,7 @@ mir1-devel_package() {
 		vmove usr/include
 		vmove usr/lib/pkgconfig
 		vmove "usr/lib/*.so"
-		if [[ "${XBPS_CHECK_PKGS}" && -z "${CROSS_BUILD}" ]]; then
-			vmove "usr/lib/*.a" # libmir-test-assist.a
-		fi
+		vmove "usr/lib/*.a"
 	}
 }
 
