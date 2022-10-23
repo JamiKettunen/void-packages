@@ -1,14 +1,14 @@
 # Template file for 'mesa'
 pkgname=mesa
-version=22.1.7.1
-revision=2
-_commit=1d41dd42dfbc9bfb056d68ba8c1c4205bdb9dc75
+version=22.2.0
+revision=1
+_commit=851c6598bd1262fa3debd1ed2c7337ad2ca75fc2
 wrksrc="mesa-${_commit}"
 build_style=meson
 configure_args="-Dglvnd=true -Dshared-glapi=enabled -Dgbm=enabled -Degl=enabled
  -Dosmesa=true -Dgles1=enabled -Dgles2=enabled -Dglx=dri -Ddri3=enabled
  -Dlmsensors=enabled -Dplatforms=x11$(vopt_if wayland ,wayland)
- -Dllvm=enabled -Db_lto=false -Dcpp_std=gnu++14"
+ -Dllvm=enabled -Db_lto=false -Dcpp_std=gnu++14 --buildtype debugoptimized"
 hostmakedepends="gettext flex llvm pkg-config python3-Mako glslang
  $(vopt_if wayland 'wayland-protocols wayland-devel')"
 makedepends="elfutils-devel expat-devel libXdamage-devel
@@ -24,7 +24,7 @@ license="MIT, LGPL-2.1-or-later"
 homepage="https://www.mesa3d.org/"
 changelog="https://docs.mesa3d.org/relnotes/${version}.html"
 distfiles="https://gitlab.freedesktop.org/mesa/mesa/-/archive/${_commit}.tar.gz"
-checksum=63322367f2e9bbc7bd2b04773c85cb5aaa80a7f1a328847785a6d05e63bcee46
+checksum=a92b08a52be728797dd2ac9c8fb77434177f7fa2490dabb2223d56c4bc3200ce
 
 build_options="wayland"
 build_options_default="wayland"
@@ -52,14 +52,16 @@ _gallium_drivers=" -Dgallium-drivers=swrast"
 _vulkan_drivers=" -Dvulkan-drivers="
 # pre-gallium drivers are mostly for old ati + i915/965
 _dri_drivers=" -Ddri-drivers="
+_tools=" -Dtools="
 
 # amd and nvidia drivers on all platforms except where it makes no sense
 # amd implicitly enables clover opencl, also enable hwdec and virgl too
 case "$XBPS_TARGET_MACHINE" in
 	armv5*|mips*) ;;
+	armv7*|aarch64*)
+		_have_virgl=yes
+		;;
 	*)
-		_have_nv=yes
-		_have_amd=yes
 		_have_hwdec=yes
 		_have_virgl=yes
 		;;
@@ -70,11 +72,15 @@ esac
 case "$XBPS_TARGET_MACHINE" in
 	i686*|x86_64*)
 		_have_intel=yes
+		_have_amd=yes
+		_have_nv=yes
 		_have_vmware=yes
 		_have_nine=yes
 		;;
 	armv[67]*|aarch64*)
 		_have_arm=yes
+		_have_qcom=yes
+		_have_vulkan=yes
 		;;
 esac
 
@@ -84,41 +90,38 @@ if [ "$_have_amd" ]; then
 	_have_vulkan=yes
 	_gallium_drivers+=",r300,r600,radeonsi"
 	_vulkan_drivers+=",amd"
+	_dri_drivers+=",r100,r200"
 	subpackages+=" mesa-vulkan-radeon"
-	# transitional dummy packages
-	subpackages+=" mesa-ati-dri"
 fi
 
 if [ "$_have_intel" ]; then
 	_have_vulkan=yes
-	_gallium_drivers+=",crocus,iris,i915"
+	_gallium_drivers+=",crocus,iris"
 	_vulkan_drivers+=",intel"
+	_dri_drivers+=",i915,i965"
 	subpackages+=" mesa-vulkan-intel"
-	# transitional dummy packages
-	subpackages+=" mesa-intel-dri"
 fi
 
 if [ "$_have_nv" ]; then
 	_gallium_drivers+=",nouveau"
 	if [ "$_have_arm" ]; then
 		_gallium_drivers+=",tegra"
-		# transitional dummy packages
-		subpackages+=" mesa-tegra-dri"
+	else
+		_dri_drivers+=",nouveau"
 	fi
-	# transitional dummy packages
-	subpackages+=" mesa-nouveau-dri"
 fi
 
 if [ "$_have_arm" ]; then
-	_have_vulkan=yes
 	_gallium_drivers+=",kmsro"
-	_gallium_drivers+=",v3d,vc4,freedreno,etnaviv,lima,panfrost"
-	_vulkan_drivers+=",broadcom"
-	subpackages+=" mesa-vulkan-broadcom"
-	# transitional dummy packages
-	subpackages+=" mesa-kmsro-dri mesa-v3d-dri mesa-vc4-dri"
-	subpackages+=" mesa-etnaviv-dri mesa-freedreno-dri"
-	subpackages+=" mesa-lima-dri mesa-panfrost-dri"
+fi
+
+if [ "$_have_qcom" ]; then
+	_gallium_drivers+=",freedreno"
+	_vulkan_drivers+=",freedreno"
+	_tools+=",freedreno"
+	subpackages+=" mesa-vulkan-freedreno mesa-tools"
+	# TODO: enable clover OCL stuff?
+	# https://gitlab.freedesktop.org/mesa/mesa/-/merge_requests/12500
 fi
 
 if [ "$_have_virgl" ]; then
@@ -133,8 +136,6 @@ if [ "$_have_vmware" ]; then
 	_gallium_drivers+=",svga"
 	configure_args+=" -Dgallium-xa=enabled"
 	subpackages+=" libxatracker"
-	# transitional dummy packages
-	subpackages+=" mesa-vmwgfx-dri"
 else
 	configure_args+=" -Dgallium-xa=disabled"
 fi
@@ -158,8 +159,9 @@ fi
 # _gallium_drivers is not affected by this problem
 _vulkan_drivers=${_vulkan_drivers/=,/=}
 _dri_drivers=${_dri_drivers/=,/=}
+_tools=${_tools/=,/=}
 
-configure_args+=" ${_vulkan_drivers} ${_dri_drivers}"
+configure_args+=" ${_vulkan_drivers} ${_dri_drivers} ${_tools}"
 
 if [ "$_have_vulkan" ]; then
 	_have_zink=yes
@@ -316,6 +318,19 @@ mesa-dri_package() {
 	}
 }
 
+mesa-tools_package() {
+	short_desc="Mesa tools"
+	pkg_install() {
+		if [ "$_have_qcom" ]; then
+			vmove usr/share/freedreno
+			vmove "usr/bin/afuc-*"
+			vmove usr/bin/cffdump
+			vmove usr/bin/computerator
+			vmove usr/bin/crashdec
+		fi
+	}
+}
+
 mesa-vaapi_package() {
 	short_desc="Mesa VA-API drivers"
 	shlib_provides="libgallium_drv_video.so" # workaround for mesa-vaapi-32bit
@@ -347,11 +362,11 @@ mesa-vulkan-radeon_package() {
 	}
 }
 
-mesa-vulkan-broadcom_package() {
-	short_desc="Mesa Broadcom Vulkan driver"
+mesa-vulkan-freedreno_package() {
+	short_desc="Mesa Freedreno Vulkan driver"
 	pkg_install() {
-		vmove "usr/share/vulkan/icd.d/broadcom_icd*.json"
-		vmove "usr/lib/libvulkan_broadcom.so"
+		vmove "usr/share/vulkan/icd.d/freedreno_icd*.json"
+		vmove "usr/lib/libvulkan_freedreno.so"
 	}
 }
 
@@ -363,94 +378,4 @@ mesa-vulkan-overlay-layer_package() {
 		vmove "usr/bin/mesa-overlay-control.py"
 		vmove "usr/lib/libVkLayer_*.so"
 	}
-}
-
-mesa-ati-dri_package() {
-	build_style=meta
-	lib32mode=full
-	short_desc="Mesa DRI drivers for ATI GPUs (transitional dummy package)"
-	depends="mesa-dri mesa-vulkan-radeon"
-	if [ "$_have_hwdec" ]; then
-		depends+=" mesa-vaapi mesa-vdpau"
-	fi
-}
-
-mesa-etnaviv-dri_package() {
-	build_style=meta
-	lib32mode=full
-	short_desc="Mesa DRI drivers for Vivante GPUs (transitional dummy package)"
-	depends="mesa-dri"
-}
-
-mesa-freedreno-dri_package() {
-	build_style=meta
-	lib32mode=full
-	short_desc="Mesa DRI drivers for Adreno GPUs (transitional dummy package)"
-	depends="mesa-dri"
-}
-
-mesa-intel-dri_package() {
-	build_style=meta
-	lib32mode=full
-	short_desc="Mesa DRI drivers for Intel GPUs (transitional dummy package)"
-	depends="mesa-dri mesa-vulkan-intel"
-}
-
-mesa-kmsro-dri_package() {
-	build_style=meta
-	lib32mode=full
-	short_desc="KMS Render-only Mesa DRI drivers (transitional dummy package)"
-	depends="mesa-dri"
-}
-
-mesa-lima-dri_package() {
-	build_style=meta
-	lib32mode=full
-	short_desc="Mesa DRI drivers for Mali GPUs (Utgard) (transitional dummy package)"
-	depends="mesa-dri"
-}
-
-mesa-nouveau-dri_package() {
-	build_style=meta
-	lib32mode=full
-	short_desc="Mesa DRI drivers for NVIDIA GPUs (transitional dummy package)"
-	depends="mesa-dri"
-	if [ "$_have_hwdec" ]; then
-		depends+=" mesa-vaapi mesa-vdpau"
-	fi
-}
-
-mesa-panfrost-dri_package() {
-	build_style=meta
-	lib32mode=full
-	short_desc="Mesa DRI drivers for Mali GPUs (Midgard/Bifrost) (dummy package)"
-	depends="mesa-dri"
-}
-
-mesa-tegra-dri_package() {
-	build_style=meta
-	lib32mode=full
-	short_desc="Mesa DRI drivers for Tegra GPU (transitional dummy package)"
-	depends="mesa-dri"
-}
-
-mesa-v3d-dri_package() {
-	build_style=meta
-	lib32mode=full
-	short_desc="Mesa DRI drivers for Videocore VI GPU (transitional dummy package)"
-	depends="mesa-dri"
-}
-
-mesa-vmwgfx-dri_package() {
-	build_style=meta
-	lib32mode=full
-	short_desc="Mesa DRI drivers for VMware (transitional dummy package)"
-	depends="mesa-dri"
-}
-
-mesa-vc4-dri_package() {
-	build_style=meta
-	lib32mode=full
-	short_desc="Mesa DRI drivers for Videocore IV GPU (transitional dummy package)"
-	depends="mesa-dri"
 }
