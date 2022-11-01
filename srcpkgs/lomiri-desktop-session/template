@@ -8,10 +8,24 @@ build_style=cmake
 configure_args="-DENABLE_TOUCH_SESSION=OFF"
 hostmakedepends="pkg-config"
 makedepends="lomiri-shell inotify-tools"
-depends="${makedepends}"
+depends="${makedepends} superd"
 short_desc="Lomiri Desktop Session Scripts (git ${_commit:0:7})"
 maintainer="Jami Kettunen <jami.kettunen@protonmail.com>"
 license="LGPL-3.0-only"
 homepage="https://gitlab.com/ubports/development/core/lomiri-desktop-session"
 distfiles="https://gitlab.com/ubports/development/core/lomiri-desktop-session/-/archive/${_commit}.tar.gz"
 checksum=06b540a822e69850122a3cb49a9592f1b1272a6237528ea24995aea351d1996a
+
+post_patch() {
+	# FIXME: is this the permanent solution for packageable non-systemd per-user services?
+	vsed '/systemd WAYLAND_DISPLAY/a\\n# launch indicators here for now with superd\nif pgrep -x superd >/dev/null; then\n\tpkill superd\nsleep 1\nfi\nsuperd -no-color -v &\n' -i lomiri-session
+}
+
+post_install() {
+	# install and enable some superd user service units by default
+	vmkdir etc/superd/services
+	for user_sv in ${FILESDIR}/*.service; do
+		vinstall $user_sv 644 usr/share/superd/services
+		ln -s /usr/share/superd/services/${user_sv/*\/} ${DESTDIR}/etc/superd/services/
+	done
+}
