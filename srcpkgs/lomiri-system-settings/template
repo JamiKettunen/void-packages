@@ -1,10 +1,10 @@
 # Template file for 'lomiri-system-settings'
 pkgname=lomiri-system-settings
-version=1.0r7965
+version=1.0r7968
 revision=1
-_commit=0fa60644b11df45a1681ce8d41fc314a4d0bb1e5 # tip of main branch as of 2022-10-18
-wrksrc="lomiri-system-settings-${_commit}"
+_commit=ca6da85aa464e36e38ca7b88eaf61ff7076ed7b6 # 2022-11-09
 build_style=cmake
+configure_args="-DMODERN_PYTHON_DBUSMOCK=ON"
 hostmakedepends="pkg-config qt5-host-tools qt5-qmake intltool"
 makedepends="qt5-devel qt5-declarative-devel qt5-plugin-mysql qt5-plugin-odbc
  qt5-plugin-pgsql qt5-plugin-sqlite qt5-plugin-tds glib-devel upower-devel
@@ -18,7 +18,7 @@ maintainer="Jami Kettunen <jami.kettunen@protonmail.com>"
 license="GPL-3.0-only"
 homepage="https://gitlab.com/ubports/development/core/lomiri-system-settings"
 distfiles="https://gitlab.com/ubports/development/core/lomiri-system-settings/-/archive/${_commit}.tar.gz"
-checksum=663c068956c1b775861131d14975bb0b86cc384960dd5e182b511be73099d08c
+checksum=271b45c763856e3af8d86f6505a691b3cacfec5d13c5bc280eb5662d5e6d8846
 
 lomiri-system-settings-devel_package() {
 	depends="${sourcepkg}>=${version}_${revision}"
