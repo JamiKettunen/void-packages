@@ -4,13 +4,12 @@ version=0.9r126
 revision=1
 _branch=xenial
 _commit=1e9fd84aa31c7b858b90e2bbbdcadf081549fa65 # 2022-10-20
-wrksrc="libqtdbusmock-${_commit}"
 build_style=cmake
 # FIXME: why aren't any of libqtdbustest-devel dependencies installed?!
 hostmakedepends="pkg-config qt5-host-tools qt5-qmake"
-makedepends="qt5-devel NetworkManager-devel libqtdbustest-devel"
-checkdepends="gtest-devel python3-dbusmock"
-short_desc="D-Bus testing library for Qt5"
+makedepends="qt5-devel NetworkManager-devel libqtdbustest-devel gtest-devel"
+checkdepends="python3-dbusmock"
+short_desc="D-Bus testing library for Qt5 (git ${_commit:0:7})"
 maintainer="Jami Kettunen <jami.kettunen@protonmail.com>"
 license="LGPL-3.0-only"
 homepage="https://launchpad.net/libqtdbusmock"
@@ -25,10 +24,6 @@ checksum="169825415d031acbfc3af0dbe76ecb900de31f5d29680ab663dfb4900618c64c"
 # TestDBusMock.StartsDBusMockTemplateParameters
 # TestDBusMock.StartsDBusMockWithTemplate
 make_check=no
-
-if [ -z "$XBPS_CHECK_PKGS" ] || [ "$CROSS_BUILD" ]; then
-	configure_args+=" -DENABLE_TESTS=OFF"
-fi
 
 libqtdbusmock-devel_package() {
 	depends="${sourcepkg}>=${version}_${revision}"
