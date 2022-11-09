@@ -1,23 +1,18 @@
 # Template file for 'liblomiri-api'
 pkgname=liblomiri-api
-version=0.1.2r1136
+version=0.1.2r1139
 revision=1
-_commit=105f7ec662ff40910fd74a86022f1c7772344497 # tip of main branch as of 2022-03-26
-wrksrc="lomiri-api-${_commit}"
+_commit=b906e5245fe1f4ac6e83e3ff04bd27d68e9d1603 # 2022-11-08
 build_style=cmake
-hostmakedepends="pkg-config"
-makedepends="glib-devel"
-checkdepends="gtest-devel libqtdbustest-devel qt5-declarative-devel dbus"
-short_desc="API for Lomiri shell integration"
+hostmakedepends="pkg-config qt5-qmake qt5-host-tools"
+makedepends="glib-devel gtest-devel libqtdbustest-devel qt5-declarative-devel"
+checkdepends="dbus"
+short_desc="API for Lomiri shell integration (git ${_commit:0:7})"
 maintainer="Jami Kettunen <jami.kettunen@protonmail.com>"
 license="LGPL-3.0-only, GPL-3.0-only"
 homepage="https://lomiri.com"
-distfiles="https://gitlab.com/ubports/core/lomiri-api/-/archive/${_commit}.tar.gz"
-checksum=195863d7a8e0834f3d57c5e460c2c88aff494065c8ca36f25edbf9c2f370fc9c
-
-if [ -z "$XBPS_CHECK_PKGS" ] || [ "$CROSS_BUILD" ]; then
-	configure_args+=" -DNO_TESTS=1"
-fi
+distfiles="https://gitlab.com/ubports/development/core/lomiri-api/-/archive/${_commit}.tar.gz"
+checksum=f4f8985d1c249013492469fc8ad888d946bb62c60f55904ca9df99f1e8bbf2ef
 
 liblomiri-api-devel_package() {
 	depends="${sourcepkg}>=${version}_${revision}"
