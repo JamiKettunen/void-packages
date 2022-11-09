@@ -1,9 +1,8 @@
 # Template file for 'lomiri-app-launch'
 pkgname=lomiri-app-launch
-version=0.1.2r3097
+version=0.1.2r3099
 revision=1
-_commit=994889dc768fb263b7fc576597557afa871167f1 # tip of main branch as of 2022-09-22
-wrksrc="lomiri-app-launch-${_commit}"
+_commit=890c7784b4dec9cd1d06220f7a78e21456de01ab # 2022-11-08
 build_style=cmake
 build_helpers="gir"
 # TODO:
@@ -17,12 +16,12 @@ makedepends="glib-devel python-gobject-devel json-glib-devel zeitgeist-devel
  libxkbcommon-devel libcurl-devel liblomiri-api-devel properties-cpp
  gobject-introspection dbus-test-runner-devel gtest-devel"
 checkdepends="dbus libqtdbusmock-devel python3-dbusmock"
-short_desc="Daemon for launching applications under Lomiri"
+short_desc="Daemon for launching applications under Lomiri (git ${_commit:0:7})"
 maintainer="Jami Kettunen <jami.kettunen@protonmail.com>"
 license="GPL-3.0-only"
 homepage="https://gitlab.com/ubports/development/core/lomiri-app-launch"
 distfiles="https://gitlab.com/ubports/development/core/lomiri-app-launch/-/archive/${_commit}.tar.gz"
-checksum=2a1642f271bbf5deb9b3b2693a9b3229556471d6552cefa4f77aa1beff7f9907
+checksum=e3c500871857dbbe0ebdae2e2535008a41485ba8dd654956848bc640f3452ee5
 
 # FIXME: click apps support should be optional!
 build_options="click"
