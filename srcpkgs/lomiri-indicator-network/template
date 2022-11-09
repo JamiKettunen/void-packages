@@ -1,9 +1,8 @@
 # Template file for 'lomiri-indicator-network'
 pkgname=lomiri-indicator-network
-version=1.0.0r2199
+version=1.0.0r2201
 revision=1
-_commit=202523ea38e23a9053d38a2a84573d11bc0808d9 # tip of main branch as of 2022-09-25
-wrksrc="lomiri-indicator-network-${_commit}"
+_commit=059dcf1551cbcbc8375729ba584c7683c62733de # 2022-11-09
 build_style=cmake
 configure_args="-DENABLE_COVERAGE=OFF"
 hostmakedepends="pkg-config qt5-host-tools qt5-qmake ubports-cmake-extras intltool qt5-tools"
@@ -16,7 +15,7 @@ maintainer="Jami Kettunen <jami.kettunen@protonmail.com>"
 license="GPL-3.0-only, LGPL-3.0-only"
 homepage="https://gitlab.com/ubports/development/core/lomiri-indicator-network"
 distfiles="https://gitlab.com/ubports/development/core/lomiri-indicator-network/-/archive/${_commit}.tar.gz"
-checksum=6cf32f604dacc179c7a2dad296d7b9ff56f38a5083e8cee4b8e3864583583a4e
+checksum=2264d939d74d39e0425ef92c89696b1d271c19aea5a11edcc41f7f04e4abb702
 
 lomiri-indicator-network-devel_package() {
 	depends="${sourcepkg}>=${version}_${revision}"
