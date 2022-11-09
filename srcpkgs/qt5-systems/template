@@ -4,7 +4,6 @@ version=5.4.0r805
 revision=1
 _branch=dev
 _commit=e3332ee38d27a134cef6621fdaf36687af1b6f4a # last updated 2019-01-03
-wrksrc="qtsystems-${_commit}"
 build_style=qmake
 hostmakedepends="qt5-qmake qt5-host-tools perl"
 makedepends="qt5-declarative-devel"
@@ -16,6 +15,8 @@ distfiles="https://github.com/qt/qtsystems/archive/${_commit}.tar.gz"
 checksum=5259cf350e5e1f755c53bcba066dd40fea7b20f4e661b0973b24ae46454a9e75
 
 post_extract() {
+	# For some reason without this <QtPublishSubscribe/qpublishsubscribeglobal.h> include
+	# and others cannot be found?!
 	mkdir .git
 }
 
