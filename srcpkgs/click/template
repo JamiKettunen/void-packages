@@ -2,8 +2,7 @@
 pkgname=click
 version=0.5.0r1121
 revision=1
-_commit=e41fec1f635b70a746fb3c6c1ed2b5c3980c01c3 # tip of main branch as of 2022-09-22
-wrksrc="click-${_commit}"
+_commit=e41fec1f635b70a746fb3c6c1ed2b5c3980c01c3 # 2022-09-22
 build_style=gnu-configure
 build_helpers="gir"
 configure_args="--disable-systemd"
