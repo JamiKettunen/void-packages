@@ -2,7 +2,6 @@
 pkgname=accountsservice-ubuntu
 version=0.6.55
 revision=2
-wrksrc="accountsservice-${version}"
 build_style=meson
 build_helper="gir"
 configure_args="-Dsystemdsystemunitdir=no
@@ -18,13 +17,12 @@ checksum=ff2b2419a7e06bd9cb335ffe391c7409b49a0f0130b890bd54692a3986699c9b
 make_dirs="
  /var/lib/AccountsService/users 755 root root
  /var/lib/AccountsService/icons 755 root root"
+replaces="accountsservice<=${version}_${revision}"
+provides="accountsservice-${version}_${revision}"
 
 # Package build options
 build_options="elogind gir"
 build_options_default="elogind gir"
-
-replaces="accountsservice<=${version}_${revision}"
-provides="accountsservice-${version}_${revision}"
 
 accountsservice-ubuntu-devel_package() {
 	depends="${sourcepkg}>=${version}_${revision}"
@@ -46,3 +44,5 @@ accountsservice-ubuntu-devel_package() {
 # 0007-add-lightdm-support.patch
 # 0011-add-background-file-support.patch
 # 0016-add-input-sources-support.patch (modified to apply without 0010-set-language.patch)
+
+# TODO: for 22.08.8 update (kinetic): http://archive.ubuntu.com/ubuntu/pool/main/a/accountsservice/accountsservice_22.08.8-1ubuntu1.debian.tar.xz
