@@ -1,7 +1,7 @@
-Link: https://gitlab.com/ubports/core/qtmir/-/merge_requests/31 @ a959a2fb
+Link: https://gitlab.com/ubports/core/qtmir/-/merge_requests/31 @ 0250c30f
 ---
 diff --git a/demos/qtmir-demo-shell/main.cpp b/demos/qtmir-demo-shell/main.cpp
-index 828a630..7005953 100644
+index 828a630e..7005953e 100644
 --- a/demos/qtmir-demo-shell/main.cpp
 +++ b/demos/qtmir-demo-shell/main.cpp
 @@ -33,10 +33,10 @@
@@ -56,7 +56,7 @@ index 828a630..7005953 100644
                          mode.refresh_rate = jsonMode["refresh_rate"].toDouble();
                          options.mode = mode;
 diff --git a/include/qtmir/displayconfigurationpolicy.h b/include/qtmir/displayconfigurationpolicy.h
-index cb26a0d..89301a0 100644
+index cb26a0de..89301a0f 100644
 --- a/include/qtmir/displayconfigurationpolicy.h
 +++ b/include/qtmir/displayconfigurationpolicy.h
 @@ -17,13 +17,14 @@
@@ -104,7 +104,7 @@ index cb26a0d..89301a0 100644
  
  } // namespace qtmir
 diff --git a/include/qtmir/displayconfigurationstorage.h b/include/qtmir/displayconfigurationstorage.h
-index 8a24e4a..680abdc 100644
+index 8a24e4ab..680abdcc 100644
 --- a/include/qtmir/displayconfigurationstorage.h
 +++ b/include/qtmir/displayconfigurationstorage.h
 @@ -17,7 +17,7 @@
@@ -129,7 +129,7 @@ diff --git a/include/qtmir/miral/display_configuration_policy.h b/include/qtmir/
 similarity index 79%
 rename from include/qtmir/miral/display_configuration_policy.h
 rename to include/qtmir/miroil/display_configuration_policy.h
-index 9c27713..c6d2b70 100644
+index 9c277135..c6d2b70e 100644
 --- a/include/qtmir/miral/display_configuration_policy.h
 +++ b/include/qtmir/miroil/display_configuration_policy.h
 @@ -1,5 +1,5 @@
@@ -177,7 +177,7 @@ diff --git a/include/qtmir/miral/display_configuration_storage.h b/include/qtmir
 similarity index 79%
 rename from include/qtmir/miral/display_configuration_storage.h
 rename to include/qtmir/miroil/display_configuration_storage.h
-index 8090877..a0dd5a8 100644
+index 8090877b..a0dd5a84 100644
 --- a/include/qtmir/miral/display_configuration_storage.h
 +++ b/include/qtmir/miroil/display_configuration_storage.h
 @@ -1,5 +1,5 @@
@@ -231,7 +231,7 @@ diff --git a/include/qtmir/miral/display_id.h b/include/qtmir/miroil/display_id.
 similarity index 66%
 rename from include/qtmir/miral/display_id.h
 rename to include/qtmir/miroil/display_id.h
-index a65d59b..940dd44 100644
+index a65d59b4..940dd444 100644
 --- a/include/qtmir/miral/display_id.h
 +++ b/include/qtmir/miroil/display_id.h
 @@ -1,14 +1,13 @@
@@ -263,7 +263,7 @@ diff --git a/include/qtmir/miral/edid.h b/include/qtmir/miroil/edid.h
 similarity index 89%
 rename from include/qtmir/miral/edid.h
 rename to include/qtmir/miroil/edid.h
-index 0845479..fee87d5 100644
+index 0845479a..fee87d57 100644
 --- a/include/qtmir/miral/edid.h
 +++ b/include/qtmir/miroil/edid.h
 @@ -1,5 +1,5 @@
@@ -298,7 +298,7 @@ index 0845479..fee87d5 100644
 -#endif // MIRAL_EDID_H
 +#endif // MIROIL_EDID_H
 diff --git a/include/qtmir/screen.h b/include/qtmir/screen.h
-index 4879341..f8832f9 100644
+index 48793411..f8832f91 100644
 --- a/include/qtmir/screen.h
 +++ b/include/qtmir/screen.h
 @@ -18,7 +18,7 @@
@@ -329,7 +329,7 @@ index 4879341..f8832f9 100644
      bool used;
      QPoint topLeft;
 diff --git a/src/modules/QtMir/Application/CMakeLists.txt b/src/modules/QtMir/Application/CMakeLists.txt
-index 86f2ca4..9a853e5 100644
+index 86f2ca43..9a853e56 100644
 --- a/src/modules/QtMir/Application/CMakeLists.txt
 +++ b/src/modules/QtMir/Application/CMakeLists.txt
 @@ -3,6 +3,7 @@ include(UseLttngGenTp)
@@ -341,7 +341,7 @@ index 86f2ca4..9a853e5 100644
      ${CMAKE_CURRENT_BINARY_DIR} # for tracepoints.h
  )
 diff --git a/src/modules/QtMir/Application/mirbuffersgtexture.h b/src/modules/QtMir/Application/mirbuffersgtexture.h
-index 51579d0..c262ac7 100644
+index 51579d03..c262ac71 100644
 --- a/src/modules/QtMir/Application/mirbuffersgtexture.h
 +++ b/src/modules/QtMir/Application/mirbuffersgtexture.h
 @@ -17,7 +17,7 @@
@@ -354,7 +354,7 @@ index 51579d0..c262ac7 100644
  #include <QSGTexture>
  
 diff --git a/src/platforms/mirserver/CMakeLists.txt b/src/platforms/mirserver/CMakeLists.txt
-index 8f676ce..cd2ee7d 100644
+index 8f676ce5..cd2ee7d6 100644
 --- a/src/platforms/mirserver/CMakeLists.txt
 +++ b/src/platforms/mirserver/CMakeLists.txt
 @@ -6,7 +6,9 @@ include(UseLttngGenTp)
@@ -388,7 +388,7 @@ index 8f676ce..cd2ee7d 100644
  target_link_libraries(qtmirserver
 diff --git a/src/platforms/mirserver/miral/CMakeLists.txt b/src/platforms/mirserver/miral/CMakeLists.txt
 deleted file mode 100644
-index 9f254c9..0000000
+index 9f254c98..00000000
 --- a/src/platforms/mirserver/miral/CMakeLists.txt
 +++ /dev/null
 @@ -1,14 +0,0 @@
@@ -408,14 +408,14 @@ index 9f254c9..0000000
 -)
 diff --git a/src/platforms/mirserver/miroil/CMakeLists.txt b/src/platforms/mirserver/miroil/CMakeLists.txt
 new file mode 100644
-index 0000000..febd4f0
+index 00000000..febd4f0a
 --- /dev/null
 +++ b/src/platforms/mirserver/miroil/CMakeLists.txt
 @@ -0,0 +1 @@
 +add_subdirectory(src)
 diff --git a/src/platforms/mirserver/miroil/include/miroil/compositor.h b/src/platforms/mirserver/miroil/include/miroil/compositor.h
 new file mode 100644
-index 0000000..2edf40e
+index 00000000..2edf40e2
 --- /dev/null
 +++ b/src/platforms/mirserver/miroil/include/miroil/compositor.h
 @@ -0,0 +1,40 @@
@@ -461,7 +461,7 @@ index 0000000..2edf40e
 +#endif // MIROIL_COMPOSITOR_H
 diff --git a/src/platforms/mirserver/miroil/include/miroil/display_configuration_controller_wrapper.h b/src/platforms/mirserver/miroil/include/miroil/display_configuration_controller_wrapper.h
 new file mode 100644
-index 0000000..6b4f227
+index 00000000..6b4f227a
 --- /dev/null
 +++ b/src/platforms/mirserver/miroil/include/miroil/display_configuration_controller_wrapper.h
 @@ -0,0 +1,51 @@
@@ -518,7 +518,7 @@ index 0000000..6b4f227
 +
 diff --git a/src/platforms/mirserver/miroil/include/miroil/display_listener_wrapper.h b/src/platforms/mirserver/miroil/include/miroil/display_listener_wrapper.h
 new file mode 100644
-index 0000000..9f15e90
+index 00000000..9f15e90b
 --- /dev/null
 +++ b/src/platforms/mirserver/miroil/include/miroil/display_listener_wrapper.h
 @@ -0,0 +1,44 @@
@@ -568,7 +568,7 @@ index 0000000..9f15e90
 +#endif /* MIROIL_DISPLAY_LISTENER_WRAPPER_H */
 diff --git a/src/platforms/mirserver/miroil/include/miroil/event_builder.h b/src/platforms/mirserver/miroil/include/miroil/event_builder.h
 new file mode 100644
-index 0000000..184552b
+index 00000000..184552b3
 --- /dev/null
 +++ b/src/platforms/mirserver/miroil/include/miroil/event_builder.h
 @@ -0,0 +1,117 @@
@@ -691,7 +691,7 @@ index 0000000..184552b
 +#endif // MIROIL_EVENT_BUILDER_H
 diff --git a/src/platforms/mirserver/miroil/include/miroil/eventdispatch.h b/src/platforms/mirserver/miroil/include/miroil/eventdispatch.h
 new file mode 100644
-index 0000000..16a75e3
+index 00000000..16a75e3d
 --- /dev/null
 +++ b/src/platforms/mirserver/miroil/include/miroil/eventdispatch.h
 @@ -0,0 +1,29 @@
@@ -726,7 +726,7 @@ index 0000000..16a75e3
 +#endif //MIROIL_EVENTDISPATCH_H
 diff --git a/src/platforms/mirserver/miroil/include/miroil/input_device.h b/src/platforms/mirserver/miroil/include/miroil/input_device.h
 new file mode 100644
-index 0000000..509956a
+index 00000000..509956ae
 --- /dev/null
 +++ b/src/platforms/mirserver/miroil/include/miroil/input_device.h
 @@ -0,0 +1,52 @@
@@ -784,7 +784,7 @@ index 0000000..509956a
 +#endif //MIROIL_INPUT_DEVICE_H
 diff --git a/src/platforms/mirserver/miroil/include/miroil/input_device_observer.h b/src/platforms/mirserver/miroil/include/miroil/input_device_observer.h
 new file mode 100644
-index 0000000..1dd92d1
+index 00000000..1dd92d1c
 --- /dev/null
 +++ b/src/platforms/mirserver/miroil/include/miroil/input_device_observer.h
 @@ -0,0 +1,40 @@
@@ -830,7 +830,7 @@ index 0000000..1dd92d1
 +#endif //MIROIL_INPUT_DEVICE_OBSERVER_H
 diff --git a/src/platforms/mirserver/miroil/include/miroil/mir_prompt_session.h b/src/platforms/mirserver/miroil/include/miroil/mir_prompt_session.h
 new file mode 100644
-index 0000000..971bddd
+index 00000000..971bdddc
 --- /dev/null
 +++ b/src/platforms/mirserver/miroil/include/miroil/mir_prompt_session.h
 @@ -0,0 +1,48 @@
@@ -884,7 +884,7 @@ index 0000000..971bddd
 +#endif /* MIROIL_MIR_PROMPT_SESSION_H_ */
 diff --git a/src/platforms/mirserver/miroil/include/miroil/mir_server_hooks.h b/src/platforms/mirserver/miroil/include/miroil/mir_server_hooks.h
 new file mode 100644
-index 0000000..847ec9d
+index 00000000..847ec9de
 --- /dev/null
 +++ b/src/platforms/mirserver/miroil/include/miroil/mir_server_hooks.h
 @@ -0,0 +1,57 @@
@@ -949,7 +949,7 @@ diff --git a/src/platforms/mirserver/miral/mirbuffer.h b/src/platforms/mirserver
 similarity index 96%
 rename from src/platforms/mirserver/miral/mirbuffer.h
 rename to src/platforms/mirserver/miroil/include/miroil/mirbuffer.h
-index 667bfd8..b2a011b 100644
+index 667bfd86..b2a011bd 100644
 --- a/src/platforms/mirserver/miral/mirbuffer.h
 +++ b/src/platforms/mirserver/miroil/include/miroil/mirbuffer.h
 @@ -1,5 +1,5 @@
@@ -972,7 +972,7 @@ index 667bfd8..b2a011b 100644
  
 diff --git a/src/platforms/mirserver/miroil/include/miroil/open_gl_context.h b/src/platforms/mirserver/miroil/include/miroil/open_gl_context.h
 new file mode 100644
-index 0000000..f05edd6
+index 00000000..f05edd6e
 --- /dev/null
 +++ b/src/platforms/mirserver/miroil/include/miroil/open_gl_context.h
 @@ -0,0 +1,43 @@
@@ -1023,7 +1023,7 @@ diff --git a/src/platforms/mirserver/miral/persist_display_config.h b/src/platfo
 similarity index 78%
 rename from src/platforms/mirserver/miral/persist_display_config.h
 rename to src/platforms/mirserver/miroil/include/miroil/persist_display_config.h
-index 45705a0..83a2526 100644
+index 45705a04..83a25264 100644
 --- a/src/platforms/mirserver/miral/persist_display_config.h
 +++ b/src/platforms/mirserver/miroil/include/miroil/persist_display_config.h
 @@ -1,5 +1,5 @@
@@ -1074,7 +1074,7 @@ index 45705a0..83a2526 100644
 +#endif //MIROIL_PERSIST_DISPLAY_CONFIG_H
 diff --git a/src/platforms/mirserver/miroil/include/miroil/prompt_session_listener.h b/src/platforms/mirserver/miroil/include/miroil/prompt_session_listener.h
 new file mode 100644
-index 0000000..5049a11
+index 00000000..5049a11e
 --- /dev/null
 +++ b/src/platforms/mirserver/miroil/include/miroil/prompt_session_listener.h
 @@ -0,0 +1,49 @@
@@ -1129,7 +1129,7 @@ index 0000000..5049a11
 +#endif // MIROIL_PROMPT_SESSION_LISTENER_H
 diff --git a/src/platforms/mirserver/miroil/include/miroil/prompt_session_manager.h b/src/platforms/mirserver/miroil/include/miroil/prompt_session_manager.h
 new file mode 100644
-index 0000000..2e1a538
+index 00000000..2e1a5385
 --- /dev/null
 +++ b/src/platforms/mirserver/miroil/include/miroil/prompt_session_manager.h
 @@ -0,0 +1,51 @@
@@ -1186,7 +1186,7 @@ index 0000000..2e1a538
 +#endif //MIROIL_PROMPT_SESSION_MANAGER_H
 diff --git a/src/platforms/mirserver/miroil/include/miroil/set_compositor.h b/src/platforms/mirserver/miroil/include/miroil/set_compositor.h
 new file mode 100644
-index 0000000..1017960
+index 00000000..10179601
 --- /dev/null
 +++ b/src/platforms/mirserver/miroil/include/miroil/set_compositor.h
 @@ -0,0 +1,54 @@
@@ -1246,7 +1246,7 @@ index 0000000..1017960
 +#endif //MIROIL_SET_COMPOSITOR_H
 diff --git a/src/platforms/mirserver/miroil/include/miroil/surface.h b/src/platforms/mirserver/miroil/include/miroil/surface.h
 new file mode 100644
-index 0000000..1b0dc2d
+index 00000000..1b0dc2db
 --- /dev/null
 +++ b/src/platforms/mirserver/miroil/include/miroil/surface.h
 @@ -0,0 +1,77 @@
@@ -1329,7 +1329,7 @@ index 0000000..1b0dc2d
 +#endif
 diff --git a/src/platforms/mirserver/miroil/include/miroil/surface_observer.h b/src/platforms/mirserver/miroil/include/miroil/surface_observer.h
 new file mode 100644
-index 0000000..97fc1a0
+index 00000000..97fc1a03
 --- /dev/null
 +++ b/src/platforms/mirserver/miroil/include/miroil/surface_observer.h
 @@ -0,0 +1,63 @@
@@ -1398,7 +1398,7 @@ index 0000000..97fc1a0
 +}
 diff --git a/src/platforms/mirserver/miroil/src/CMakeLists.txt b/src/platforms/mirserver/miroil/src/CMakeLists.txt
 new file mode 100644
-index 0000000..ea71c14
+index 00000000..ea71c14c
 --- /dev/null
 +++ b/src/platforms/mirserver/miroil/src/CMakeLists.txt
 @@ -0,0 +1,39 @@
@@ -1443,7 +1443,7 @@ index 0000000..ea71c14
 +)
 diff --git a/src/platforms/mirserver/miroil/src/compositor.cpp b/src/platforms/mirserver/miroil/src/compositor.cpp
 new file mode 100644
-index 0000000..eb50aa6
+index 00000000..eb50aa65
 --- /dev/null
 +++ b/src/platforms/mirserver/miroil/src/compositor.cpp
 @@ -0,0 +1,20 @@
@@ -1469,7 +1469,7 @@ index 0000000..eb50aa6
 +
 diff --git a/src/platforms/mirserver/miroil/src/display_configuration_controller_wrapper.cpp b/src/platforms/mirserver/miroil/src/display_configuration_controller_wrapper.cpp
 new file mode 100644
-index 0000000..9ca4942
+index 00000000..9ca49428
 --- /dev/null
 +++ b/src/platforms/mirserver/miroil/src/display_configuration_controller_wrapper.cpp
 @@ -0,0 +1,32 @@
@@ -1509,7 +1509,7 @@ diff --git a/src/platforms/mirserver/miral/display_configuration_policy.cpp b/sr
 similarity index 73%
 rename from src/platforms/mirserver/miral/display_configuration_policy.cpp
 rename to src/platforms/mirserver/miroil/src/display_configuration_policy.cpp
-index c4f5281..ad74631 100644
+index c4f5281d..ad746310 100644
 --- a/src/platforms/mirserver/miral/display_configuration_policy.cpp
 +++ b/src/platforms/mirserver/miroil/src/display_configuration_policy.cpp
 @@ -1,5 +1,5 @@
@@ -1531,7 +1531,7 @@ index c4f5281..ad74631 100644
 +miroil::DisplayConfigurationPolicy::~DisplayConfigurationPolicy() = default;
 diff --git a/src/platforms/mirserver/miroil/src/display_listener_wrapper.cpp b/src/platforms/mirserver/miroil/src/display_listener_wrapper.cpp
 new file mode 100644
-index 0000000..125cc20
+index 00000000..125cc20b
 --- /dev/null
 +++ b/src/platforms/mirserver/miroil/src/display_listener_wrapper.cpp
 @@ -0,0 +1,41 @@
@@ -1580,7 +1580,7 @@ diff --git a/src/platforms/mirserver/miral/edid.cpp b/src/platforms/mirserver/mi
 similarity index 91%
 rename from src/platforms/mirserver/miral/edid.cpp
 rename to src/platforms/mirserver/miroil/src/edid.cpp
-index 0f8f80d..094cbc8 100644
+index 0f8f80dc..094cbc8c 100644
 --- a/src/platforms/mirserver/miral/edid.cpp
 +++ b/src/platforms/mirserver/miroil/src/edid.cpp
 @@ -1,5 +1,5 @@
@@ -1621,7 +1621,7 @@ index 0f8f80d..094cbc8 100644
      case Type::monitor_name:
 diff --git a/src/platforms/mirserver/miroil/src/event_builder.cpp b/src/platforms/mirserver/miroil/src/event_builder.cpp
 new file mode 100644
-index 0000000..33d963c
+index 00000000..33d963ce
 --- /dev/null
 +++ b/src/platforms/mirserver/miroil/src/event_builder.cpp
 @@ -0,0 +1,116 @@
@@ -1743,7 +1743,7 @@ index 0000000..33d963c
 +}
 diff --git a/src/platforms/mirserver/miroil/src/eventdispatch.cpp b/src/platforms/mirserver/miroil/src/eventdispatch.cpp
 new file mode 100644
-index 0000000..6442057
+index 00000000..64420575
 --- /dev/null
 +++ b/src/platforms/mirserver/miroil/src/eventdispatch.cpp
 @@ -0,0 +1,29 @@
@@ -1778,7 +1778,7 @@ index 0000000..6442057
 +}
 diff --git a/src/platforms/mirserver/miroil/src/input_device.cpp b/src/platforms/mirserver/miroil/src/input_device.cpp
 new file mode 100644
-index 0000000..4850ee1
+index 00000000..4850ee16
 --- /dev/null
 +++ b/src/platforms/mirserver/miroil/src/input_device.cpp
 @@ -0,0 +1,80 @@
@@ -1864,7 +1864,7 @@ index 0000000..4850ee1
 +auto miroil::InputDevice::operator=(InputDevice&& src) -> InputDevice& = default;
 diff --git a/src/platforms/mirserver/miroil/src/input_device_observer.cpp b/src/platforms/mirserver/miroil/src/input_device_observer.cpp
 new file mode 100644
-index 0000000..35c0464
+index 00000000..35c04645
 --- /dev/null
 +++ b/src/platforms/mirserver/miroil/src/input_device_observer.cpp
 @@ -0,0 +1,19 @@
@@ -1887,16 +1887,9 @@ index 0000000..35c0464
 +#include <miroil/input_device_observer.h>
 +
 +miroil::InputDeviceObserver::~InputDeviceObserver() = default;
-diff --git a/src/platforms/mirserver/miroil/src/mir_connection.cpp b/src/platforms/mirserver/miroil/src/mir_connection.cpp
-new file mode 100644
-index 0000000..8b13789
---- /dev/null
-+++ b/src/platforms/mirserver/miroil/src/mir_connection.cpp
-@@ -0,0 +1 @@
-+
 diff --git a/src/platforms/mirserver/miroil/src/mir_prompt_session.cpp b/src/platforms/mirserver/miroil/src/mir_prompt_session.cpp
 new file mode 100644
-index 0000000..607cac4
+index 00000000..607cac45
 --- /dev/null
 +++ b/src/platforms/mirserver/miroil/src/mir_prompt_session.cpp
 @@ -0,0 +1,34 @@
@@ -1936,7 +1929,7 @@ index 0000000..607cac4
 +}
 diff --git a/src/platforms/mirserver/miroil/src/mir_server_hooks.cpp b/src/platforms/mirserver/miroil/src/mir_server_hooks.cpp
 new file mode 100644
-index 0000000..3ece6f6
+index 00000000..3ece6f67
 --- /dev/null
 +++ b/src/platforms/mirserver/miroil/src/mir_server_hooks.cpp
 @@ -0,0 +1,252 @@
@@ -2196,7 +2189,7 @@ diff --git a/src/platforms/mirserver/miral/mirbuffer.cpp b/src/platforms/mirserv
 similarity index 97%
 rename from src/platforms/mirserver/miral/mirbuffer.cpp
 rename to src/platforms/mirserver/miroil/src/mirbuffer.cpp
-index 225d2ac..8f25a5a 100644
+index 225d2acc..8f25a5a3 100644
 --- a/src/platforms/mirserver/miral/mirbuffer.cpp
 +++ b/src/platforms/mirserver/miroil/src/mirbuffer.cpp
 @@ -1,6 +1,6 @@
@@ -2222,7 +2215,7 @@ index 225d2ac..8f25a5a 100644
  #include <stdexcept>
 diff --git a/src/platforms/mirserver/miroil/src/open_gl_context.cpp b/src/platforms/mirserver/miroil/src/open_gl_context.cpp
 new file mode 100644
-index 0000000..271d9cc
+index 00000000..271d9cc8
 --- /dev/null
 +++ b/src/platforms/mirserver/miroil/src/open_gl_context.cpp
 @@ -0,0 +1,52 @@
@@ -2282,7 +2275,7 @@ diff --git a/src/platforms/mirserver/miral/persist_display_config.cpp b/src/plat
 similarity index 74%
 rename from src/platforms/mirserver/miral/persist_display_config.cpp
 rename to src/platforms/mirserver/miroil/src/persist_display_config.cpp
-index 2bfb98c..bf23bbb 100644
+index 2bfb98cc..bf23bbb2 100644
 --- a/src/platforms/mirserver/miral/persist_display_config.cpp
 +++ b/src/platforms/mirserver/miroil/src/persist_display_config.cpp
 @@ -1,5 +1,5 @@
@@ -2524,7 +2517,7 @@ index 2bfb98c..bf23bbb 100644
                  }
 diff --git a/src/platforms/mirserver/miroil/src/prompt_session_listener.cpp b/src/platforms/mirserver/miroil/src/prompt_session_listener.cpp
 new file mode 100644
-index 0000000..46c6e0f
+index 00000000..46c6e0f0
 --- /dev/null
 +++ b/src/platforms/mirserver/miroil/src/prompt_session_listener.cpp
 @@ -0,0 +1,19 @@
@@ -2549,7 +2542,7 @@ index 0000000..46c6e0f
 +miroil::PromptSessionListener::~PromptSessionListener() = default;
 diff --git a/src/platforms/mirserver/miroil/src/prompt_session_manager.cpp b/src/platforms/mirserver/miroil/src/prompt_session_manager.cpp
 new file mode 100644
-index 0000000..7dd86f8
+index 00000000..7dd86f82
 --- /dev/null
 +++ b/src/platforms/mirserver/miroil/src/prompt_session_manager.cpp
 @@ -0,0 +1,54 @@
@@ -2609,7 +2602,7 @@ index 0000000..7dd86f8
 +}
 diff --git a/src/platforms/mirserver/miroil/src/set_compositor.cpp b/src/platforms/mirserver/miroil/src/set_compositor.cpp
 new file mode 100644
-index 0000000..a9f524c
+index 00000000..a9f524c2
 --- /dev/null
 +++ b/src/platforms/mirserver/miroil/src/set_compositor.cpp
 @@ -0,0 +1,88 @@
@@ -2703,7 +2696,7 @@ index 0000000..a9f524c
 +}
 diff --git a/src/platforms/mirserver/miroil/src/surface.cpp b/src/platforms/mirserver/miroil/src/surface.cpp
 new file mode 100644
-index 0000000..514483f
+index 00000000..514483f3
 --- /dev/null
 +++ b/src/platforms/mirserver/miroil/src/surface.cpp
 @@ -0,0 +1,267 @@
@@ -2975,7 +2968,7 @@ index 0000000..514483f
 +    printf("Stubbed function miroil::Surface::set_keymap() called - per-surface keymaps no longer supported");
 +}
 diff --git a/src/platforms/mirserver/platformscreen.h b/src/platforms/mirserver/platformscreen.h
-index 7cfd92a..28017e8 100644
+index 7cfd92a1..28017e89 100644
 --- a/src/platforms/mirserver/platformscreen.h
 +++ b/src/platforms/mirserver/platformscreen.h
 @@ -29,7 +29,7 @@
@@ -3006,7 +2999,7 @@ index 7cfd92a..28017e8 100644
      MirPowerMode m_powerMode;
  
 diff --git a/src/platforms/mirserver/qmirserver_p.cpp b/src/platforms/mirserver/qmirserver_p.cpp
-index eaba8b0..3fa3a51 100644
+index eaba8b0c..3fa3a513 100644
 --- a/src/platforms/mirserver/qmirserver_p.cpp
 +++ b/src/platforms/mirserver/qmirserver_p.cpp
 @@ -15,7 +15,6 @@
@@ -3072,7 +3065,7 @@ index eaba8b0..3fa3a51 100644
  }
  
 diff --git a/src/platforms/mirserver/screenadaptor.cpp b/src/platforms/mirserver/screenadaptor.cpp
-index 0bdc6ad..1a27461 100644
+index 0bdc6ad2..1a274617 100644
 --- a/src/platforms/mirserver/screenadaptor.cpp
 +++ b/src/platforms/mirserver/screenadaptor.cpp
 @@ -60,7 +60,7 @@ ScreenAdaptor::~ScreenAdaptor()
@@ -3085,7 +3078,7 @@ index 0bdc6ad..1a27461 100644
      auto platformScreen = static_cast<PlatformScreen*>(m_screen->handle());
      return platformScreen->displayId();
 diff --git a/src/platforms/mirserver/screenadaptor.h b/src/platforms/mirserver/screenadaptor.h
-index d801b71..a3711eb 100644
+index d801b712..a3711eba 100644
 --- a/src/platforms/mirserver/screenadaptor.h
 +++ b/src/platforms/mirserver/screenadaptor.h
 @@ -34,7 +34,7 @@ public:
@@ -3098,7 +3091,7 @@ index d801b71..a3711eb 100644
      QString name() const override;
      float scale() const override;
 diff --git a/src/platforms/mirserver/screenscontroller.cpp b/src/platforms/mirserver/screenscontroller.cpp
-index 318cf61..8a7d07b 100644
+index 318cf61b..8a7d07b5 100644
 --- a/src/platforms/mirserver/screenscontroller.cpp
 +++ b/src/platforms/mirserver/screenscontroller.cpp
 @@ -21,7 +21,6 @@
@@ -3128,7 +3121,7 @@ index 318cf61..8a7d07b 100644
      auto displayConfiguration = m_display->configuration();
      qtmir::ScreenConfiguration config;
 diff --git a/src/platforms/mirserver/screenscontroller.h b/src/platforms/mirserver/screenscontroller.h
-index b363830..db345aa 100644
+index b363830c..db345aaf 100644
 --- a/src/platforms/mirserver/screenscontroller.h
 +++ b/src/platforms/mirserver/screenscontroller.h
 @@ -26,6 +26,7 @@
@@ -3156,7 +3149,7 @@ index b363830..db345aa 100644
  
  #endif // SCREENSCONTROLLER_H
 diff --git a/tests/mirserver/miral/edid_test.cpp b/tests/mirserver/miral/edid_test.cpp
-index 03f83d2..d938d4e 100644
+index 03f83d21..d938d4ee 100644
 --- a/tests/mirserver/miral/edid_test.cpp
 +++ b/tests/mirserver/miral/edid_test.cpp
 @@ -18,9 +18,9 @@
@@ -3172,7 +3165,7 @@ index 03f83d2..d938d4e 100644
  using TestDataParamType =
      std::tuple<std::vector<uint8_t>, std::string, std::string, uint16_t, uint32_t>;
 diff --git a/tests/modules/SurfaceManager/CMakeLists.txt b/tests/modules/SurfaceManager/CMakeLists.txt
-index 2cc203d..a92543e 100644
+index 2cc203dc..a92543e2 100644
 --- a/tests/modules/SurfaceManager/CMakeLists.txt
 +++ b/tests/modules/SurfaceManager/CMakeLists.txt
 @@ -7,6 +7,7 @@ set(
@@ -3184,7 +3177,7 @@ index 2cc203d..a92543e 100644
    ${CMAKE_SOURCE_DIR}/tests/framework
  )
 diff --git a/tests/modules/WindowManager/CMakeLists.txt b/tests/modules/WindowManager/CMakeLists.txt
-index 4e4c808..50c7b28 100644
+index 4e4c8085..50c7b285 100644
 --- a/tests/modules/WindowManager/CMakeLists.txt
 +++ b/tests/modules/WindowManager/CMakeLists.txt
 @@ -11,6 +11,7 @@ include_directories(

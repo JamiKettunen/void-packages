@@ -2,8 +2,7 @@
 pkgname=qtmir
 version=0.7.0r2714
 revision=1
-_commit=cb2ea486cfdb444df94e9f294b891086785f18e7 # tip of main branch as of 2022-09-24
-wrksrc="qtmir-${_commit}"
+_commit=cb2ea486cfdb444df94e9f294b891086785f18e7 # 2022-09-24
 build_style=cmake
 # -DQGL_DEBUG=true
 # TODO: -DWITH_CONTENTHUB=ON! what feature(s) does this enable?
