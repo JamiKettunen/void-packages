@@ -2,8 +2,7 @@
 pkgname=libgeonames
 version=0.3.0r110
 revision=1
-_commit=298997bfc7504f3efd5a59f17f70fcd9a4da3eab # tip of main branch as of 2022-10-04
-wrksrc="geonames-${_commit}"
+_commit=298997bfc7504f3efd5a59f17f70fcd9a4da3eab # 2022-10-04
 build_style=cmake
 configure_args="-DWANT_DEMO=ON $(vopt_bool doc WANT_DOC)"
 hostmakedepends="pkg-config gettext $(vopt_if doc gtk-doc)"
