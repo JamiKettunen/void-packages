@@ -1,9 +1,8 @@
 # Template file for 'lomiri-deviceinfo'
 pkgname=lomiri-deviceinfo
-version=0.1.0r68
+version=0.1.0r70
 revision=1
-_commit=8483ed614cffecbcc33cbe757deb7d1e41801ecc # tip of main branch as of 2022-09-25
-wrksrc="deviceinfo-${_commit}"
+_commit=90cac0db261a929e9de006b56441cf2df0f00d67 # 2022-11-08
 build_style=cmake
 hostmakedepends="pkg-config"
 makedepends="yaml-cpp-devel gtest-devel"
@@ -12,7 +11,7 @@ maintainer="Jami Kettunen <jami.kettunen@protonmail.com>"
 license="GPL-3.0-only"
 homepage="https://gitlab.com/ubports/development/core/deviceinfo"
 distfiles="https://gitlab.com/ubports/development/core/deviceinfo/-/archive/${_commit}.tar.gz"
-checksum=f10ec270716437db0db96bc7a6caea90c782f28bc09dfebf6c503182ad582122
+checksum=340d2798fa6812aff82c983e789cc637e38cb83861d8aee85b820fd60622c2fb
 
 # TODO: optionally link against "libandroid-properties" (libhybris)?
 
