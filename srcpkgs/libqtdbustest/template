@@ -4,14 +4,13 @@ version=0.3r83
 revision=1
 _branch=xenial
 _commit=24e410ea77c9fa08894365c60bf08811a3b60bc0 # 2022-10-20
-wrksrc="libqtdbustest-${_commit}"
 build_style=cmake
 hostmakedepends="pkg-config qt5-host-tools qt5-qmake"
 makedepends="qt5-devel gtest-devel"
 #depends="python3-dbusmock"
 # dbus-test-runner dbus
 checkdepends="python3-dbusmock"
-short_desc="D-Bus testing library for Qt5"
+short_desc="D-Bus testing library for Qt5 (git ${_commit:0:7})"
 maintainer="Jami Kettunen <jami.kettunen@protonmail.com>"
 license="LGPL-3.0-only"
 homepage="https://launchpad.net/libqtdbustest"
