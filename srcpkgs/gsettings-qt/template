@@ -2,8 +2,7 @@
 pkgname=gsettings-qt
 version=0.3.0r211
 revision=1
-_commit=d5e002d7e0bce46c315bcc99a44a8bd51f49f488 # tip of main branch as of 2022-09-24
-wrksrc="gsettings-qt-${_commit}"
+_commit=d5e002d7e0bce46c315bcc99a44a8bd51f49f488 # 2022-09-24
 build_style=qmake
 hostmakedepends="qt5-qmake pkg-config qt5-host-tools"
 makedepends="glib-devel qt5-declarative-devel"
