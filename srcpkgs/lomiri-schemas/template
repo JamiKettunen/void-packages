@@ -2,16 +2,15 @@
 pkgname=lomiri-schemas
 version=0.1.1r13
 revision=1
-_commit=60e0cdbf4bd3eeb998ef649f4d3e6b0ea1e62b03 # tip of main branch as of 2022-03-27
-wrksrc="lomiri-schemas-${_commit}"
+_commit=60e0cdbf4bd3eeb998ef649f4d3e6b0ea1e62b03 # 2022-03-27
 build_style=cmake
 hostmakedepends="ubports-cmake-extras pkg-config intltool"
 makedepends="gsettings-desktop-schemas-devel glib-devel"
-short_desc="GSettings and AccountsService schema files for Lomiri"
+short_desc="GSettings and AccountsService schema files for Lomiri (git ${_commit:0:7})"
 maintainer="Jami Kettunen <jami.kettunen@protonmail.com>"
 license="LGPL-2.1-or-later"
-homepage="https://gitlab.com/ubports/core/lomiri-schemas"
-distfiles="https://gitlab.com/ubports/core/lomiri-schemas/-/archive/${_commit}.tar.gz"
+homepage="https://gitlab.com/ubports/development/core/lomiri-schemas"
+distfiles="https://gitlab.com/ubports/development/core/lomiri-schemas/-/archive/${_commit}.tar.gz"
 checksum=0a40774c097739d25379eb9ee7a7e2846d18a525136ffcaf9fd4a78ee24ebaad
 
 # FIXME: REPORT UPSTREAM!
