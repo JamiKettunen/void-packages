@@ -3,11 +3,10 @@ pkgname=qt5-pim
 version=5.0.0r1029
 revision=1
 _commit=f9a8f0fc914c040d48bbd0ef52d7a68eea175a98 # last known-working Qt5 commit
-wrksrc="qtpim-${_commit}"
 build_style=qmake
 hostmakedepends="qt5-qmake qt5-host-tools perl"
 makedepends="qt5-declarative-devel"
-short_desc="Cross-platform application and UI framework (QT5) - PIM component"
+short_desc="Cross-platform application and UI framework (QT5) - PIM component (git ${_commit:0:7})"
 maintainer="Jami Kettunen <jami.kettunen@protonmail.com>"
 license="GPL-3.0-or-later, LGPL-3.0-or-later"
 homepage="https://code.qt.io/cgit/qt/qtpim.git/"
@@ -17,6 +16,8 @@ checksum=7d06c9a4534eb1cbcaaac4c17defdf648c03fe01044c6b2ccbf6c00553b407d2
 # FIXME: .qmake.conf: "MODULE_VERSION = 0.0.0" -> "5.15.0"?
 
 post_extract() {
+	# For some reason without this <QtContacts/qcontactfilter.h> include
+	# and others cannot be found?!
 	mkdir .git
 }
 
