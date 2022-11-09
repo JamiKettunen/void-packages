@@ -1,0 +1,14 @@
+diff --git a/service/overlay-tracker-mir.h b/service/overlay-tracker-mir.h
+index 42495d0..260cfa9 100644
+--- a/service/overlay-tracker-mir.h
++++ b/service/overlay-tracker-mir.h
+@@ -23,8 +23,7 @@
+ #include <set>
+ #include <vector>
+ 
+-#include <mir_toolkit/mir_connection.h>
+-#include <mir_toolkit/mir_prompt_session.h>
++#include <miroil/mir_prompt_session.h>
+ 
+ #include "glib-thread.h"
+ #include "overlay-tracker-iface.h"

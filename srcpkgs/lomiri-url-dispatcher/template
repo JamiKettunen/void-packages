@@ -1,9 +1,8 @@
 # Template file for 'lomiri-url-dispatcher'
 pkgname=lomiri-url-dispatcher
-version=0.1.1r779
+version=0.1.1r781
 revision=1
-_commit=8986d2e34afa9079d7b80c859e99197933e72df4 # tip of main branch as of 2022-09-23
-wrksrc="lomiri-url-dispatcher-${_commit}"
+_commit=09ca48196381fbdeb32cf48b60a64a6cda77fd9f # 2022-11-08
 build_style=cmake
 configure_args="-DUSE_SYSTEMD=OFF -DENABLE_COVERAGE=OFF"
 hostmakedepends="pkg-config glib-devel intltool ubports-cmake-extras"
@@ -16,7 +15,7 @@ maintainer="Jami Kettunen <jami.kettunen@protonmail.com>"
 license="LGPL-3.0-only, GPL-3.0-only"
 homepage="https://gitlab.com/ubports/development/core/lomiri-url-dispatcher"
 distfiles="https://gitlab.com/ubports/development/core/lomiri-url-dispatcher/-/archive/${_commit}.tar.gz"
-checksum=8f7c9aeb74cc2399c9fe2fe4095de8e89da8ddc0bb804a78ffb97de1370537d6
+checksum=dc7344e5ddb9b3fbd30b3ba27009d996649cba0f6eea2dc42cc77a3386e4df4b
 
 lomiri-url-dispatcher-devel_package() {
 	depends="${sourcepkg}>=${version}_${revision}"
