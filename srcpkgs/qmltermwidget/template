@@ -1,13 +1,15 @@
 # Template file for 'qmltermwidget'
 pkgname=qmltermwidget
-version=0.2.0
+version=0.2.0r641
 revision=1
+_branch=master
+_commit=ffc6b2b2a20ca785f93300eca93c25c4b74ece17 # 2022-11-21
 build_style=qmake
 hostmakedepends="qt5-host-tools qt5-qmake"
 makedepends="qt5-devel qt5-declarative-devel"
-short_desc="QML port of qtermwidget"
-maintainer="Orphaned <orphan@voidlinux.org>"
+short_desc="QML port of qtermwidget (with Lomiri patches [git ${_commit:0:7}])"
+maintainer="Jami Kettunen <jami.kettunen@protonmail.com>"
 license="GPL-2.0-or-later"
 homepage="https://github.com/Swordfish90/qmltermwidget"
-distfiles="${homepage}/archive/${version}.tar.gz"
-checksum=23e19eedb59d6fe3e37ecc06872f54befd94384946926e009c42c4b39914cfe2
+distfiles="https://github.com/gber/qmltermwidget/archive/${_commit}.tar.gz"
+checksum=311cac17ee57787746feb664d084f54ad955e1dca10eb468c7294f06751f6b4a
