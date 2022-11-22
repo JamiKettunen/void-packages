@@ -17,7 +17,6 @@ depends="
  lomiri-ui-extras
  lomiri-sounds
  lomiri-desktop-session
- suru-icon-theme
  ttf-ubuntu-font-family
  accountsservice-ubuntu
  ayatana-indicator-session
