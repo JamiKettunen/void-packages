@@ -1,24 +1,38 @@
 # Template file for 'lomiri-terminal-app'
 pkgname=lomiri-terminal-app
-version=1.0.3
+version=1.0.3r909
 revision=1
-wrksrc="lomiri-terminal-app-v${version}"
+_commit=e883c0213af03894d6f0665148a86ea26f841403 # 2022-11-24
 build_style=cmake
 configure_args="-DCLICK_MODE=OFF -DINSTALL_TESTS=OFF"
 hostmakedepends="pkg-config qt5-qmake qt5-host-tools intltool python3"
 makedepends="qt5-declarative-devel pam-devel"
-short_desc="A simple terminal app for Lomiri"
+depends="qmltermwidget lomiri-ui-toolkit qt5-systems qt5-graphicaleffects
+ lomiri-ui-extras gsettings-qt"
+short_desc="A simple terminal app for Lomiri (git ${_commit:0:7})"
 maintainer="Jami Kettunen <jami.kettunen@protonmail.com>"
 license="GPL-2.0-or-later"
 homepage="https://gitlab.com/ubports/development/apps/lomiri-terminal-app"
-distfiles="https://gitlab.com/ubports/development/apps/lomiri-terminal-app/-/archive/v${version}/lomiri-terminal-app-v${version}.tar.gz"
-checksum=4b9f9ab003da9ae1e62341a61bfaff9901d9e0032a672504c2bcf33fa24e60ca
+distfiles="https://gitlab.com/ubports/development/apps/lomiri-terminal-app/-/archive/${_commit}.tar.gz"
+checksum=f509913bca5a55df08bb362e45b99308593593f2eb4a68e45fcc4dd8603d6046
 
-# FIXME: run tests?
-#if [ "$XBPS_CHECK_PKGS" ] && [ -z "$CROSS_BUILD" ]; then
-#	makedepends+=" gtest-devel"
-#	configure_args+=" -DENABLE_TESTS=ON"
-#fi
+# FIXME: tab title texts not visible!
+# -> installing ttf-ubuntu-font-family didn't help :/
+
+# FIXME: cannot bind Ctrl+Shift+Tab
+# https://gitlab.com/ubports/development/apps/lomiri-terminal-app/-/issues/105
+
+# FIXME: always crashes on close
+# https://gitlab.com/ubports/development/apps/lomiri-terminal-app/-/issues/104
+
+# FIXME: not using a fixed space font (by default)
+# Using a variable-width font in the terminal.  This may cause performance degradation and display/alignment errors.
+# -> default monospace font detection is broken, maybe it's hardcoded?
+#    -> indeed, in src/app/qml/TerminalSettings.qml: property string fontStyle: "Ubuntu Mono", instead
+#       should look for any monospace font if fontStyle not found, as last resort pick any font at all
+
+# FIXME: app appears to be in mobile (not desktop) mode
+# -> i.e. tab preview button visible, enter/osk toggle buttons exist etc.
 
 # PATCHES TODO:
 # - modern cmake
@@ -26,12 +40,11 @@ checksum=4b9f9ab003da9ae1e62341a61bfaff9901d9e0032a672504c2bcf33fa24e60ca
 # - look for python3 (tests/autopilot/CMakeLists.txt:5 (install))
 # - look for INTLTOOL instead of gettext (REQUIRED)
 # - look for PAM (security/pam_appl.h)
-# - replace vendored QMLTermWidget with upstream one (qmltermwidget package)?!
 # - optional testing
+# - fix compile warnings
 
-# TODO:
-# - fix compile warnings (Wdeprecated-declarations is 42/94)
-
-#post_install() {
-#	mv ${DESTDIR}/usr/bin/terminal ${DESTDIR}/usr/bin/lomiri-terminal
-#}
+# FIXME: run tests?
+#if [ "$XBPS_CHECK_PKGS" ] && [ -z "$CROSS_BUILD" ]; then
+#	makedepends+=" gtest-devel"
+#	configure_args+=" -DENABLE_TESTS=ON"
+#fi
