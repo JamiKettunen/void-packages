@@ -7,6 +7,7 @@ wrksrc="lomiri-ui-extras-${_commit}"
 build_style=cmake
 hostmakedepends="pkg-config qt5-host-tools qt5-qmake ubports-cmake-extras gettext"
 makedepends="qt5-declarative-devel exiv2-devel pam-devel"
+depends="lomiri-ui-toolkit"
 short_desc="Lomiri QML components not in lomiri-ui-toolkit"
 maintainer="Jami Kettunen <jami.kettunen@protonmail.com>"
 license="GPL-3.0-only"
