@@ -14,6 +14,7 @@ distfiles="https://github.com/qt/qtpim/archive/${_commit}.tar.gz"
 checksum=7d06c9a4534eb1cbcaaac4c17defdf648c03fe01044c6b2ccbf6c00553b407d2
 
 # FIXME: .qmake.conf: "MODULE_VERSION = 0.0.0" -> "5.15.0"?
+# https://git.alpinelinux.org/aports/tree/community/qt5-qtpim/0003-Set-MODULE_VERSION-to-5.0.0.patch
 
 post_extract() {
 	# For some reason without this <QtContacts/qcontactfilter.h> include
