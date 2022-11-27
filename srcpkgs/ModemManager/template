@@ -1,34 +1,42 @@
 # Template file for 'ModemManager'
 pkgname=ModemManager
-version=1.18.6
+version=1.21.1r8438
 revision=1
-build_style=gnu-configure
+_commit=c7effc8390e49f42a1971587b2bb6e2ecf39e67f # 2022-11-27
+build_style=meson
 build_helper="gir"
-configure_args="--disable-static --with-polkit=permissive
- --with-udev-base-dir=/usr/lib/udev --enable-plugin-qcom-soc
- $(vopt_enable gir introspection) $(vopt_enable gir vala)"
-hostmakedepends="pkg-config autoconf $(vopt_if gir vala-devel)
- glib-devel libxslt-devel"
-makedepends="libglib-devel libgudev-devel polkit-devel libqmi-devel
- libmbim-devel libxslt-devel ppp $(vopt_if gir vala-devel)
- python3-gobject-devel python3-dbus-devel"
+#build_helper+=" qemu"
+configure_args="-Dsystemd_suspend_resume=false -Dsystemd_journal=false
+ -Dsystemdsystemunitdir=no -Dpolkit=permissive -Dudevdir=/usr/lib/udev
+ $(vopt_bool gir vapi)"
+hostmakedepends="pkg-config glib-devel libxslt-devel $(vopt_if gir vala-devel)
+ gettext-devel gettext-devel-tools polkit"
+makedepends="libglib-devel libgudev-devel polkit-devel libqmi-devel libmbim-devel"
 depends="hicolor-icon-theme ppp"
 checkdepends="dbus"
-short_desc="Mobile broadband modem management service"
-maintainer="Orphaned <orphan@voidlinux.org>"
+short_desc="Mobile broadband modem management service (git ${_commit:0:7})"
+maintainer="Jami Kettunen <jami.kettunen@somainline.org>"
 license="GPL-2.0-or-later"
 homepage="https://www.freedesktop.org/wiki/Software/ModemManager/"
-distfiles="${FREEDESKTOP_SITE}/${pkgname}/${pkgname}-${version}.tar.xz"
-checksum=d4f804b31cf504239c5f1d4973c62095c00cba1ee9abb503718dac6d146a470a
+changelog="https://gitlab.freedesktop.org/mobile-broadband/ModemManager/-/raw/main/NEWS"
+distfiles="https://gitlab.freedesktop.org/mobile-broadband/ModemManager/-/archive/${_commit}.tar.gz"
+checksum=185310b101f98c30f5c8de70020e14027a94cfa339c97d7ed51751f81ab6917f
+
+# FIXME:
+# [23/548] Generating data/org.freedesktop.ModemManager1.policy with a custom command
+# FAILED: data/org.freedesktop.ModemManager1.policy
+# /usr/bin/meson --internal msgfmthelper --msgfmt=/usr/bin/msgfmt data/org.freedesktop.ModemManager1.policy.in data/org.freedesktop.ModemManager1.policy xml /builddir/ModemManager-1.21.1r8438/po
+# /usr/bin/msgfmt: cannot locate ITS rules for data/org.freedesktop.ModemManager1.policy.in
+# ninja: build stopped: subcommand failed.
+# => ERROR: ModemManager-1.21.1r8438_1: do_build: '${make_cmd} -C ${meson_builddir} ${makejobs} ${make_build_args} ${make_build_target}' exited with 1
+# => ERROR:   in do_build() at common/build-style/meson.sh:133
 
 build_options="gir"
 build_options_default="gir"
 
-pre_configure() {
-	# Werror ___Guarantees___ failure to build for any non-trivial project
-	# in any machine that doesn't run the same software as upstream
-	vsed -i configure -e"s; -Werror;;g"
-}
+#pre_build() {
+#	sh
+#}
 
 ModemManager-devel_package() {
 	depends="libmm-glib>=${version}_${revision}"
