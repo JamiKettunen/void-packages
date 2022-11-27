@@ -1,29 +1,22 @@
 # Template file for 'libqrtr-glib'
 pkgname=libqrtr-glib
-version=1.2.2
+version=1.3.0r105
 revision=1
+_commit=756ff802fe9b7e7da8061caefb490d898c0cfe71 # 2022-11-27
 build_style=meson
-build_helper="gir qemu"
-configure_args="$(vopt_bool gir introspection)"
-hostmakedepends="pkg-config gtk-doc"
+build_helper="gir"
+hostmakedepends="pkg-config"
 makedepends="glib-devel"
-short_desc="Qualcomm IPC Router protocol helper library"
-maintainer="Jami Kettunen <jami.kettunen@protonmail.com>"
+short_desc="Qualcomm IPC Router protocol helper library (git ${_commit:0:7})"
+maintainer="Jami Kettunen <jami.kettunen@somainline.org>"
 license="LGPL-2.1-or-later"
 homepage="https://gitlab.freedesktop.org/mobile-broadband/libqrtr-glib"
 changelog="https://gitlab.freedesktop.org/mobile-broadband/libqrtr-glib/-/raw/main/NEWS"
-distfiles="https://gitlab.freedesktop.org/mobile-broadband/libqrtr-glib/-/archive/${version}/libqrtr-glib-${version}.tar.gz"
-checksum=c5cdf5ea91cbd2cf2758b2896064c7b1dfe7156063267df905f957ac69b6b763
+distfiles="https://gitlab.freedesktop.org/mobile-broadband/libqrtr-glib/-/archive/${_commit}.tar.gz"
+checksum=9486e5e7113a8b8a62ed2d82970bd5465e7efa38b424778e157225e98b7042fb
 
 build_options="gir"
 build_options_default="gir"
-
-# FIXME: drop gtk-doc generation from cross builds to avoid aarch64-musl & armv6l-musl
-# python relocation errors on CI that are not reproducible when building locally
-# https://github.com/void-linux/void-packages/runs/8028582126
-if [ "$CROSS_BUILD" ]; then
-	configure_args+=" -Dgtk_doc=false"
-fi
 
 libqrtr-glib-devel_package() {
 	depends="${sourcepkg}-${version}_${revision} ${makedepends}"
@@ -33,9 +26,6 @@ libqrtr-glib-devel_package() {
 		vmove usr/lib/pkgconfig
 		if [ "$build_option_gir" ]; then
 			vmove usr/share/gir-1.0
-		fi
-		if [ -z "$CROSS_BUILD" ]; then
-			vmove usr/share/gtk-doc
 		fi
 		vmove "usr/lib/*.so"
 	}
