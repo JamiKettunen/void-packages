@@ -4220,3 +4220,4 @@ libkshark.so.2 libkshark-2.1.1_1
 libcpp-hocon.so.0.3.0 cpp-hocon-0.3.0_5
 libfst.so.25 openfst-1.8.2_1
 libvosk.so vosk-api-0.3.43_1
+libgpiod.so.2 libgpiod-1.6.3_1
