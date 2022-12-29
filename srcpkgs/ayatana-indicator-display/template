@@ -1,17 +1,24 @@
 # Template file for 'ayatana-indicator-display'
 pkgname=ayatana-indicator-display
-version=22.9.1
+version=22.9.3
 revision=1
 build_style=cmake
-configure_args="-DENABLE_TESTS=ON"
+configure_args="-DENABLE_TESTS=ON $(vopt_bool lomiri ENABLE_LOMIRI_FEATURES)"
 hostmakedepends="pkg-config ubports-cmake-extras intltool"
-makedepends="libayatana-common-devel glib-devel libgudev-devel properties-cpp
- qt5-devel gtest-devel libqtdbustest-devel libqtdbusmock-devel"
-checkdepends="python3-dbusmock cppcheck"
+makedepends="libayatana-common-devel glib-devel properties-cpp gtest-devel
+ qt5-devel libqtdbustest-devel libqtdbusmock-devel
+ $(vopt_if lomiri libgudev-devel)"
+# TODO: xsct always a dep?
+depends="$(vopt_if lomiri xsct)"
+checkdepends="cppcheck $(vopt_if lomiri "python3-dbusmock ${depends}")"
 short_desc="The display menu indicator for Lomiri"
 maintainer="Jami Kettunen <jami.kettunen@protonmail.com>"
 license="GPL-3.0-only"
 homepage="https://github.com/AyatanaIndicators/ayatana-indicator-display"
 changelog="https://raw.githubusercontent.com/AyatanaIndicators/ayatana-indicator-display/main/ChangeLog"
 distfiles="https://github.com/AyatanaIndicators/ayatana-indicator-display/archive/refs/tags/${version}.tar.gz"
-checksum=97d46cb5d4ce514f736f865fb756634960f9d7ddfcf961e5c23077f73dad5ced
+checksum=814d4feefc50a2628e4822a8c40aebe280b4df89f3e54ad7d4cfb4c93bf99263
+
+build_options="lomiri"
+desc_option_lomiri="Build with Lomiri-specific libraries, schemas and media"
+build_options_default="lomiri"
