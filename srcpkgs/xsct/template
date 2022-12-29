@@ -1,0 +1,14 @@
+# Template file for 'xsct'
+pkgname=xsct
+version=1.9
+revision=1
+build_style=gnu-makefile
+makedepends="libXrandr-devel"
+short_desc="Lightweight utility to set the color temperature of the screen"
+maintainer="Jami Kettunen <jami.kettunen@protonmail.com>"
+license="Unlicense"
+homepage="https://github.com/faf0/sct"
+changelog="https://raw.githubusercontent.com/faf0/sct/master/CHANGELOG"
+distfiles="https://github.com/faf0/sct/archive/refs/tags/${version}.tar.gz"
+checksum=9eda5c007ccb28c00bb3224ec9d159742cd684b3f8e30939559cde8ac125ec67
+#replaces="sct>=0"
