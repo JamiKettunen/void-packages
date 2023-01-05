@@ -15,7 +15,7 @@ makedepends="qt5-devel qt5-declarative-devel qt5-svg-devel qt5-systems-devel
 # - https://gitlab.com/postmarketOS/pmaports/-/blob/feature/lomiri/lomiri/lomiri-ui-toolkit/0001-Remove-debian-isms-from-test-runner.patch
 # - https://gitlab.com/postmarketOS/pmaports/-/blob/feature/lomiri/lomiri/lomiri-ui-toolkit/0002-Don-t-build-app-launch-profiler.patch
 #checkdepends="dpkg xvfb-run dbus-test-runner dbus gdb"
-depends="qt5-feedback suru-icon-theme"
+depends="qt5-feedback qt5-graphicaleffects suru-icon-theme"
 short_desc="The Lomiri UI toolkit used in Ubuntu Touch (git ${_commit:0:7})"
 maintainer="Jami Kettunen <jami.kettunen@protonmail.com>"
 license="LGPL-3.0-only, CC-BY-SA-3.0"
@@ -36,6 +36,10 @@ checksum=63d79f4f3156f017be6d1c50ee3f8841b30ff6e1ff280e14411ad9bc86e6b3ea
 #do_check() {
 #	xvfb-run make check
 #}
+
+post_install() {
+	vinstall ${FILESDIR}/lomiri-uitk-suru-icons.sh 644 etc/profile.d
+}
 
 lomiri-ui-toolkit-devel_package() {
 	short_desc+=" - development files"
