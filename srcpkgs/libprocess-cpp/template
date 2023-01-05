@@ -4,6 +4,8 @@ version=3.0.2r157
 revision=1
 _commit=ee6d99a3278343f5fdcec7ed3dad38763e257310 # 2022-03-20
 build_style=cmake
+# FIXME: tests not building anymore with GCC 12 https://gitlab.com/ubports/development/core/lib-cpp/process-cpp/-/issues/1
+configure_args="-DENABLE_TESTS=OFF"
 hostmakedepends="pkg-config"
 makedepends="boost-devel properties-cpp gtest-devel"
 short_desc="Convenience library for handling processes (git ${_commit:0:7})"
