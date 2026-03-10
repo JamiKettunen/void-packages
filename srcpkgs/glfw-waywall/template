@@ -1,0 +1,23 @@
+# Template file for 'glfw-waywall'
+pkgname=glfw-waywall
+version=3.4
+revision=1
+build_style=cmake
+configure_args="-DBUILD_SHARED_LIBS=ON"
+hostmakedepends="pkg-config wayland-devel"
+makedepends="MesaLib-devel libXrandr-devel libXi-devel glu-devel libXcursor-devel
+ libxkbcommon-devel libXinerama-devel wayland-devel wayland-protocols"
+short_desc="Minecraft Wayland patched build of GLFW for usage with Waywall"
+maintainer="Jami Kettunen <jami.kettunen@protonmail.com>"
+license="Zlib"
+homepage="http://www.glfw.org"
+changelog="https://www.glfw.org/changelog.html"
+distfiles="https://github.com/glfw/glfw/archive/${version}.tar.gz"
+checksum=c038d34200234d071fae9345bc455e4a8f2f544ab60150765d7704e08f3dac01
+
+
+post_install() {
+	vmkdir usr/lib/waywall-glfw
+	mv ${DESTDIR}/usr/lib/*.so* "${DESTDIR}/usr/lib/waywall-glfw"
+	rm -rf "${DESTDIR}/usr"/{lib/{*.so*,cmake,pkgconfig},include}
+}
