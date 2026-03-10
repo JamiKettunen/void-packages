@@ -1,0 +1,22 @@
+# Template file for 'waywall'
+pkgname=waywall
+version=0.2026.06.13
+revision=1
+build_style="meson"
+# FIXME: drop after GCC15 default supporting C23 needed since 0.2026.01.11
+meson_cmd="env CC=clang meson"
+hostmakedepends="clang pkgconf"
+makedepends="wayland-protocols wayland-devel LuaJIT-devel libxkbcommon-devel
+ libglvnd-devel libspng-devel xorg-server-xwayland"
+depends="glfw-waywall"
+short_desc="Wayland compositor for Minecraft speedrunning"
+maintainer="Jami Kettunen <jami.kettunen@protonmail.com>"
+license="GPL-3.0-only"
+homepage="https://github.com/tesselslate/waywall"
+distfiles="${homepage}/archive/refs/tags/${version}.tar.gz"
+checksum=b64eefae63edf28b635f2d99e57c92cad293e9c83e494a37ad07c749c65a81f6
+
+
+post_install() {
+	vinstall build/waywall/waywall 0755 usr/bin
+}
