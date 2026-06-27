@@ -1,0 +1,13 @@
+# Template file for 'obs-wayland-hotkeys'
+pkgname=obs-wayland-hotkeys
+version=1.1.1
+revision=1
+build_style=cmake
+hostmakedepends="pkgconf"
+makedepends="obs-devel simde qt6-base-private-devel"
+short_desc="OBS plugin for global hotkeys support on Wayland"
+maintainer="Jami Kettunen <jami.kettunen@protonmail.com>"
+license="GPL-2.0-or-later"
+homepage="https://github.com/leia-uwu/obs-wayland-hotkeys"
+distfiles="${homepage}/archive/refs/tags/v${version}.tar.gz"
+checksum="fb9a40fd7c80c55f83d157ae1c4aa6dc2a328f77079581c4d4b6d6d1aa8087ec"
